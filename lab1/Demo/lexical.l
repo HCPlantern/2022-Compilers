@@ -2,13 +2,15 @@
 
 %{
     #include "syntax.tab.h"
-    struct tree_node* new_node(char* id);
-    struct tree_node {
+    /* left node is child and right node is the first sibling */
+    typedef struct tree_node {
         int lineno;
         char* id;
         char* text;
         struct tree_node* child;
-    };
+        struct tree_node* sibling;
+    }Node;
+    Node* new_node(char* id);
 %}
 
 digit [0-9]
@@ -25,11 +27,12 @@ ws {delim}+
 
 %%
 /* create node for terminals */
-struct tree_node* new_node(char* id) {
-    struct tree_node* node = (struct tree_node*)malloc(sizeof(struct tree_node));
+Node* new_node(char* id) {
+    Node* node = (Node*)malloc(sizeof(Node));
     node->lineno = yylineno;
     node->id = id;
     node->text = yytext;
     node->child = NULL;
+    node->sibling = NULL;
     printf("new node line: %d; id: %s; text: %s\n", yylineno, id, yytext);
 }

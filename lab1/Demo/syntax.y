@@ -1,7 +1,10 @@
 %{
+    #define YYDEBUG 1
     #include <stdio.h>
+    #include <stdlib.h>
     #include "lex.yy.c"
-    struct tree_node* build_tree(char* id, int arg_len, ...);
+    #include <stdarg.h>
+    Node* build_tree(char* id, int arg_len, ...);
 %}
 
 %union {
@@ -34,12 +37,34 @@ TERM : INT {$$ = build_tree("TERM", 1, $1);}
 
 
 %%
-/* build a tree for non-terminals and return this node */
-struct tree_node* build_tree(char* id, int arg_len, ...) {
-    struct tree_node* this = (struct tree_node*)malloc(sizeof(struct tree_node));
+
+/* build a tree for non-terminals and return this node as its value */
+Node *build_tree(char *id, int arg_len, ...) {
+    Node *this = (Node *) malloc(sizeof(Node));
     // TODO
+    this->sibling = NULL;
+    this->id = id;
+
+    va_list args;
+    Node *prev;
+    Node *next;
+
+    va_start(args, arg_len);
+    next = va_arg(args, Node *);
+
+    this->child = next;
+    printf("build child link %s -> %s", this->id, next->id);
+    if (arg_len >= 2) {
+        for (int i = 0; i < arg_len - 1; i++) {
+            prev = next;
+            next = va_arg(args, Node *);
+            prev->sibling = next;
+            printf("build sibling link %s -> %s", prev->id, next->id);
+        }
+    }
     return this;
 }
+
 yyerror(char* msg) {
     fprintf(stderr, "error: %s\n", msg);
 }
