@@ -18,6 +18,7 @@
 %type <node> CALC EXP FACTOR TERM
 
 %%
+
 CALC : /* empty */
     | EXP {$$ = build_tree("CALC", 1, $1);}
     ;
