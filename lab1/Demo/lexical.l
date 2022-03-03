@@ -3,7 +3,7 @@
 %{
     #include "syntax.tab.h"
     /* left node is child and right node is the first sibling */
-    typedef struct tree_node {
+    typedef struct Node {
         int lineno;
         char* id;
         char* text;
@@ -35,4 +35,5 @@ Node* new_node(char* id) {
     node->child = NULL;
     node->sibling = NULL;
     printf("new node line: %d; id: %s; text: %s\n", yylineno, id, yytext);
+    return node;
 }

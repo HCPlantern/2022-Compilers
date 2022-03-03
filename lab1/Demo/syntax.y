@@ -1,10 +1,11 @@
 %{
-    #define YYDEBUG 1
+    // #define YYDEBUG 1
     #include <stdio.h>
     #include <stdlib.h>
     #include "lex.yy.c"
     #include <stdarg.h>
     Node* build_tree(char* id, int arg_len, ...);
+    void print_tree(Node* root);
 %}
 
 %union {
@@ -20,7 +21,7 @@
 %%
 
 CALC : /* empty */
-    | EXP {$$ = build_tree("CALC", 1, $1);}
+    | EXP {$$ = build_tree("CALC", 1, $1); print_tree($$);}
     ;
 
 EXP : FACTOR {$$ = build_tree("EXP", 1, $1);}
@@ -40,30 +41,33 @@ TERM : INT {$$ = build_tree("TERM", 1, $1);}
 %%
 
 /* build a tree for non-terminals and return this node as its value */
-Node *build_tree(char *id, int arg_len, ...) {
-    Node *this = (Node *) malloc(sizeof(Node));
+Node* build_tree(char* id, int arg_len, ...) {
+    Node* this = (Node* ) malloc(sizeof(Node));
     // TODO
     this->sibling = NULL;
     this->id = id;
 
     va_list args;
-    Node *prev;
-    Node *next;
+    Node* prev;
+    Node* next;
 
     va_start(args, arg_len);
-    next = va_arg(args, Node *);
+    next = va_arg(args, Node*);
+    this->lineno = next->lineno;
 
     this->child = next;
-    printf("build child link %s -> %s", this->id, next->id);
-    if (arg_len >= 2) {
-        for (int i = 0; i < arg_len - 1; i++) {
-            prev = next;
-            next = va_arg(args, Node *);
-            prev->sibling = next;
-            printf("build sibling link %s -> %s", prev->id, next->id);
-        }
+    printf("build child link %s -> %s\n", this->id, next->id);
+    for (int i = 0; i < arg_len - 1; i++) {
+        prev = next;
+        next = va_arg(args, Node*);
+        prev->sibling = next;
+        printf("build sibling link %s -> %s\n", prev->id, next->id);
     }
     return this;
+}
+
+void print_tree(Node* root) {
+
 }
 
 yyerror(char* msg) {
