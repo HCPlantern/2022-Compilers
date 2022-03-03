@@ -3,3 +3,4 @@
 *.o
 *.tab.h
 *.output
+parser

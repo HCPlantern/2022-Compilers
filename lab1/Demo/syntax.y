@@ -1,7 +1,7 @@
 %{
     #include <stdio.h>
     #include "lex.yy.c"
-
+    struct tree_node* build_tree(char* id, int arg_len, ...);
 %}
 
 %union {
