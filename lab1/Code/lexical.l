@@ -2,13 +2,16 @@
 
 %{
     #include "syntax.tab.h"
+    #include <stdbool.h>
+    #include <string.h>
     /* left node is child and right node is the first sibling */
     typedef struct tree_node {
         int lineno;
-        char* id;
-        char* text;
+        char id[30];
+        char text[30];
         struct tree_node* child;
         struct tree_node* sibling;
+        bool is_terminal;
     }Node;
     Node* new_node(char* id);
 %}
@@ -31,10 +34,11 @@ ws {delim}+
 Node* new_node(char* id) {
     Node* node = (Node*)malloc(sizeof(Node));
     node->lineno = yylineno;
-    node->id = id;
-    node->text = yytext;
+    strcpy(node->id, id);
+    strcpy(node->text, yytext);
     node->child = NULL;
     node->sibling = NULL;
+    node->is_terminal = true;
     printf("new node line: %d; id: %s; text: %s\n", yylineno, id, yytext);
     return node;
 }

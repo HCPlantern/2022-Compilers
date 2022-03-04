@@ -1,5 +1,4 @@
 .vscode
-*.c
 *.o
 *.tab.h
 *.output

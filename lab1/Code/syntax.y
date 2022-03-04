@@ -5,7 +5,7 @@
     #include "lex.yy.c"
     #include <stdarg.h>
     Node* build_tree(char* id, int arg_len, ...);
-    void print_tree(Node* root);
+    void print_tree(Node* root, int indent);
 %}
 
 %union {
@@ -21,7 +21,7 @@
 %%
 
 CALC : /* empty */
-    | EXP {$$ = build_tree("CALC", 1, $1); print_tree($$);}
+    | EXP {$$ = build_tree("CALC", 1, $1); print_tree($$, 0);}
     ;
 
 EXP : FACTOR {$$ = build_tree("EXP", 1, $1);}
@@ -44,8 +44,9 @@ TERM : INT {$$ = build_tree("TERM", 1, $1);}
 Node* build_tree(char* id, int arg_len, ...) {
     Node* this = (Node* ) malloc(sizeof(Node));
     // TODO
+    strcpy(this->id, id);
     this->sibling = NULL;
-    this->id = id;
+    this->is_terminal = false;
 
     va_list args;
     Node* prev;
@@ -56,18 +57,38 @@ Node* build_tree(char* id, int arg_len, ...) {
     this->lineno = next->lineno;
 
     this->child = next;
-    //printf("build child link %s -> %s\n", this->id, next->id);
+    printf("build child link %s -> %s\n", this->id, next->id);
+    
     for (int i = 0; i < arg_len - 1; i++) {
         prev = next;
         next = va_arg(args, Node*);
         prev->sibling = next;
-        //printf("build sibling link %s -> %s\n", prev->id, next->id);
+        printf("build sibling link %s -> %s\n", prev->id, next->id);
     }
     return this;
 }
 
-void print_tree(Node* root) {
+void print_tree(Node* root, int indent) {
+    if (root == NULL) {
+        return;
+    }
+    // print the indent
+    for (int i = 0; i < indent; i++) {
+        printf(" ");
+    }
 
+    if (!root->is_terminal) {
+        printf("%s (%d)\n", root->id, root->lineno);
+    } else {
+        printf("%s: %s\n", root->id, root->text);
+    }
+
+    root = root->child;
+    while (root) {
+        print_tree(root, indent + 2);
+        root = root->sibling;
+    }
+    return;
 }
 
 yyerror(char* msg) {
