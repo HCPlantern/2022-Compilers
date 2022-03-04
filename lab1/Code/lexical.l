@@ -7,8 +7,8 @@
     /* left node is child and right node is the first sibling */
     typedef struct tree_node {
         int lineno;
-        char id[30];
-        char text[30];
+        char* id;
+        char* text;
         struct tree_node* child;
         struct tree_node* sibling;
         bool is_terminal;
@@ -34,8 +34,12 @@ ws {delim}+
 Node* new_node(char* id) {
     Node* node = (Node*)malloc(sizeof(Node));
     node->lineno = yylineno;
+
+    node->id = (char*) malloc((strlen(id) + 1) * sizeof(char));
     strcpy(node->id, id);
+    node->text = (char*) malloc((strlen(yytext) + 1) * sizeof(char));
     strcpy(node->text, yytext);
+    
     node->child = NULL;
     node->sibling = NULL;
     node->is_terminal = true;

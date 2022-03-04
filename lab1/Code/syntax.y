@@ -42,9 +42,10 @@ TERM : INT {$$ = build_tree("TERM", 1, $1);}
 
 /* build a tree for non-terminals and return this node as its value */
 Node* build_tree(char* id, int arg_len, ...) {
-    Node* this = (Node* ) malloc(sizeof(Node));
-    // TODO
+    Node* this = (Node*) malloc(sizeof(Node));
+    this->id = (char*) malloc((strlen(id) + 1) * sizeof(char));
     strcpy(this->id, id);
+
     this->sibling = NULL;
     this->is_terminal = false;
 
@@ -68,6 +69,7 @@ Node* build_tree(char* id, int arg_len, ...) {
     return this;
 }
 
+/* print tree from root in pre-order */
 void print_tree(Node* root, int indent) {
     if (root == NULL) {
         return;
