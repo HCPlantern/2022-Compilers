@@ -3,3 +3,4 @@
 *.tab.h
 *.output
 parser
+lab1/Code/syntax.tab.c

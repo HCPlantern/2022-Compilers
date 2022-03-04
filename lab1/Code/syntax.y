@@ -94,5 +94,5 @@ void print_tree(Node* root, int indent) {
 }
 
 yyerror(char* msg) {
-    fprintf(stderr, "error: %s\n", msg);
+    fprintf(stderr, "Error type B at Line %d: %s\n", yylineno, msg);
 }
