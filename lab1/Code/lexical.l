@@ -3,7 +3,7 @@
 %{
     #include "syntax.tab.h"
     /* left node is child and right node is the first sibling */
-    typedef struct Node {
+    typedef struct tree_node {
         int lineno;
         char* id;
         char* text;
@@ -24,6 +24,7 @@ ws {delim}+
 "-" {yylval.node = new_node("MINUS"); return MINUS;}
 "*" {yylval.node = new_node("STAR"); return STAR;}
 "/" {yylval.node = new_node("DIV"); return DIV;}
+. {printf("Error type A at Line %d: Mysterious characters \'%s\'\n", yylineno, yytext);}
 
 %%
 /* create node for terminals */

@@ -56,12 +56,12 @@ Node* build_tree(char* id, int arg_len, ...) {
     this->lineno = next->lineno;
 
     this->child = next;
-    printf("build child link %s -> %s\n", this->id, next->id);
+    //printf("build child link %s -> %s\n", this->id, next->id);
     for (int i = 0; i < arg_len - 1; i++) {
         prev = next;
         next = va_arg(args, Node*);
         prev->sibling = next;
-        printf("build sibling link %s -> %s\n", prev->id, next->id);
+        //printf("build sibling link %s -> %s\n", prev->id, next->id);
     }
     return this;
 }
