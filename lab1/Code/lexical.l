@@ -11,7 +11,7 @@ letter [_a-zA-Z]
 delim [ \t\n]
 ws {delim}+
 type int|float
-id {letter}[_a-zA-Z0-9]{0,31}
+id {letter}[_a-zA-Z0-9]*
 relop >|<|>=|<=|==|!=
 
 %%

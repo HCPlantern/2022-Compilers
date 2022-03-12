@@ -27,39 +27,30 @@ Node* build_tree(char* id, int arg_len, ...) {
     this->sibling = NULL;
     this->is_terminal = false;
 
-    // /* node is empty */
-    // if (arg_len == 0) {
-    //     Node* new = new_node("Epsilon");
-    //     this->child = new_node;
-    //     return this;
-    // }
-
     va_list args;
     Node* prev;
     Node* next;
 
     va_start(args, arg_len);
     next = va_arg(args, Node*);
-    this->lineno = next->lineno;
-
     this->child = next;
+
+    this->lineno = next->lineno;
     printf("build child link %s -> %s\n", this->id, next->id);
-    
+
     for (int i = 0; i < arg_len - 1; i++) {
         prev = next;
         next = va_arg(args, Node*);
-        // next could be NULL because of epsilon
-        if (next != NULL) {
-            prev->sibling = next;
-            printf("build sibling link %s -> %s\n", prev->id, next->id);
-        }
+        prev->sibling = next;
+        printf("build sibling link %s -> %s\n", prev->id, next->id);
+
     }
     return this;
 }
 
 /* print tree from root in pre-order */
 void print_tree(Node* root, int indent) {
-    if (root == NULL) {
+    if (root == NULL || !strcmp(root->id, "Epsilon")) {
         return;
     }
     // print the indent
@@ -70,7 +61,7 @@ void print_tree(Node* root, int indent) {
     if (!root->is_terminal) {
         printf("%s (%d)\n", root->id, root->lineno);
     } else {
-        if (strcmp(root->id, "INT") == 0 || strcmp(root->id, "ID") == 0 || strcmp(root->id, "TYPE")== 0 || strcmp(root->id ,"FLOAT") == 0)
+        if (!strcmp(root->id, "INT") || !strcmp(root->id, "ID") || !strcmp(root->id, "TYPE") || !strcmp(root->id ,"FLOAT"))
             printf("%s: %s\n", root->id, root->text);
         else
             printf("%s\n", root->id);

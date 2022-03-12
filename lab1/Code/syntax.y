@@ -31,7 +31,7 @@ Program : ExtDefList {$$ = build_tree("Program", 1, $1); print_tree($$, 0);}
     ;
 
 ExtDefList : ExtDef ExtDefList {$$ = build_tree("ExtDefList", 2, $1, $2);}
-    | /* empty */ {$$ = NULL; printf("NULL node is built.\n");}
+    | /* empty */ {$$ = new_node("Epsilon");}
     ;
 
 ExtDef : Specifier ExtDecList SEMI {$$ = build_tree("ExtDef", 3, $1, $2, $3);}
@@ -53,7 +53,7 @@ StructSpecifier : STRUCT OptTag LC DefList RC {$$ = build_tree("StructSpecifier"
     ;
 
 OptTag : ID {$$ = build_tree("OptTag", 1, $1);}
-    | /* empty */ {$$ = NULL; printf("NULL node is built.\n");}
+    | /* empty */ {$$ = new_node("Epsilon");}
     ;
 Tag : ID {$$ = build_tree("Tag", 1, $1);}
     ;
@@ -79,7 +79,7 @@ CompSt : LC DefList StmtList RC {$$ = build_tree("CompSt", 4, $1, $2, $3, $4);}
     ;
 
 StmtList : Stmt StmtList {$$ = build_tree("StmtList", 2, $1, $2);} 
-    | /* empty */ {$$ = NULL;printf("NULL node is built.\n");}
+    | /* empty */ {$$ = new_node("Epsilon");}
     ;
 
 Stmt : Exp SEMI {$$ = build_tree("Stmt", 2, $1, $2);}
@@ -92,7 +92,7 @@ Stmt : Exp SEMI {$$ = build_tree("Stmt", 2, $1, $2);}
 
 /* Local Definitions */
 DefList : Def DefList {$$ = build_tree("DefList", 2, $1, $2);}
-    | /* empty */ {$$ = NULL;printf("NULL node is built.\n");}
+    | /* empty */ {$$ = new_node("Epsilon");}
     ;
 
 Def : Specifier DecList SEMI {$$ = build_tree("Def", 3, $1, $2, $3);}

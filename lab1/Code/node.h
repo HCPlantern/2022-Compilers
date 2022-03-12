@@ -21,7 +21,6 @@ typedef struct tree_node {
 } Node;
 
 Node *new_node(char *id);
-// #define YYDEBUG 1
 Node *build_tree(char *id, int arg_len, ...);
 void print_tree(Node *root, int indent);
 
