@@ -4,3 +4,4 @@
 *.output
 parser
 lab1/Code/syntax.tab.c
+lex.yy.c
