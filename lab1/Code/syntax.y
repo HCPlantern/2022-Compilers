@@ -1,11 +1,7 @@
 %{
-    // #define YYDEBUG 1
-    #include <stdio.h>
-    #include <stdlib.h>
+    #include "node.h"
     #include "lex.yy.c"
-    #include <stdarg.h>
-    Node* build_tree(char* id, int arg_len, ...);
-    void print_tree(Node* root, int indent);
+
 %}
 
 %union {
@@ -18,13 +14,24 @@
 /* declared non-terminals */
 %type <node> Program ExtDefList ExtDef ExtDecList Specifier StructSpecifier OptTag Tag VarDec FunDec VarList ParamDec CompSt StmtList Stmt DefList Def DecList Dec Exp Args
 
+%right ASSIGNOP
+%left OR
+%left AND
+%left RELOP
+%left PLUS MINUS
+%left STAR DIV
+%right NOT
+%left DOT LP RP LB RB
+%nonassoc LOWER_THAN_ELSE
+%nonassoc ELSE
 %%
+
 /* High-level Definitions */
 Program : ExtDefList {$$ = build_tree("Program", 1, $1); print_tree($$, 0);}
     ;
 
 ExtDefList : ExtDef ExtDefList {$$ = build_tree("ExtDefList", 2, $1, $2);}
-    | /* empty */
+    | /* empty */ {$$ = NULL; printf("NULL node is built.\n");}
     ;
 
 ExtDef : Specifier ExtDecList SEMI {$$ = build_tree("ExtDef", 3, $1, $2, $3);}
@@ -46,7 +53,7 @@ StructSpecifier : STRUCT OptTag LC DefList RC {$$ = build_tree("StructSpecifier"
     ;
 
 OptTag : ID {$$ = build_tree("OptTag", 1, $1);}
-    | /* empty */
+    | /* empty */ {$$ = NULL; printf("NULL node is built.\n");}
     ;
 Tag : ID {$$ = build_tree("Tag", 1, $1);}
     ;
@@ -72,20 +79,20 @@ CompSt : LC DefList StmtList RC {$$ = build_tree("CompSt", 4, $1, $2, $3, $4);}
     ;
 
 StmtList : Stmt StmtList {$$ = build_tree("StmtList", 2, $1, $2);} 
-    | /* empty */
+    | /* empty */ {$$ = NULL;printf("NULL node is built.\n");}
     ;
 
 Stmt : Exp SEMI {$$ = build_tree("Stmt", 2, $1, $2);}
     | CompSt {$$ = build_tree("Stmt", 1, $1);}
     | RETURN Exp SEMI {$$ = build_tree("Stmt", 3, $1, $2, $3);}
-    | IF LP Exp RP Stmt {$$ = build_tree("Stmt", 5, $1, $2, $3, $4, $5);}
+    | IF LP Exp RP Stmt %prec LOWER_THAN_ELSE {$$ = build_tree("Stmt", 5, $1, $2, $3, $4, $5);}
     | IF LP Exp RP Stmt ELSE Stmt {$$ = build_tree("Stmt", 7, $1, $2, $3, $4, $5, $6, $7);}
     | WHILE LP Exp RP Stmt {$$ = build_tree("Stmt", 5, $1, $2, $3, $4, $5);}
     ;
 
 /* Local Definitions */
 DefList : Def DefList {$$ = build_tree("DefList", 2, $1, $2);}
-    | /* empty */
+    | /* empty */ {$$ = NULL;printf("NULL node is built.\n");}
     ;
 
 Def : Specifier DecList SEMI {$$ = build_tree("Def", 3, $1, $2, $3);}
@@ -96,7 +103,7 @@ DecList : Dec {$$ = build_tree("DecList", 1, $1);}
     ;
 
 Dec : VarDec {$$ = build_tree("Dec", 1, $1);}
-    | VarDec ASSIGNOP EXP {$$ = build_tree("Dec", 3, $1, $2, $3);}
+    | VarDec ASSIGNOP Exp {$$ = build_tree("Dec", 3, $1, $2, $3);}
     ;
 
 /* Expressions */
@@ -126,59 +133,3 @@ Args : Exp COMMA Args {$$ = build_tree("Args", 3, $1, $2, $3);}
 
 %%
 
-/* build a tree for non-terminals and return this node as its value */
-Node* build_tree(char* id, int arg_len, ...) {
-    Node* this = (Node*) malloc(sizeof(Node));
-    this->id = (char*) malloc((strlen(id) + 1) * sizeof(char));
-    strcpy(this->id, id);
-
-    this->sibling = NULL;
-    this->is_terminal = false;
-
-    va_list args;
-    Node* prev;
-    Node* next;
-
-    va_start(args, arg_len);
-    next = va_arg(args, Node*);
-    this->lineno = next->lineno;
-
-    this->child = next;
-    printf("build child link %s -> %s\n", this->id, next->id);
-    
-    for (int i = 0; i < arg_len - 1; i++) {
-        prev = next;
-        next = va_arg(args, Node*);
-        prev->sibling = next;
-        printf("build sibling link %s -> %s\n", prev->id, next->id);
-    }
-    return this;
-}
-
-/* print tree from root in pre-order */
-void print_tree(Node* root, int indent) {
-    if (root == NULL) {
-        return;
-    }
-    // print the indent
-    for (int i = 0; i < indent; i++) {
-        printf(" ");
-    }
-
-    if (!root->is_terminal) {
-        printf("%s (%d)\n", root->id, root->lineno);
-    } else {
-        printf("%s: %s\n", root->id, root->text);
-    }
-
-    root = root->child;
-    while (root) {
-        print_tree(root, indent + 2);
-        root = root->sibling;
-    }
-    return;
-}
-
-yyerror(char* msg) {
-    fprintf(stderr, "Error type B at Line %d: %s\n", yylineno, msg);
-}
