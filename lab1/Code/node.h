@@ -11,6 +11,7 @@
 extern int yylineno;
 extern char* yytext;
 extern void yyrestart(FILE*);
+extern int yyparse(void);
 extern int yyerror(char*);
 /* left node is child and right node is the first sibling */
 typedef struct tree_node {
@@ -22,8 +23,8 @@ typedef struct tree_node {
         int i;
         float f;
     }data;
-    struct tree_node *child;
-    struct tree_node *sibling;
+    struct tree_node* child;
+    struct tree_node* sibling;
     bool is_terminal;
 } Node;
 

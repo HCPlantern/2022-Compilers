@@ -5,7 +5,7 @@
 %}
 
 %union {
-    struct tree_node* node;
+    Node* node;
 }
 
 /* declared tokens */

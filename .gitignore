@@ -1,7 +1,7 @@
 .vscode
 *.o
 *.tab.h
-*.output
+syntax.output
 parser
 lab1/Code/syntax.tab.c
 lex.yy.c

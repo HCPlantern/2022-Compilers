@@ -22,7 +22,7 @@ Node* new_node(char* id) {
     node->child = NULL;
     node->sibling = NULL;
     node->is_terminal = true;
-    // printf("new node line: %d; id: %s; text: %s\n", yylineno, id, yytext);
+    printf("new node line: %d; id: %s; text: %s\n", yylineno, id, yytext);
     return node;
 }
 
@@ -44,13 +44,13 @@ Node* build_tree(char* id, int arg_len, ...) {
     this->child = next;
 
     this->lineno = next->lineno;
-    //printf("build child link %s -> %s\n", this->id, next->id);
+    printf("line :%d build child link %s -> %s\n",this->lineno, this->id, next->id);
 
     for (int i = 0; i < arg_len - 1; i++) {
         prev = next;
         next = va_arg(args, Node*);
         prev->sibling = next;
-        // printf("build sibling link %s -> %s\n", prev->id, next->id);
+        printf("line :%d build sibling link %s -> %s\n",this->lineno, prev->id, next->id);
 
     }
     return this;
@@ -58,6 +58,7 @@ Node* build_tree(char* id, int arg_len, ...) {
 
 /* print tree from root in pre-order */
 void print_tree(Node* root, int indent) {
+    // skip null and epsilon
     if (root == NULL || !strcmp(root->id, "Epsilon")) {
         return;
     }
