@@ -14,6 +14,7 @@ type int|float
 id {letter}[_a-zA-Z0-9]*
 relop >|<|>=|<=|==|!=
 
+
 %%
 
 {ws} {/* no actioin */}
@@ -46,6 +47,13 @@ relop >|<|>=|<=|==|!=
 "]" {yylval.node = new_node("RB"); return RB;}
 "{" {yylval.node = new_node("LC"); return LC;}
 "}" {yylval.node = new_node("RC"); return RC;}
+"\/\/" {
+	char c = input();
+	while (c != '\n') c = input();
+}
+\/\*([^*]*|(\*+[^/]))*\*\/ {}
+\*\/ {printf("Error Type A at Line %d: Unmatched \"*/\"\n", yylineno);}
+
 
 . {printf("Error type A at Line %d: Mysterious characters \'%s\'\n", yylineno, yytext);}
 
