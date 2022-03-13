@@ -8,13 +8,21 @@ Node* new_node(char* id) {
 
     node->id = (char*) malloc((strlen(id) + 1) * sizeof(char));
     strcpy(node->id, id);
-    node->text = (char*) malloc((strlen(yytext) + 1) * sizeof(char));
-    strcpy(node->text, yytext);
+    if (!strcmp(id, "ID") || !strcmp(id, "TYPE")) {
+        node->data.text = (char*) malloc((strlen(yytext) + 1) * sizeof(char));
+        strcpy(node->data.text, yytext);
+    }
+    if (!strcmp(id, "INT")) {
+        node->data.i = atoi(yytext);
+    }
+    if (!strcmp(id, "FLOAT")) {
+        node->data.f = atof(yytext);
+    }
 
     node->child = NULL;
     node->sibling = NULL;
     node->is_terminal = true;
-    printf("new node line: %d; id: %s; text: %s\n", yylineno, id, yytext);
+    // printf("new node line: %d; id: %s; text: %s\n", yylineno, id, yytext);
     return node;
 }
 
@@ -36,13 +44,13 @@ Node* build_tree(char* id, int arg_len, ...) {
     this->child = next;
 
     this->lineno = next->lineno;
-    printf("build child link %s -> %s\n", this->id, next->id);
+    //printf("build child link %s -> %s\n", this->id, next->id);
 
     for (int i = 0; i < arg_len - 1; i++) {
         prev = next;
         next = va_arg(args, Node*);
         prev->sibling = next;
-        printf("build sibling link %s -> %s\n", prev->id, next->id);
+        // printf("build sibling link %s -> %s\n", prev->id, next->id);
 
     }
     return this;
@@ -61,8 +69,13 @@ void print_tree(Node* root, int indent) {
     if (!root->is_terminal) {
         printf("%s (%d)\n", root->id, root->lineno);
     } else {
-        if (!strcmp(root->id, "INT") || !strcmp(root->id, "ID") || !strcmp(root->id, "TYPE") || !strcmp(root->id ,"FLOAT"))
-            printf("%s: %s\n", root->id, root->text);
+        if (!strcmp(root->id, "ID") || !strcmp(root->id, "TYPE")) {
+            printf("%s: %s\n", root->id, root->data.text);
+        }
+        else if (!strcmp(root->id, "INT"))
+            printf("%s: %d\n", root->id, root->data.i);
+        else if ( !strcmp(root->id ,"FLOAT"))
+            printf("%s: %f\n", root->id, root->data.f);
         else
             printf("%s\n", root->id);
     }
@@ -75,6 +88,7 @@ void print_tree(Node* root, int indent) {
     return;
 }
 
-yyerror(char* msg) {
+int yyerror(char* msg) {
     fprintf(stderr, "Error type B at Line %d: %s\n", yylineno, msg);
+    return 0;
 }

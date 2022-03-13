@@ -10,11 +10,18 @@
 
 extern int yylineno;
 extern char* yytext;
+extern void yyrestart(FILE*);
+extern int yyerror(char*);
 /* left node is child and right node is the first sibling */
 typedef struct tree_node {
     int lineno;
     char *id;
-    char *text;
+    // 3 different types: string, int and float
+    union Data{
+        char* text;
+        int i;
+        float f;
+    }data;
     struct tree_node *child;
     struct tree_node *sibling;
     bool is_terminal;
