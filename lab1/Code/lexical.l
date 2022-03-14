@@ -49,11 +49,26 @@ relop >|<|>=|<=|==|!=
 "}" {yylval.node = new_node("RC"); return RC;}
 \/\/ {
 	char c = input();
-	while (c != '\n') c = input();
-	printf("find // comment\n");
+	while (c != '\0' && c != '\n') c = input();
 }
-\/\*([^*]*|(\*+[^/]))*\*\/ {printf("find /**/ comment\n");}
-\/\* {printf("Error Type A at Line %d: Unmatched \"/*\"\n", yylineno);}
+"/*" {
+	char c;
+	int currentlineno = yylineno;
+	while ('\0' != (c = input())) {
+		if (c == '*') {
+			while ('*' == (c = input()));
+			printf("%c ", c);
+			if (c == '/') {
+				break;
+			}
+		}
+	}
+	if (c == '\0') {
+		printf("Error Type A at line %d: Unmatched \"/*\"\n", currentlineno);
+	}
+}
+
+\/\* {printf("Error Type A at LIne %d: Unmatched \"/*\"\n", yylineno);}
 
 \*\/ {printf("Error Type A at Line %d: Unmatched \"*/\"\n", yylineno);}
 
