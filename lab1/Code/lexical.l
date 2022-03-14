@@ -57,7 +57,6 @@ relop >|<|>=|<=|==|!=
 	while ('\0' != (c = input())) {
 		if (c == '*') {
 			while ('*' == (c = input()));
-			printf("%c ", c);
 			if (c == '/') {
 				break;
 			}
