@@ -72,6 +72,6 @@ relop >|<|>=|<=|==|!=
 \*\/ {printf("Error Type A at Line %d: Unmatched \"*/\"\n", yylineno);}
 
 
-. {printf("Error type A at Line %d: Mysterious characters \'%s\'\n", yylineno, yytext);}
+. {printf("Error type A at Line %d: Mysterious characters \'%s\'.\n", yylineno, yytext);}
 
 %%

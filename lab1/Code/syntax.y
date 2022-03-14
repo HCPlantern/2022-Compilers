@@ -29,16 +29,16 @@
 /* High-level Definitions */
 Program : ExtDefList {$$ = build_tree("Program", 1, $1); print_tree($$, 0);}
     ;
-
+/* 0 or some ExtDef */
 ExtDefList : ExtDef ExtDefList {$$ = build_tree("ExtDefList", 2, $1, $2);}
     | /* empty */ {$$ = new_node("Epsilon");}
     ;
-
+/* def of global var, struct and function */
 ExtDef : Specifier ExtDecList SEMI {$$ = build_tree("ExtDef", 3, $1, $2, $3);}
     | Specifier SEMI {$$ = build_tree("ExtDef", 2, $1, $2);}
     | Specifier FunDec CompSt {$$ = build_tree("ExtDef", 3, $1, $2, $3);}
     ;
-
+/* 1 or some def of vardec: int global1, global2 */
 ExtDecList : VarDec {$$ = build_tree("ExtDecList", 1, $1);}
     | VarDec COMMA ExtDecList {$$ = build_tree("ExtDefList", 3, $1, $2, $3);}
     ;
