@@ -47,11 +47,14 @@ relop >|<|>=|<=|==|!=
 "]" {yylval.node = new_node("RB"); return RB;}
 "{" {yylval.node = new_node("LC"); return LC;}
 "}" {yylval.node = new_node("RC"); return RC;}
-"\/\/" {
+\/\/ {
 	char c = input();
 	while (c != '\n') c = input();
+	printf("find // comment\n");
 }
-\/\*([^*]*|(\*+[^/]))*\*\/ {}
+\/\*([^*]*|(\*+[^/]))*\*\/ {printf("find /**/ comment\n");}
+\/\* {printf("Error Type A at Line %d: Unmatched \"/*\"\n", yylineno);}
+
 \*\/ {printf("Error Type A at Line %d: Unmatched \"*/\"\n", yylineno);}
 
 
