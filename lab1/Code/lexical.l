@@ -5,8 +5,11 @@
     #include "syntax.tab.h"
 %}
 
-int 0|([1-9][0-9]*)|(0[0-7]{1,10})|(0[0-3]([0-7]{10}))|(0(x|X)[0-9a-fA-F]{1,8})
-float [0-9]+\.[0-9]+
+dec 0|([1-9][0-9]*)
+oct (0[0-7]{1,10})|(0[0-3]([0-7]{10}))
+hex 0(x|X)[0-9a-fA-F]{1,8}
+
+float ([0-9]+\.[0-9]+)|((({dec}+\.{dec}*)|({dec}*\.{dec}+))[eE][+-]?{dec})
 letter [_a-zA-Z]
 delim [ \t\n]
 ws {delim}+
@@ -18,8 +21,10 @@ relop >|<|>=|<=|==|!=
 %%
 
 {ws} {/* no actioin */}
-{int} {yylval.node = new_node("INT"); return INT;}
+{dec}|{oct}|{hex} {yylval.node = new_node("INT"); return INT;}
 {float} {yylval.node = new_node("FLOAT"); return FLOAT;}
+[nN][aA][nN] {yylval.node = new_node("FLOAT"); return FLOAT;}
+[iI][nN][fF]([iI][nN][iI][tT][yY])? {yylval.node = new_node("FLOAT"); return FLOAT;}
 
 {type} {yylval.node = new_node("TYPE"); return TYPE;}
 "struct" {yylval.node = new_node("STRUCT"); return STRUCT;}
