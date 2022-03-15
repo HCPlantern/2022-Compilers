@@ -13,7 +13,8 @@ extern int yylineno;
 extern char* yytext;
 extern void yyrestart(FILE*);
 extern int yyparse(void);
-// extern int yyerror(char*);
+extern void yyerror();
+
 /* left node is child and right node is the first sibling */
 typedef struct tree_node {
     int lineno;
@@ -33,5 +34,5 @@ Node *new_node(char *id);
 Node *build_tree(char *id, int arg_len, ...);
 void print_tree(Node *root, int indent);
 void print_errorA(int lineno, char* msg, char* text);
-
+void print_errorB(int lineno, char* msg);
 #endif
