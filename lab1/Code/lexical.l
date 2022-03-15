@@ -81,7 +81,7 @@ relop >|<|>=|<=|==|!=
 
 0[_0-9a-zA-Z]+ {print_errorA(yylineno, "Invalid octal number:", yytext);}
 
-({dec}\.)|(\.{dec})|({dec}*\.{dec}+))[eE][+-]? {print_errorA(yylineno, "Invalid float number:", yytext);}
+({dec}\.)|(\.{dec})|((({dec}*\.{dec}+))[eE][+-]?) {print_errorA(yylineno, "Invalid float number:", yytext);}
 
 . {print_errorA(yylineno, "Mysterious characters", yytext);}
 
