@@ -48,29 +48,29 @@ relop >|<|>=|<=|==|!=
 "{" {yylval.node = new_node("LC"); return LC;}
 "}" {yylval.node = new_node("RC"); return RC;}
 \/\/ {
-	char c = input();
-	while (c != '\0' && c != '\n') c = input();
+    char c = input();
+    while (c != '\0' && c != '\n') c = input();
 }
 "/*" {
-	char c;
-	int currentlineno = yylineno;
-	while ('\0' != (c = input())) {
-		if (c == '*') {
-			while ('*' == (c = input()));
-			printf("%c ", c);
-			if (c == '/') {
-				break;
-			}
-		}
-	}
-	if (c == '\0') {
-		printf("Error Type A at line %d: Unmatched \"/*\"\n", currentlineno);
-	}
+    char c;
+    int currentlineno = yylineno;
+    while ('\0' != (c = input())) {
+        if (c == '*') {
+            while ('*' == (c = input()));
+            // printf("%c ", c);
+            if (c == '/') {
+                break;
+            }
+        }
+    }
+    if (c == '\0') {
+        print_errorA(currentlineno, "Unmatched \"/*\"\n");
+    }
 }
 
-\/\* {printf("Error Type A at LIne %d: Unmatched \"/*\"\n", yylineno);}
+\/\* {print_errorA(yylineno, "Unmatched \"/*\"\n");}
 
-\*\/ {printf("Error Type A at Line %d: Unmatched \"*/\"\n", yylineno);}
+\*\/ {print_errorA(yylineno, "Unmatched \"*/\"\n");}
 
 
 . {printf("Error type A at Line %d: Mysterious characters \'%s\'.\n", yylineno, yytext);}

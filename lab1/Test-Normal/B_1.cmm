@@ -6,7 +6,7 @@ struct Student
 
 struct Student test(struct Student a) 
 {
-	return a;
+    return a;
 }
 
 int main()
