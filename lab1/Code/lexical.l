@@ -53,33 +53,34 @@ relop >|<|>=|<=|==|!=
 "{" {yylval.node = new_node("LC"); return LC;}
 "}" {yylval.node = new_node("RC"); return RC;}
 \/\/ {
-	char c = input();
-	while (c != '\0' && c != '\n') c = input();
+    char c = input();
+    while (c != '\0' && c != '\n') c = input();
 }
 "/*" {
-	char c;
-	int currentlineno = yylineno;
-	while ('\0' != (c = input())) {
-		if (c == '*') {
-			while ('*' == (c = input()));
-			if (c == '/') {
-				break;
-			}
-		}
-	}
-	if (c == '\0') {
-		printf("Error Type A at line %d: Unmatched \"/*\"\n", currentlineno);
-	}
+    char c;
+    int currentlineno = yylineno;
+    while ('\0' != (c = input())) {
+        if (c == '*') {
+            while ('*' == (c = input()));
+            // printf("%c ", c);
+            if (c == '/') {
+                break;
+            }
+        }
+    }
+    if (c == '\0') {
+        print_errorA(currentlineno, "Unmatched", "/*");
+    }
 }
 
-\/\* {printf("Error Type A at LIne %d: Unmatched \"/*\"\n", yylineno);}
+\/\* {print_errorA(yylineno, "Unmatched", "/*");}
 
-\*\/ {printf("Error Type A at Line %d: Unmatched \"*/\"\n", yylineno);}
+\*\/ {print_errorA(yylineno, "Unmatched", "*/");}
 
-0(x|X)[_0-9a-zA-Z]* {printf("Error type A at Line %d: Invalid hexical number: \'%s\'.\n", yylineno, yytext);}
+0(x|X)[_0-9a-zA-Z]* {print_errorA(yylineno, "Invalid hexical number:", yytext);}
 
-0[_0-9a-zA-Z]+ {printf("Error type A at Line %d: Invalid octal number: \'%s\'.\n", yylineno, yytext);}
+0[_0-9a-zA-Z]+ {print_errorA(yylineno, "Invalid octal number:", yytext);}
 
-. {printf("Error type A at Line %d: Mysterious characters \'%s\'.\n", yylineno, yytext);}
+. {print_errorA(yylineno, "Mysterious characters", yytext);}
 
 %%

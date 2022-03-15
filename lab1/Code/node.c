@@ -1,6 +1,7 @@
 
 #include "node.h"
 
+bool has_error = false;
 /* create node for terminals */
 Node* new_node(char* id) {
     Node* node = (Node*)malloc(sizeof(Node));
@@ -60,8 +61,8 @@ Node* build_tree(char* id, int arg_len, ...) {
 
 /* print tree from root in pre-order */
 void print_tree(Node* root, int indent) {
-    // skip null and epsilon
-    if (root == NULL || !strcmp(root->id, "Epsilon")) {
+    // skip if has error and null and epsilon
+    if (has_error || root == NULL || !strcmp(root->id, "Epsilon")) {
         return;
     }
     // print the indent
@@ -91,7 +92,13 @@ void print_tree(Node* root, int indent) {
     return;
 }
 
+void print_errorA(int lineno, char* msg, char* text) {
+    printf("Error Type A at line %d: %s '%s'\n", lineno, msg, text);
+    has_error = true;
+}
+
 int yyerror(char* msg, int line) {
     fprintf(stderr, "Error type B at Line %d: %s\n", line, msg);
+    has_error = true;
     return 0;
 }
