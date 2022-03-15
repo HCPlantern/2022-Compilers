@@ -19,7 +19,8 @@ Node* new_node(char* id) {
         node->data.i = strtoul(yytext, NULL, 0);
     }
     if (!strcmp(id, "FLOAT")) {
-        node->data.f = atof(yytext);
+        // node->data.f = atof(yytext);
+        node->data.f = strtof(yytext, NULL);
     }
 
     node->child = NULL;
