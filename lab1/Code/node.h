@@ -32,6 +32,6 @@ typedef struct tree_node {
 Node *new_node(char *id);
 Node *build_tree(char *id, int arg_len, ...);
 void print_tree(Node *root, int indent);
-void print_errorA(int lineno, char* msg);
+void print_errorA(int lineno, char* msg, char* text);
 
 #endif
