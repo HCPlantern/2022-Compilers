@@ -14,7 +14,8 @@ Node* new_node(char* id) {
         strcpy(node->data.text, yytext);
     }
     if (!strcmp(id, "INT")) {
-        node->data.i = atoi(yytext);
+        // node->data.i = atoi(yytext);
+        node->data.i = strtoul(yytext, NULL, 0);
     }
     if (!strcmp(id, "FLOAT")) {
         node->data.f = atof(yytext);

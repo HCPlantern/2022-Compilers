@@ -1,0 +1,8 @@
+int main() {
+    int i = 107;
+    int j = 017;
+    int z = 0x0f;
+    int z2 = 0XF;
+    //int invalid1 = 08;
+    //int invalid2 = 0x;
+}
