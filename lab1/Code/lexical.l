@@ -5,7 +5,7 @@
     #include "syntax.tab.h"
 %}
 
-int 0|([1-9][0-9]*)
+int 0|([1-9][0-9]*)|(0[0-7]{1,10})|(0[0-3]([0-7]{10}))|(0(x|X)[0-9a-fA-F]{1,8})
 float [0-9]+\.[0-9]+
 letter [_a-zA-Z]
 delim [ \t\n]
@@ -71,6 +71,9 @@ relop >|<|>=|<=|==|!=
 
 \*\/ {printf("Error Type A at Line %d: Unmatched \"*/\"\n", yylineno);}
 
+0(x|X)[_0-9a-zA-Z]* {printf("Error type A at Line %d: Invalid hexical number: \'%s\'.\n", yylineno, yytext);}
+
+0[_0-9a-zA-Z]+ {printf("Error type A at Line %d: Invalid octal number: \'%s\'.\n", yylineno, yytext);}
 
 . {printf("Error type A at Line %d: Mysterious characters \'%s\'.\n", yylineno, yytext);}
 

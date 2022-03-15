@@ -6,6 +6,7 @@
 #include <stdarg.h>
 #include <stdbool.h>
 #include <string.h>
+#include <inttypes.h>
 // #define YYDEBUG 1
 
 extern int yylineno;
@@ -20,7 +21,7 @@ typedef struct tree_node {
     // 3 different types: string, int and float
     union Data{
         char* text;
-        int i;
+        uint32_t i;
         float f;
     }data;
     struct tree_node* child;
