@@ -38,6 +38,7 @@ ExtDef : Specifier ExtDecList SEMI {$$ = build_tree("ExtDef", 3, $1, $2, $3);}
     | Specifier SEMI {$$ = build_tree("ExtDef", 2, $1, $2);}
     | Specifier FunDec CompSt {$$ = build_tree("ExtDef", 3, $1, $2, $3);}
     | Specifier ExtDecList ASSIGNOP error SEMI {print_errorB($2->lineno, ", global variable cannot be initialized.");}
+    | error SEMI {print_errorB($$->lineno, "");}
     ;
 /* 1 or some def of vardec: int global1, global2 */
 ExtDecList : VarDec {$$ = build_tree("ExtDecList", 1, $1);}
@@ -78,7 +79,7 @@ ParamDec : Specifier VarDec {$$ = build_tree("ParamDec", 2, $1, $2);}
 
 /* Statements */
 CompSt : LC DefList StmtList RC {$$ = build_tree("CompSt", 4, $1, $2, $3, $4);}
-    | error RC {print_errorB($$->lineno, "");}
+    /* | error RC {print_errorB($$->lineno, "82");} */
     ;
 
 StmtList : Stmt StmtList {$$ = build_tree("StmtList", 2, $1, $2);} 
@@ -101,7 +102,7 @@ DefList : Def DefList {$$ = build_tree("DefList", 2, $1, $2);}
     ;
 
 Def : Specifier DecList SEMI {$$ = build_tree("Def", 3, $1, $2, $3);}
-    | error SEMI {print_errorB($$->lineno, ", missing ';'.");}
+    | Specifier error SEMI {print_errorB($$->lineno, " before ';'.");}
     ;
 
 DecList : Dec {$$ = build_tree("DecList", 1, $1);}
