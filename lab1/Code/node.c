@@ -2,6 +2,7 @@
 #include "node.h"
 
 bool has_error = false;
+int prev_line = 0;
 /* create node for terminals */
 Node* new_node(char* id) {
     Node* node = (Node*)malloc(sizeof(Node));
@@ -97,8 +98,14 @@ void print_errorA(int lineno, char* msg, char* text) {
     has_error = true;
 }
 
-int yyerror(char* msg, int line) {
-    fprintf(stderr, "Error type B at Line %d: %s\n", line, msg);
+void yyerror(char* msg) {
+    // fprintf(stderr, "Error type B at Line %d: %s\n", yylineno, msg);
+}
+
+void print_errorB(int lineno, char* msg) {
+    if (!(lineno == prev_line)) {
+        printf("Error type B at Line %d: syntax error%s\n", lineno, msg);
+        prev_line = lineno;
+    }
     has_error = true;
-    return 0;
 }
