@@ -9,7 +9,7 @@ dec 0|([1-9][0-9]*)
 oct (0[0-7]{1,10})|(0[0-3]([0-7]{10}))
 hex 0(x|X)[0-9a-fA-F]{1,8}
 
-float ([0-9]+\.[0-9]+)|((({dec}+\.{dec}*)|({dec}*\.{dec}+))[eE][+-]?{dec})
+float ([0-9]+\.[0-9]+)|((([0-9]+\.[0-9]*)|([0-9]*\.[0-9]+))[eE][+-]?[0-9]+)
 letter [_a-zA-Z]
 delim [ \t\n]
 ws {delim}+
@@ -21,8 +21,9 @@ relop >|<|>=|<=|==|!=
 %%
 
 {ws} {/* no actioin */}
-{dec}|{oct}|{hex} {yylval.node = new_node("INT"); return INT;}
-{float} {yylval.node = new_node("FLOAT"); return FLOAT;}
+{dec}|{oct}|{hex} {/*printf("int\n");*/ yylval.node = new_node("INT"); return INT;}
+(([0-9]+\.[0-9]*)|([0-9]*\.[0-9]+)|\.)[eE][+-]?[0-9]*\.[0-9]* {print_errorA(yylineno, "Illegal float number:", yytext);}
+{float} {/*printf("float\n");*/ yylval.node = new_node("FLOAT"); return FLOAT;}
 [nN][aA][nN] {yylval.node = new_node("FLOAT"); return FLOAT;}
 [iI][nN][fF]([iI][nN][iI][tT][yY])? {yylval.node = new_node("FLOAT"); return FLOAT;}
 
@@ -77,11 +78,10 @@ relop >|<|>=|<=|==|!=
 
 \*\/ {print_errorA(yylineno, "Unmatched", "*/");}
 
-0(x|X)[_0-9a-zA-Z]* {print_errorA(yylineno, "Invalid hexical number:", yytext);}
+0(x|X)[_0-9a-zA-Z]* {print_errorA(yylineno, "Illegal hexical number:", yytext);}
 
-0[_0-9a-zA-Z]+ {print_errorA(yylineno, "Invalid octal number:", yytext);}
+0[_0-9a-zA-Z]+ {print_errorA(yylineno, "Illegal octal number:", yytext);}
 
-({dec}\.)|(\.{dec})|((({dec}*\.{dec}+))[eE][+-]?) {print_errorA(yylineno, "Invalid float number:", yytext);}
 
 . {print_errorA(yylineno, "Mysterious characters", yytext);}
 
