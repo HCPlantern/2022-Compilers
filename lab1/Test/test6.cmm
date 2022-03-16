@@ -1,0 +1,8 @@
+int a; int b;
+struct node {
+    int a;
+};
+
+int main() {
+    i = 1;
+}
