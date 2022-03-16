@@ -1,0 +1,19 @@
+int main()
+{
+    /*
+    int i = 1;
+    float x1 = 002.45E10;
+    // after reporting the error in line 7, the lexer would not analysis the following lines.
+    // (the comment in line 6 is resolved, however error B rises)
+    float x2 = 45.e-1.1;
+    float x3 = .45e-3;
+    float x4 = 34.34E+1.2;
+    */
+    float X_1 = 3.80E-7;
+    float X_2 = 345.2e_4;
+    float X_3 = 2.76E+3;
+    float X_4 = .994E-2;
+    float X_5 = 11.e1;
+    float X_6 = -0.4E-03;
+    float result = (15.E-1 + X_3) + X_6;
+}
