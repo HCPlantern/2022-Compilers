@@ -16,6 +16,8 @@ ws {delim}+
 type int|float
 id {letter}[_a-zA-Z0-9]*
 relop >|<|>=|<=|==|!=
+nan [nN][aA][nN]
+inf [iI][nN][fF]([iI][nN][iI][tT][yY])?
 
 
 %%
@@ -24,6 +26,7 @@ relop >|<|>=|<=|==|!=
 (([0-9]+\.[0-9]*)|([0-9]*\.[0-9]+)|\.)[eE][+-]?[0-9]*\.[0-9]* {print_errorA(yylineno, "Illegal float number:", yytext);}
 {float} {/*printf("float\n");*/ yylval.node = new_node("FLOAT"); return FLOAT;}
 {dec}|{oct}|{hex} {/*printf("int\n");*/ yylval.node = new_node("INT"); return INT;}
+"strtof(\""({nan}|{inf})"\")" {printf("shortcut\n");yylval.node = new_node("FLOAT"); return FLOAT;}
 
 {type} {yylval.node = new_node("TYPE"); return TYPE;}
 "struct" {yylval.node = new_node("STRUCT"); return STRUCT;}
@@ -74,7 +77,6 @@ relop >|<|>=|<=|==|!=
 
 \/\* {print_errorA(yylineno, "Unmatched", "/*");}
 
-\*\/ {print_errorA(yylineno, "Unmatched", "*/");}
 
 0(x|X)[_0-9a-zA-Z]* {print_errorA(yylineno, "Illegal hexical number:", yytext);}
 

@@ -16,4 +16,5 @@ int main()
     float X_6 = -0.4E-03;
     float result = (15.E-1 + X_3) + X_6;
     */
+    float inf = strtof("iNfi");
 }
