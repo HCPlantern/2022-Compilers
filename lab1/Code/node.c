@@ -3,10 +3,12 @@
 
 bool has_error = false;
 int prev_error_line = 0;
-/* create node for terminals */
+
 int start_with_strtof(const char* yytext) {
     return (strlen(yytext) >= 13 && yytext[0] == 's');
 }
+
+/* create node for terminals */
 Node* new_node(char* id) {
     Node* node = (Node*)malloc(sizeof(Node));
     node->lineno = yylineno;
@@ -88,9 +90,8 @@ void print_tree(Node* root, int indent) {
     if (!root->is_terminal) {
         printf("%s (%d)\n", root->id, root->lineno);
     } else {
-        if (!strcmp(root->id, "ID") || !strcmp(root->id, "TYPE")) {
+        if (!strcmp(root->id, "ID") || !strcmp(root->id, "TYPE"))
             printf("%s: %s\n", root->id, root->data.text);
-        }
         else if (!strcmp(root->id, "INT"))
             printf("%s: %d\n", root->id, root->data.i);
         else if ( !strcmp(root->id ,"FLOAT"))
