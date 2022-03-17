@@ -9,7 +9,7 @@
 }
 
 /* declared tokens */
-%token <node> INT FLOAT ID SEMI COMMA ASSIGNOP RELOP PLUS MINUS STAR DIV AND OR DOT NOT TYPE LP RP LB RB LC RC STRUCT RETURN IF ELSE WHILE
+%token <node> INT FLOAT ID SEMI COMMA ASSIGNOP RELOP PLUS MINUS STAR DIV AND OR DOT NOT TYPE LP RP LB RB LC RC STRUCT RETURN IF ELSE WHILE TILDE 
 
 /* declared non-terminals */
 %type <node> Program ExtDefList ExtDef ExtDecList Specifier StructSpecifier OptTag Tag VarDec FunDec VarList ParamDec CompSt StmtList Stmt DefList Def DecList Dec Exp Args
@@ -18,7 +18,7 @@
 %left OR
 %left AND
 %left RELOP
-%left PLUS MINUS
+%left PLUS MINUS TILDE 
 %left STAR DIV
 %right NOT
 %left DOT LP RP LB RB
@@ -127,6 +127,7 @@ Exp : Exp ASSIGNOP Exp {$$ = build_tree("Exp", 3, $1, $2, $3);}
     | LP Exp RP {$$ = build_tree("Exp", 3, $1, $2, $3);}
     | MINUS Exp {$$ = build_tree("Exp", 2, $1, $2);}
     | NOT Exp {$$ = build_tree("Exp", 2, $1, $2);}
+    | TILDE Exp{$$ = build_tree("Exp", 2, $1, $2);}
     | ID LP Args RP {$$ = build_tree("Exp", 4, $1, $2, $3, $4);}
     | ID LP RP {$$ = build_tree("Exp", 3, $1, $2, $3);}
     | Exp LB Exp RB {$$ = build_tree("Exp", 4, $1, $2, $3, $4);}
