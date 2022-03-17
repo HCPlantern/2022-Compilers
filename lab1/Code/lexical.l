@@ -23,8 +23,6 @@ relop >|<|>=|<=|==|!=
 {ws} {/* no actioin */}
 (([0-9]+\.[0-9]*)|([0-9]*\.[0-9]+)|\.)[eE][+-]?[0-9]*\.[0-9]* {print_errorA(yylineno, "Illegal float number:", yytext);}
 {float} {/*printf("float\n");*/ yylval.node = new_node("FLOAT"); return FLOAT;}
-[nN][aA][nN] {yylval.node = new_node("FLOAT"); return FLOAT;}
-[iI][nN][fF]([iI][nN][iI][tT][yY])? {yylval.node = new_node("FLOAT"); return FLOAT;}
 {dec}|{oct}|{hex} {/*printf("int\n");*/ yylval.node = new_node("INT"); return INT;}
 
 {type} {yylval.node = new_node("TYPE"); return TYPE;}
