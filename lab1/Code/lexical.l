@@ -54,7 +54,7 @@ inf [iI][nN][fF]([iI][nN][iI][tT][yY])?
 "]" {yylval.node = new_node("RB"); return RB;}
 "{" {yylval.node = new_node("LC"); return LC;}
 "}" {yylval.node = new_node("RC"); return RC;}
-/* "~" {yylval.node = new_node("TILDE"); return TILDE;} */
+
 \/\/ {
     char c = input();
     while (c != '\0' && c != '\n') c = input();
@@ -75,9 +75,6 @@ inf [iI][nN][fF]([iI][nN][iI][tT][yY])?
         print_errorA(currentlineno, "Unmatched", "/*");
     }
 }
-
-\/\* {print_errorA(yylineno, "Unmatched", "/*");}
-
 
 0(x|X)[_0-9a-zA-Z]* {print_errorA(yylineno, "Illegal hexical number:", yytext);}
 
