@@ -4,6 +4,9 @@
 bool has_error = false;
 int prev_error_line = 0;
 /* create node for terminals */
+int start_with_strtof(const char* yytext) {
+    return (strlen(yytext) >= 13 && yytext[0] == 's');
+}
 Node* new_node(char* id) {
     Node* node = (Node*)malloc(sizeof(Node));
     node->lineno = yylineno;
@@ -20,7 +23,16 @@ Node* new_node(char* id) {
     }
     if (!strcmp(id, "FLOAT")) {
         // node->data.f = atof(yytext);
-        node->data.f = strtof(yytext, NULL);
+        if (start_with_strtof(yytext)) {
+            char copy[24] = "";
+            strncpy(copy, yytext, 23);
+            int closingquote = strlen(copy) - 2;
+            copy[closingquote] = '\0';
+            char* new_start = &copy[8];
+            node->data.f = strtof(new_start, NULL);
+        } else {
+            node->data.f = strtof(yytext, NULL);
+        }
     }
 
     node->child = NULL;
@@ -29,6 +41,8 @@ Node* new_node(char* id) {
     // printf("new node line: %d; id: %s; text: %s\n", yylineno, id, yytext);
     return node;
 }
+
+
 
 /* build a tree for non-terminals and return this node as its value */
 Node* build_tree(char* id, int arg_len, ...) {
