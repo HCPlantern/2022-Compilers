@@ -3,5 +3,5 @@
 *.tab.h
 syntax.output
 parser
-lab1/Code/syntax.tab.c
+syntax.tab.c
 lex.yy.c

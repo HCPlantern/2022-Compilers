@@ -1,0 +1,19 @@
+
+// global variable
+int global1, global2;
+
+struct node {
+    int val;
+    int list[5][7];
+};
+
+struct someStruct {
+    int len;
+    int arr[10][9];
+    struct node temp;
+};
+
+int main() {
+    int a[10];
+    a[1.5];
+}

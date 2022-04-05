@@ -43,7 +43,7 @@ ExtDef : Specifier ExtDecList SEMI {$$ = build_tree("ExtDef", 3, $1, $2, $3);}
     ;
 /* 1 or some def of vardec: int global1, global2 */
 ExtDecList : VarDec {$$ = build_tree("ExtDecList", 1, $1);}
-    | VarDec COMMA ExtDecList {$$ = build_tree("ExtDefList", 3, $1, $2, $3);}
+    | VarDec COMMA ExtDecList {$$ = build_tree("ExtDecList", 3, $1, $2, $3);}
     ;
 
 /* Specifiers */
