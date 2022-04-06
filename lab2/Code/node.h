@@ -1,5 +1,5 @@
-#ifndef NAME_H
-#define NAME_H
+#ifndef NODE_H
+#define NODE_H 
 
 #include <stdio.h>
 #include <stdlib.h>
