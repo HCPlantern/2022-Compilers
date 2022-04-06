@@ -1,6 +1,7 @@
 
 // global variable
 int global1, global2;
+int global3;
 
 struct node {
     int val;

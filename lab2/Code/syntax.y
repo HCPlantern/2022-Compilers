@@ -27,7 +27,7 @@
 %%
 
 /* High-level Definitions */
-Program : ExtDefList {$$ = build_tree("Program", 1, $1); print_tree($$, 0);}
+Program : ExtDefList {$$ = build_tree("Program", 1, $1); print_tree($$, 0); syntax_tree_root = $$;}
     ;
 /* 0 or some ExtDef */
 ExtDefList : ExtDef ExtDefList {$$ = build_tree("ExtDefList", 2, $1, $2);}

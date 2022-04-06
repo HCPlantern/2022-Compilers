@@ -13,6 +13,10 @@ int main(int argc, char** argv) {
     // extern yydebug;
     // yydebug = 1;
     yyparse();
+
+    // initialize the hash table
+    init_table();
+    semantic_check(syntax_tree_root);
     return 0;
 }
 

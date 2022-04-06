@@ -7,6 +7,8 @@
 #include <assert.h>
 #include <stdio.h>
 
+#include "node.h"
+
 typedef struct Type* Type;
 typedef struct FieldList* FieldList;
 typedef struct TableEntry* Table;
@@ -56,5 +58,9 @@ int cal_key(FieldList field);
 void add_table_node(FieldList field);
 bool find_field(FieldList field);
 bool field_equal(FieldList field1, FieldList field2);
+void semantic_check(Node* node);
+FieldList creat_basic_field(char* name, char* type);
+void check_ExtDef(Node* node);
+void check_ExtDecList(char* type, Node* node);
 
 #endif

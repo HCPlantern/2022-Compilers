@@ -84,7 +84,7 @@ void print_tree(Node* root, int indent) {
     }
     // print the indent
     for (int i = 0; i < indent; i++) {
-        printf(" ");
+        printf("-");
     }
 
     if (!root->is_terminal) {
