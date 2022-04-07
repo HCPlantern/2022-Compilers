@@ -64,12 +64,14 @@ bool field_equal(FieldList field1, FieldList field2) {
 
 // Create Types begin ---------------------------------------------------------------------
 
-Type create_basic_type(char* specifier_type) {
+Type create_basic_type(Node* specifier) {
+    assert(!strcmp(specifier->child->id, "TYPE"));
+
     Type new_type = malloc(sizeof(struct Type));
     new_type->kind = BASIC;
-    if (!strcmp(specifier_type, "int")) {
+    if (!strcmp(specifier->child->data.text, "int")) {
         new_type->u.basic = INT;
-    } else if (!strcmp(specifier_type, "float")) {
+    } else if (!strcmp(specifier->child->data.text, "float")) {
         new_type->u.basic = FLOAT;
     }
     return new_type;
@@ -84,21 +86,26 @@ Type create_array_type(int size) {
 }
 
 Type create_struct_type(Node* specifier) {
-    assert (!strcmp(specifier->child->id, "StructSpecifier"));
+    assert(!strcmp(specifier->child->id, "StructSpecifier"));
     // todo
 }
 
 // todo
 Type create_func_type() {
-
 }
 
 // Create Types end ---------------------------------------------------------------------
 
 // Create fields begin ---------------------------------------------------------------------
 // 创建并返回一个 basic field
-FieldList create_basic_field(char* name, char* specifier_type) {
-    Type new_type = create_basic_type(specifier_type);
+// todo : 将单个 struct 结构也加入到哈希表中
+FieldList create_basic_and_struct_field(char* name, Node* specifier) {
+    Type new_type;
+    if (!strcmp(specifier->child->id, "TYPE")) {
+        new_type = create_basic_type(specifier);
+    } else if (!strcmp(specifier->child->id, "StructSpecifier")) {
+        new_type = create_struct_type(specifier);
+    }
     FieldList field = malloc(sizeof(struct FieldList));
     field->name = name;
     field->type = new_type;
@@ -107,9 +114,8 @@ FieldList create_basic_field(char* name, char* specifier_type) {
 }
 
 // 传入一个数组的 VarDec 结点（最上层的）
-// todo : has bug.
-// todo : type could be struct
-FieldList create_array_field(Node* node, char* specifier_type) {
+// 除了最上层的 VarDec 结点 其他都创建 array field
+FieldList create_array_field(Node* node, Node* specifier) {
     // printf("Create Array Field\n");
     assert(!strcmp(node->id, "VarDec"));
     if (!strcmp(node->child->id, "ID")) {  // 最底层 VarDec
@@ -123,14 +129,19 @@ FieldList create_array_field(Node* node, char* specifier_type) {
         FieldList field;
         Type new_type;
         if (node->sibling == NULL || strcmp(node->sibling->id, "LB") != 0) {
-            // 最上层的 VarDec 增加一个最深层的 int type
+            // 最上层的 VarDec 增加一个最深层的 type
+            // 两种情况 basic 或 struct
             // printf("最上层\n");
-            field = create_array_field(node->child, specifier_type);
-            new_type = create_basic_type(specifier_type);
+            field = create_array_field(node->child, specifier);
+            if (!strcmp(specifier->child->id, "TYPE")) {
+                new_type = create_basic_type(specifier);
+            } else if (!strcmp(specifier->child->id, "StructSpecifier")) {
+                new_type = create_struct_type(specifier);
+            }
         } else {
             // 中间层 VarDec
             // printf("中间层\n");
-            field = create_array_field(node->child, specifier_type);
+            field = create_array_field(node->child, specifier);
             new_type = create_array_type(node->sibling->sibling->data.i);
         }
         Type prev_type = field->type;
@@ -144,6 +155,7 @@ FieldList create_array_field(Node* node, char* specifier_type) {
     // impossible to execute
     return NULL;
 }
+
 
 // Create fields end ---------------------------------------------------------------------
 
@@ -164,13 +176,9 @@ void check_ExtDef(Node* node) {
 
     if (!strcmp(specifier_node->sibling->id, "ExtDecList")) {
         // 全局变量
-        if (!strcmp(specifier_node->child->id, "TYPE"))
-            check_ExtDecList(specifier_node->child->data.text, specifier_node->sibling);
-        else if (!strcmp(specifier_node->child->id, "StructSpecifier")) {
-            // todo : 增加 specifier_node->child 为 StructSpecifier 的情况
-        }
+        check_ExtDecList(specifier_node, specifier_node->sibling);
     } else if (!strcmp(specifier_node->sibling->id, "SEMI")) {
-        // todo: 结构体
+        // todo: 仅结构体的定义而没有声明结构体变量
 
     } else if (!strcmp(specifier_node->sibling->id, "FunDec")) {
         // todo: 函数体
@@ -179,11 +187,10 @@ void check_ExtDef(Node* node) {
 }
 
 // 处理连续定义的外部变量
-// todo: 增加此 ExtDecList 的 Specifier 为 StructSpecifier 的情况
-void check_ExtDecList(char* specifier_type, Node* node) {
+void check_ExtDecList(Node* specifier, Node* node) {
     while (true) {
         assert(!strcmp(node->id, "ExtDecList"));
-        check_VarDec(specifier_type, node->child);
+        check_VarDec(specifier, node->child);
         if (node->child->sibling == NULL)
             break;
         else
@@ -192,11 +199,11 @@ void check_ExtDecList(char* specifier_type, Node* node) {
 }
 
 // 处理单个变量的定义或数组的定义
-void check_VarDec(char* specifier_type, Node* node) {
+void check_VarDec(Node* specifier, Node* node) {
     assert(!strcmp(node->id, "VarDec"));
     if (!strcmp(node->child->id, "ID")) {
         // printf("check VarDec basic\n");
-        FieldList new_field = create_basic_field(node->child->data.text, specifier_type);
+        FieldList new_field = create_basic_and_struct_field(node->child->data.text, specifier);
         if (find_field(new_field)) {
             printf("Error type 4 at Line %d: Redefined variable \"%s\".\n", node->lineno, new_field->name);
         } else {
@@ -204,7 +211,7 @@ void check_VarDec(char* specifier_type, Node* node) {
         }
     } else if (!strcmp(node->child->id, "VarDec")) {
         // printf("check VarDec array\n");
-        FieldList new_field = create_array_field(node, specifier_type);
+        FieldList new_field = create_array_field(node, specifier);
         if (find_field(new_field)) {
             printf("Error type 4 at Line %d: Redefined variable \"%s\".\n", node->lineno, new_field->name);
         } else {
