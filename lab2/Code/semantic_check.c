@@ -2,6 +2,7 @@
 
 Table table[TABLE_LEN];
 
+// Hash Table funcs begin ----------------------------------------------------------------------
 // 初始化 哈希表
 void init_table() {
     for (int i = 0; i < TABLE_LEN; i++) {
@@ -36,9 +37,12 @@ void add_table_node(FieldList field) {
     node->next = temp;
 
     table[key]->len++;
+    printf("Add table node \"%s\"\n", field->name);
 }
+// Hash Table funcs end ---------------------------------------------------------------------
 
 // table 中找到等价 field 则返回 true
+// todo: 根据不同的等价规则 若等价则返回 true
 bool find_field(FieldList field) {
     int key = cal_key(field);
     TableNode temp = table[key]->next;
@@ -46,33 +50,102 @@ bool find_field(FieldList field) {
         if (!field_equal(temp->field, field)) {
             temp = temp->next;
         } else {
-            printf("Find same field %s", temp->field->name);
+            printf("Find same field %s\n", temp->field->name);
             return true;
         }
     }
     return false;
 }
 
-// todo: 两个 field 等价 则返回 true
+// todo: 根据不同的等价规则 若等价则返回 true
 bool field_equal(FieldList field1, FieldList field2) {
     return !strcmp(field1->name, field2->name);
 }
 
-// 创建并返回一个 field
-FieldList creat_basic_field(char* name, char* type) {
+// Create Types begin ---------------------------------------------------------------------
+
+Type create_basic_type(char* specifier_type) {
     Type new_type = malloc(sizeof(struct Type));
     new_type->kind = BASIC;
-    if (!strcmp(type, "int")) {
+    if (!strcmp(specifier_type, "int")) {
         new_type->u.basic = INT;
-    } else if (!strcmp(type, "float")) {
+    } else if (!strcmp(specifier_type, "float")) {
         new_type->u.basic = FLOAT;
     }
+    return new_type;
+}
+
+// u.array.elem is null
+Type create_array_type(int size) {
+    Type new_type = malloc(sizeof(struct Type));
+    new_type->kind = ARRAY;
+    new_type->u.array.elem = NULL;
+    new_type->u.array.size = size;
+}
+
+Type create_struct_type(Node* specifier) {
+    assert (!strcmp(specifier->child->id, "StructSpecifier"));
+    // todo
+}
+
+// todo
+Type create_func_type() {
+
+}
+
+// Create Types end ---------------------------------------------------------------------
+
+// Create fields begin ---------------------------------------------------------------------
+// 创建并返回一个 basic field
+FieldList create_basic_field(char* name, char* specifier_type) {
+    Type new_type = create_basic_type(specifier_type);
     FieldList field = malloc(sizeof(struct FieldList));
     field->name = name;
     field->type = new_type;
     field->next = NULL;
     return field;
 }
+
+// 传入一个数组的 VarDec 结点（最上层的）
+// todo : has bug.
+// todo : type could be struct
+FieldList create_array_field(Node* node, char* specifier_type) {
+    // printf("Create Array Field\n");
+    assert(!strcmp(node->id, "VarDec"));
+    if (!strcmp(node->child->id, "ID")) {  // 最底层 VarDec
+        // printf("最底层\n");
+        FieldList field = malloc(sizeof(struct FieldList));
+        field->name = node->child->data.text;
+        Type new_type = create_array_type(node->sibling->sibling->data.i);
+        field->type = new_type;
+        return field;
+    } else if (!strcmp(node->child->id, "VarDec")) {
+        FieldList field;
+        Type new_type;
+        if (node->sibling == NULL || strcmp(node->sibling->id, "LB") != 0) {
+            // 最上层的 VarDec 增加一个最深层的 int type
+            // printf("最上层\n");
+            field = create_array_field(node->child, specifier_type);
+            new_type = create_basic_type(specifier_type);
+        } else {
+            // 中间层 VarDec
+            // printf("中间层\n");
+            field = create_array_field(node->child, specifier_type);
+            new_type = create_array_type(node->sibling->sibling->data.i);
+        }
+        Type prev_type = field->type;
+        // find the deepest array.elem which is null
+        while (prev_type->u.array.elem != NULL) {
+            prev_type = prev_type->u.array.elem;
+        }
+        prev_type->u.array.elem = new_type;
+        return field;
+    }
+    // impossible to execute
+    return NULL;
+}
+
+// Create fields end ---------------------------------------------------------------------
 
 // 遍历所有的 ExtDef 结点
 void semantic_check(Node* node) {
@@ -85,27 +158,57 @@ void semantic_check(Node* node) {
 }
 
 void check_ExtDef(Node* node) {
-    printf("Build a ExtDef node\n");
-    Node* specifier = node->child;
-    assert(!strcmp(specifier->id, "Specifier"));
+    // printf("Build a ExtDef node.\n");
+    Node* specifier_node = node->child;
+    assert(!strcmp(specifier_node->id, "Specifier"));
 
-    if (!strcmp(specifier->sibling->id, "ExtDecList")) {
-        check_ExtDecList(specifier->child->data.text, specifier->sibling);
-    } else if (!strcmp(specifier->sibling->id, "SEMI")) {
-        // todo
+    if (!strcmp(specifier_node->sibling->id, "ExtDecList")) {
+        // 全局变量
+        if (!strcmp(specifier_node->child->id, "TYPE"))
+            check_ExtDecList(specifier_node->child->data.text, specifier_node->sibling);
+        else if (!strcmp(specifier_node->child->id, "StructSpecifier")) {
+            // todo : 增加 specifier_node->child 为 StructSpecifier 的情况
+        }
+    } else if (!strcmp(specifier_node->sibling->id, "SEMI")) {
+        // todo: 结构体
 
-    } else if (!strcmp(specifier->sibling->id, "FunDec")) {
-        // todo
+    } else if (!strcmp(specifier_node->sibling->id, "FunDec")) {
+        // todo: 函数体
+    }
+    // printf("Build a ExtDef node end.\n");
+}
+
+// 处理连续定义的外部变量
+// todo: 增加此 ExtDecList 的 Specifier 为 StructSpecifier 的情况
+void check_ExtDecList(char* specifier_type, Node* node) {
+    while (true) {
+        assert(!strcmp(node->id, "ExtDecList"));
+        check_VarDec(specifier_type, node->child);
+        if (node->child->sibling == NULL)
+            break;
+        else
+            node = node->child->sibling->sibling;
     }
 }
 
-// 连续定义的每一个外部变量添加到符号表中
-// todo : 增加外部变量为数组的情况
-void check_ExtDecList(char* type, Node* node) {
-    while (true) {
-        assert(!strcmp(node->id, "ExtDecList"));
-        add_table_node(creat_basic_field(node->child->child->data.text, type));
-        if (node->child->sibling == NULL) break;
-        else node = node->child->sibling->sibling;
+// 处理单个变量的定义或数组的定义
+void check_VarDec(char* specifier_type, Node* node) {
+    assert(!strcmp(node->id, "VarDec"));
+    if (!strcmp(node->child->id, "ID")) {
+        // printf("check VarDec basic\n");
+        FieldList new_field = create_basic_field(node->child->data.text, specifier_type);
+        if (find_field(new_field)) {
+            printf("Error type 4 at Line %d: Redefined variable \"%s\".\n", node->lineno, new_field->name);
+        } else {
+            add_table_node(new_field);
+        }
+    } else if (!strcmp(node->child->id, "VarDec")) {
+        // printf("check VarDec array\n");
+        FieldList new_field = create_array_field(node, specifier_type);
+        if (find_field(new_field)) {
+            printf("Error type 4 at Line %d: Redefined variable \"%s\".\n", node->lineno, new_field->name);
+        } else {
+            add_table_node(new_field);
+        }
     }
 }

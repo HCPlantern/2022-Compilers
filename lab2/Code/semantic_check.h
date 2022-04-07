@@ -58,9 +58,13 @@ int cal_key(FieldList field);
 void add_table_node(FieldList field);
 bool find_field(FieldList field);
 bool field_equal(FieldList field1, FieldList field2);
+Type create_basic_type(char* specifier_type);
+Type create_array_type(int size);
+FieldList create_basic_field(char* name, char* type);
+FieldList create_array_field(Node* node, char* specifier_type);
 void semantic_check(Node* node);
-FieldList creat_basic_field(char* name, char* type);
 void check_ExtDef(Node* node);
 void check_ExtDecList(char* type, Node* node);
+void check_VarDec(char* specifier_type, Node* node);
 
 #endif

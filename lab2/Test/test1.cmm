@@ -1,12 +1,17 @@
 
 // global variable
-int global1, global2;
+int global1, global2[3][5];
 int global3;
+/*
+
+struct temp {
+    int i;
+};
 
 struct node {
     int val;
     int list[5][7];
-};
+}test, test2[3][4];
 
 struct someStruct {
     int len;
@@ -22,4 +27,4 @@ int main() {
 int test() {
     int c;
 }
-
+*/
