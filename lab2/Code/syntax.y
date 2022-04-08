@@ -1,7 +1,7 @@
 %{
     #include "node.h"
     #include "lex.yy.c"
-
+    extern Node* syntax_tree_root;
 %}
 
 %union {

@@ -1,6 +1,7 @@
 
 #include "hash_table.h"
 
+extern Node* syntax_tree_root;
 // Hash Table funcs begin ----------------------------------------------------------------------
 // 初始化 哈希表
 TableEntry* new_table() {

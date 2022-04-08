@@ -1,5 +1,7 @@
 #include "type.h"
 
+extern Node* syntax_tree_root;
+
 // todo: only compare type. (in structural equivalence)
 bool type_equal(Type type1, Type type2) {
     if (type1->kind == BASIC && type2->kind == BASIC) {

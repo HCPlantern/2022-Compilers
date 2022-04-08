@@ -1,6 +1,8 @@
 #include "stack.h"
 #include <assert.h>
 
+extern Node* syntax_tree_root;
+
 Stack new_stack() {
     Stack s = malloc(sizeof(struct _Stack));
     s->top = 0;

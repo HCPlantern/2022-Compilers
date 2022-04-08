@@ -2,6 +2,7 @@
 
 #define curr_table (stack->tables[stack->top])
 
+extern Node* syntax_tree_root;
 Stack stack;
 
 // 遍历所有的 ExtDef 结点

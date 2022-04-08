@@ -1,6 +1,7 @@
 
 #include "node.h"
 
+Node* syntax_tree_root;
 bool has_error = false;
 int prev_error_line = 0;
 
