@@ -4,7 +4,7 @@
 // 初始化 哈希表
 void init_table() {
     for (int i = 0; i < TABLE_LEN; i++) {
-        table[i] = malloc(sizeof(struct TableEntry));
+        table[i] = malloc(sizeof(struct _TableEntry));
         table[i]->len = 0;
         table[i]->next = NULL;
     }
@@ -25,7 +25,7 @@ int cal_key(FieldList field) {
 void add_table_node(FieldList field) {
     assert(!find_field(field));
     // create a new table_node
-    TableNode node = malloc(sizeof(struct TableNode));
+    TableNode node = malloc(sizeof(struct _TableNode));
     node->field = field;
     node->next = NULL;
 
@@ -65,7 +65,7 @@ bool field_equal(FieldList field1, FieldList field2) {
 Type create_basic_type(Node* specifier) {
     assert(!strcmp(specifier->child->id, "TYPE"));
 
-    Type new_type = malloc(sizeof(struct Type));
+    Type new_type = malloc(sizeof(struct _Type));
     new_type->kind = BASIC;
     if (!strcmp(specifier->child->data.text, "int")) {
         new_type->u.basic = INT;
@@ -77,7 +77,7 @@ Type create_basic_type(Node* specifier) {
 
 // u.array.elem is null
 Type create_array_type(int size) {
-    Type new_type = malloc(sizeof(struct Type));
+    Type new_type = malloc(sizeof(struct _Type));
     new_type->kind = ARRAY;
     new_type->u.array.elem = NULL;
     new_type->u.array.size = size;
@@ -104,7 +104,7 @@ FieldList create_basic_and_struct_field(char* name, Node* specifier) {
     } else if (!strcmp(specifier->child->id, "StructSpecifier")) {
         new_type = create_struct_type(specifier);
     }
-    FieldList field = malloc(sizeof(struct FieldList));
+    FieldList field = malloc(sizeof(struct _FieldList));
     field->name = name;
     field->type = new_type;
     field->next = NULL;
@@ -118,7 +118,7 @@ FieldList create_array_field(Node* node, Node* specifier) {
     assert(!strcmp(node->id, "VarDec"));
     if (!strcmp(node->child->id, "ID")) {  // 最底层 VarDec
         // printf("最底层\n");
-        FieldList field = malloc(sizeof(struct FieldList));
+        FieldList field = malloc(sizeof(struct _FieldList));
         field->name = node->child->data.text;
         Type new_type = create_array_type(node->sibling->sibling->data.i);
         field->type = new_type;
