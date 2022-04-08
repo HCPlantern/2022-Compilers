@@ -30,7 +30,6 @@ typedef struct tree_node {
   bool is_terminal;
 } Node;
 
-Node* syntax_tree_root;
 
 Node* new_node(char* id);
 Node* build_tree(char* id, int arg_len, ...);

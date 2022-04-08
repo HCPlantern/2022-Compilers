@@ -2,6 +2,7 @@
 
 #define curr_table stack->tables[stack->top]
 
+extern Node* syntax_tree_root;
 Stack stack;
 
 // 遍历所有的 ExtDef 结点
@@ -54,7 +55,7 @@ void check_VarDec(Node* specifier, Node* node) {
         FieldList new_field = create_basic_and_struct_field(node->child->data.text, specifier);
         // printf("before\n");
         // printf("%d\n", stack->top);
-        if (find_field(curr_table, new_field)) {
+        if (find_field(stack->tables[stack->top] , new_field)) {
             // printf("after\n");
             printf("Error type 4 at Line %d: Redefined variable \"%s\".\n", node->lineno, new_field->name);
         } else {
