@@ -1,4 +1,7 @@
+#ifndef TYPE_H
+#define TYPE_H
 #include "node.h"
+#include <assert.h>
 
 typedef struct _Type* Type;
 typedef struct _FieldList* FieldList;
@@ -30,9 +33,6 @@ struct _FieldList {
     FieldList next;
 };
 
-bool find_field(FieldList field);
-bool field_equal(FieldList field1, FieldList field2);
-
 Type create_basic_type(Node* specifier);
 Type create_array_type(int size);
 Type create_struct_type(Node* specifier);
@@ -40,3 +40,4 @@ Type create_func_type();
 
 FieldList create_basic_and_struct_field(char* name, Node* specifier);
 FieldList create_array_field(Node* node, Node* specifier);
+#endif

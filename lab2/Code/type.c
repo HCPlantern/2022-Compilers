@@ -1,21 +1,4 @@
 #include "type.h"
-#include "semantic_check.h"
-
-// table 中找到等价 field 则返回 true
-// todo: 根据不同的等价规则 若等价则返回 true
-bool find_field(FieldList field) {
-    int key = cal_key(field);
-    TableNode temp = table[key]->next;
-    while (temp != NULL) {
-        if (!field_equal(temp->field, field)) {
-            temp = temp->next;
-        } else {
-            printf("Find same field %s\n", temp->field->name);
-            return true;
-        }
-    }
-    return false;
-}
 
 // todo: only compare type. (in structural equivalence)
 bool type_equal(Type type1, Type type2) {
@@ -74,18 +57,12 @@ bool type_equal(Type type1, Type type2) {
     return false;
 }
 
-// WARNING: the FieldList below is regarded as a single field.
-// todo: 根据不同的等价规则 若等价则返回 true
-bool field_equal(FieldList field1, FieldList field2) {
-    return !strcmp(field1->name, field2->name);
-}
-
 // Create Types begin ---------------------------------------------------------------------
 
 Type create_basic_type(Node* specifier) {
     assert(!strcmp(specifier->child->id, "TYPE"));
 
-    Type new_type = malloc(sizeof(struct Type));
+    Type new_type = malloc(sizeof(struct _Type));
     new_type->kind = BASIC;
     if (!strcmp(specifier->child->data.text, "int")) {
         new_type->u.basic = INT;
@@ -97,7 +74,7 @@ Type create_basic_type(Node* specifier) {
 
 // u.array.elem is null
 Type create_array_type(int size) {
-    Type new_type = malloc(sizeof(struct Type));
+    Type new_type = malloc(sizeof(struct _Type));
     new_type->kind = ARRAY;
     new_type->u.array.elem = NULL;
     new_type->u.array.size = size;
@@ -124,7 +101,7 @@ FieldList create_basic_and_struct_field(char* name, Node* specifier) {
     } else if (!strcmp(specifier->child->id, "StructSpecifier")) {
         new_type = create_struct_type(specifier);
     }
-    FieldList field = malloc(sizeof(struct FieldList));
+    FieldList field = malloc(sizeof(struct _FieldList));
     field->name = name;
     field->type = new_type;
     field->next = NULL;
@@ -138,7 +115,7 @@ FieldList create_array_field(Node* node, Node* specifier) {
     assert(!strcmp(node->id, "VarDec"));
     if (!strcmp(node->child->id, "ID")) {  // 最底层 VarDec
         // printf("最底层\n");
-        FieldList field = malloc(sizeof(struct FieldList));
+        FieldList field = malloc(sizeof(struct _FieldList));
         field->name = node->child->data.text;
         Type new_type = create_array_type(node->sibling->sibling->data.i);
         field->type = new_type;
