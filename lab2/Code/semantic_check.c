@@ -1,7 +1,5 @@
 #include "semantic_check.h"
 
-Table table[TABLE_LEN];
-
 // Hash Table funcs begin ----------------------------------------------------------------------
 // 初始化 哈希表
 void init_table() {

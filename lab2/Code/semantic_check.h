@@ -15,6 +15,7 @@ typedef struct TableEntry* Table;
 typedef struct TableNode* TableNode;
 
 #define TABLE_LEN 16384 
+Table table[TABLE_LEN];
 
 struct Type {
     enum { BASIC, ARRAY, STRUCTURE, FUNC} kind;
