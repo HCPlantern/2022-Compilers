@@ -43,7 +43,7 @@ void add_table_node(Table table, FieldList field) {
 // table 中找到等价 field 则返回 true
 // todo: 根据不同的等价规则 若等价则返回 true
 bool find_field(Table table, FieldList field) {
-    // printf("cal_key");
+    printf("cal_key");
     size_t key = cal_key(field);
     TableNode temp = table[key]->next;
     while (temp != NULL) {

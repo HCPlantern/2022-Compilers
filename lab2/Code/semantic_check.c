@@ -1,6 +1,6 @@
 #include "semantic_check.h"
 
-#define curr_table stack->tables[stack->top]
+#define curr_table (stack->tables[stack->top])
 
 Stack stack;
 
@@ -9,14 +9,12 @@ void semantic_check(Node* node) {
     stack = new_stack();
     Table table = new_table();
     push(stack, table);
-
     node = node->child;
     assert(!strcmp(node->id, "ExtDefList"));
     while (strcmp(node->child->id, "Epsilon") != 0) {
         check_ExtDef(node->child);
         node = node->child->sibling;
     }
-
 }
 
 void check_ExtDef(Node* node) {
@@ -52,12 +50,13 @@ void check_VarDec(Node* specifier, Node* node) {
     assert(!strcmp(node->id, "VarDec"));
     if (!strcmp(node->child->id, "ID")) {
         FieldList new_field = create_basic_and_struct_field(node->child->data.text, specifier);
-        // printf("before\n");
-        // printf("%d\n", stack->top);
+        printf("before\n");
+        printf("%d\n", stack->top);
         if (find_field(curr_table, new_field)) {
-            // printf("after\n");
+            printf("after\n");
             printf("Error type 4 at Line %d: Redefined variable \"%s\".\n", node->lineno, new_field->name);
         } else {
+            printf("else\n");
             add_table_node(curr_table, new_field);
         }
     } else if (!strcmp(node->child->id, "VarDec")) {
