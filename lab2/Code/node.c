@@ -80,7 +80,7 @@ Node* build_tree(char* id, int arg_len, ...) {
 /* print tree from root in pre-order */
 void print_tree(Node* root, int indent) {
     // skip if has error and null and epsilon
-    if (has_error || root == NULL || !strcmp(root->id, "Epsilon")) {
+    if (has_error || root == NULL/* || !strcmp(root->id, "Epsilon")*/) {
         return;
     }
     // print the indent

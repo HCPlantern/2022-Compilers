@@ -16,7 +16,6 @@ void semantic_check(Node* node) {
         check_ExtDef(node->child);
         node = node->child->sibling;
     }
-    printf("semantic_check end.\n");
 }
 
 void check_ExtDef(Node* node) {
@@ -32,7 +31,6 @@ void check_ExtDef(Node* node) {
     } else if (!strcmp(specifier_node->sibling->id, "FunDec")) {
         // todo: 函数体
     }
-    printf("Build a ExtDef node end.\n");
 }
 
 // 处理连续定义的外部变量

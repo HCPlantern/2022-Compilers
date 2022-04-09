@@ -37,12 +37,12 @@ size_t cal_key_by_field(FieldList field) {
 }
 
 size_t cal_key(char* name) {
-    unsigned int hash = 0, i;
+    unsigned long val = 0, i;
     for (; *name; ++name) {
-        hash = (hash << 2) + *name;
-        if (i = hash & ~TABLE_LEN) hash = (hash ^ (i >> 12)) & TABLE_LEN;
+        val = (val << 2) + *name;
+        if (i = val & ~(TABLE_LEN - 1)) val = (val ^ (i >> 12)) & (TABLE_LEN - 1);
     }
-    return hash % TABLE_LEN;
+    return val % TABLE_LEN;
 }
 
 // 在链表的开头增加新节点 输入为一个 field
@@ -56,17 +56,15 @@ void add_table_node(Table table, FieldList field) {
     TableNode temp = table[key]->next;
     table[key]->next = node;
     node->next = temp;
-
+    printf("Add new node %s\n", node->field->name);
     table[key]->len++;
-    printf("Add table node \"%s\"\n", field->name);
 }
 
 FieldList find_field(Table table, char* name) {
     size_t key = cal_key(name);
-    printf("%zu\n", key);
     TableNode temp = table[key]->next;
     while (temp != NULL) {
-    // printf("current table entry first node name: %s\n", temp->field->name);
+        // printf("current table entry first node name: %s\n", temp->field->name);
         if (!strcmp(temp->field->name, name)) {
             printf("Find field %s\n", name);
             return temp->field;

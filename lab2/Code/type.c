@@ -70,10 +70,8 @@ bool type_equal(Type type1, Type type2) {
 char* anonymous_struct_name() {
     char* struct_str = "struct";
     char* res = malloc(sizeof(char) * (10 + strlen(struct_str)));
-    sprintf(res, "%d%s", 10, struct_str);
-    free(struct_str);
+    sprintf(res, "%lu%s", anonymous_struct_count, struct_str);
     anonymous_struct_count++;
-    printf("%s\n", res);
     return res;
 }
 
@@ -118,7 +116,6 @@ FieldList create_basic_and_struct_field_for_var(char* name, Node* specifier) {
 // 传入一个数组的 VarDec 结点（最上层的）
 // 除了最上层的 VarDec 结点 其他都创建 array field
 FieldList create_array_field(Node* node, Node* specifier) {
-    // printf("Create Array Field\n");
     assert(!strcmp(node->id, "VarDec"));
     if (!strcmp(node->child->id, "ID")) {  // 最底层 VarDec
         // printf("最底层\n");
@@ -164,7 +161,7 @@ FieldList create_array_field(Node* node, Node* specifier) {
 Type create_struct_type(Node* specifier) {
     Node* struct_specifier = specifier->child;
     assert(!strcmp(struct_specifier->id, "StructSpecifier"));
-    if (!strcmp(struct_specifier->child->sibling->id, "OptTag")) {
+    if (struct_specifier->child->sibling->sibling != NULL) {
         // add this struct itself into table
         FieldList new_struct_field = create_struct_field_for_struct(struct_specifier);
         return new_struct_field->type;
@@ -198,10 +195,10 @@ Type create_func_type() {
 FieldList create_struct_field_for_struct(Node* struct_specifier) {
     Node* opt_tag = struct_specifier->child->sibling;
     char* id;
-    if (!strcmp(opt_tag->child->id, "ID")) {
-        id = opt_tag->child->data.text;
-    } else {
+    if(!strcmp(opt_tag->id, "Epsilon")) {
         id = anonymous_struct_name();
+    } else {
+        id = opt_tag->child->data.text;
     }
 
     FieldList res = malloc(sizeof(struct _FieldList));
