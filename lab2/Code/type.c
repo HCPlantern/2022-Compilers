@@ -1,16 +1,25 @@
+
 #include "type.h"
 
+#include <stdio.h>
+
+#include "stack.h"
+
+#define curr_table (stack->tables[stack->top - 1])
+
 extern Node* syntax_tree_root;
+extern Stack stack;
+extern FieldList check_VarDec(Node* specifier, Node* node, bool in_struct);
+
+size_t anonymous_struct_count = 0;
 
 // todo: only compare type. (in structural equivalence)
 bool type_equal(Type type1, Type type2) {
     if (type1->kind == BASIC && type2->kind == BASIC) {
         return type1->u.basic == type2->u.basic;
-    }
-    else if (type1->kind == ARRAY && type2->kind == ARRAY) {
+    } else if (type1->kind == ARRAY && type2->kind == ARRAY) {
         return type_equal(type1->u.array.elem, type2->u.array.elem);
-    }
-    else if (type1->kind == STRUCTURE && type2->kind == STRUCTURE) {
+    } else if (type1->kind == STRUCTURE && type2->kind == STRUCTURE) {
         FieldList field1 = type1->u.structure;
         FieldList field2 = type2->u.structure;
         while (field1 != NULL && field2 != NULL) {
@@ -28,8 +37,7 @@ bool type_equal(Type type1, Type type2) {
 
         // nums of fields not equal.
         return false;
-    }
-    else if (type1->kind == FUNC && type2->kind == FUNC) {
+    } else if (type1->kind == FUNC && type2->kind == FUNC) {
         if (type1->u.function.arg_len != type2->u.function.arg_len) {
             return false;
         }
@@ -59,6 +67,16 @@ bool type_equal(Type type1, Type type2) {
     return false;
 }
 
+char* anonymous_struct_name() {
+    char* struct_str = "struct";
+    char* res = malloc(sizeof(char) * (10 + strlen(struct_str)));
+    sprintf(res, "%d%s", 10, struct_str);
+    free(struct_str);
+    anonymous_struct_count++;
+    printf("%s\n", res);
+    return res;
+}
+
 // Create Types begin ---------------------------------------------------------------------
 
 Type create_basic_type(Node* specifier) {
@@ -82,21 +100,7 @@ Type create_array_type(int size) {
     new_type->u.array.size = size;
 }
 
-Type create_struct_type(Node* specifier) {
-    assert(!strcmp(specifier->child->id, "StructSpecifier"));
-    // todo
-}
-
-// todo
-Type create_func_type() {
-}
-
-// Create Types end ---------------------------------------------------------------------
-
-// Create fields begin ---------------------------------------------------------------------
-// 创建并返回一个 basic field
-// todo : 将单个 struct 结构也加入到哈希表中
-FieldList create_basic_and_struct_field(char* name, Node* specifier) {
+FieldList create_basic_and_struct_field_for_var(char* name, Node* specifier) {
     Type new_type;
     if (!strcmp(specifier->child->id, "TYPE")) {
         new_type = create_basic_type(specifier);
@@ -107,6 +111,7 @@ FieldList create_basic_and_struct_field(char* name, Node* specifier) {
     field->name = name;
     field->type = new_type;
     field->next = NULL;
+    field->is_var = true;
     return field;
 }
 
@@ -121,6 +126,7 @@ FieldList create_array_field(Node* node, Node* specifier) {
         field->name = node->child->data.text;
         Type new_type = create_array_type(node->sibling->sibling->data.i);
         field->type = new_type;
+        field->is_var = true;
         return field;
     } else if (!strcmp(node->child->id, "VarDec")) {
         FieldList field;
@@ -153,5 +159,106 @@ FieldList create_array_field(Node* node, Node* specifier) {
     return NULL;
 }
 
+// if this is struct definiton, create struct type and return, create struct field
+// if StructSpecifier -> STRUCT Tag, check this struct def from stack top to buttom, if found return its type else return NULL
+Type create_struct_type(Node* specifier) {
+    Node* struct_specifier = specifier->child;
+    assert(!strcmp(struct_specifier->id, "StructSpecifier"));
+    if (!strcmp(struct_specifier->child->sibling->id, "OptTag")) {
+        // add this struct itself into table
+        FieldList new_struct_field = create_struct_field_for_struct(struct_specifier);
+        return new_struct_field->type;
+    } else if (!strcmp(struct_specifier->child->sibling->id, "Tag")) {
+        // find struct in all tables
+        char* name = struct_specifier->child->sibling->child->id;
+        FieldList field = NULL;
+        size_t stack_index = stack->top;
+        Table table;
+        while (stack_index >= 0) {
+            table = stack->tables[stack_index];
+            field = find_field(table, name);
+            if (field != NULL) return field->type;
+            stack_index--;
+        }
+        return NULL;
+    }
+    return NULL;
+}
+
+// todo
+Type create_func_type() {
+
+}
+
+// Create Types end ---------------------------------------------------------------------
+
+// Create fields begin ---------------------------------------------------------------------
+
+// check name in table and check fields in struct
+FieldList create_struct_field_for_struct(Node* struct_specifier) {
+    Node* opt_tag = struct_specifier->child->sibling;
+    char* id;
+    if (!strcmp(opt_tag->child->id, "ID")) {
+        id = opt_tag->child->data.text;
+    } else {
+        id = anonymous_struct_name();
+    }
+
+    FieldList res = malloc(sizeof(struct _FieldList));
+    res->is_var = false;
+    res->name = id;
+    res->next = NULL;
+    res->type = malloc(sizeof(struct _Type));
+    res->type->kind = STRUCTURE;
+    FieldList next_structure_field = res->type->u.structure;
+
+    // handle deflist
+    // in order to check field name
+    Table table = new_table();
+    Node* deflist = struct_specifier->child->sibling->sibling->sibling;
+    Node* def = NULL;
+    while (strcmp(deflist->id, "Epsilon") != 0) {
+        def = deflist->child;
+        Node* specifier = def->child;
+        Node* declist = specifier->sibling;
+        Node* dec = NULL;
+        while (true) {
+            dec = declist->child;
+            // handle single dec
+            if (dec->child->sibling != NULL) {
+                printf("Error type 15 at line %d: Initialized field \"%s\"", dec->lineno, dec->child->child->data.text);
+            }
+            Node* vardec = dec->child;
+            FieldList field = check_VarDec(specifier, vardec, true);
+
+            // check whether field name repeats
+            if (find_field(table, field->name) != NULL) {
+                printf("Error type 15 at line %d: Redefined field \"%s\"\n", vardec->lineno, vardec->child->data.text);
+            } else {
+                add_table_node(table, field);
+            }
+            // concat StructureField
+            next_structure_field = field;
+            if (next_structure_field->next != NULL)
+                next_structure_field = next_structure_field->next;
+
+            if (declist->child->sibling == NULL)
+                break;
+            else
+                declist = declist->child->sibling->sibling;
+        }
+        deflist = def->sibling;
+    }
+    // handle deflist end
+
+    // begin check name
+    if (find_field(curr_table, id) != NULL) {
+        printf("Error type 16 at line %d: Duplicated name \"%s\"\n", opt_tag->lineno, id);
+    } else {
+        add_table_node(curr_table, res);
+    }
+
+    return res;
+}
 
 // Create fields end ---------------------------------------------------------------------

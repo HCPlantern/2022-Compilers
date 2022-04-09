@@ -4,7 +4,7 @@
 extern Node* syntax_tree_root;
 // Hash Table funcs begin ----------------------------------------------------------------------
 // 初始化 哈希表
-TableEntry* new_table() {
+Table new_table() {
     Table table = malloc(sizeof(TableEntry) * TABLE_LEN);
     for (size_t i = 0; i < TABLE_LEN; i++) {
         table[i] = malloc(sizeof(struct _TableEntry));
@@ -14,9 +14,29 @@ TableEntry* new_table() {
     return table;
 }
 
+void del_table(Table table) {
+    for (size_t i = 0; i < TABLE_LEN; i++) {
+        del_next(table[i]->next);
+        free(table[i]);
+    }
+    free(table);
+}
+
+void del_next(TableNode next) {
+    if (next->next == NULL)
+        free(next);
+    else {
+        del_next(next->next);
+        free(next);
+    }
+}
+
 // 计算给定 field 的 hash table 键值
-size_t cal_key(FieldList field) {
-    char* name = field->name;
+size_t cal_key_by_field(FieldList field) {
+    return cal_key(field->name);
+}
+
+size_t cal_key(char* name) {
     unsigned int hash = 0, i;
     for (; *name; ++name) {
         hash = (hash << 2) + *name;
@@ -32,7 +52,7 @@ void add_table_node(Table table, FieldList field) {
     node->field = field;
     node->next = NULL;
 
-    int key = cal_key(field);
+    int key = cal_key_by_field(field);
     TableNode temp = table[key]->next;
     table[key]->next = node;
     node->next = temp;
@@ -41,11 +61,27 @@ void add_table_node(Table table, FieldList field) {
     printf("Add table node \"%s\"\n", field->name);
 }
 
+FieldList find_field(Table table, char* name) {
+    size_t key = cal_key(name);
+    printf("%zu\n", key);
+    TableNode temp = table[key]->next;
+    while (temp != NULL) {
+    // printf("current table entry first node name: %s\n", temp->field->name);
+        if (!strcmp(temp->field->name, name)) {
+            printf("Find field %s\n", name);
+            return temp->field;
+        }
+        temp = temp->next;
+    }
+    return NULL;
+}
+
+/*
 // table 中找到等价 field 则返回 true
 // todo: 根据不同的等价规则 若等价则返回 true
 bool find_field(Table table, FieldList field) {
-    printf("cal_key");
-    size_t key = cal_key(field);
+    printf("cal_key_by_field");
+    size_t key = cal_key_by_field(field);
     TableNode temp = table[key]->next;
     while (temp != NULL) {
         if (!field_equal(temp->field, field)) {
@@ -62,5 +98,6 @@ bool find_field(Table table, FieldList field) {
 bool field_equal(FieldList field1, FieldList field2) {
     return !strcmp(field1->name, field2->name);
 }
+*/
 
 // Hash Table funcs end ---------------------------------------------------------------------

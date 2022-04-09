@@ -1,13 +1,23 @@
 
-// global variable
+
+
+
+
+/*
 int global1, global2[3][5];
 int global3;
-/*
+*/
+
 
 struct temp {
     int i;
-};
+    struct temp {
+        int i;
+    }b;
+    float c;
+}a;
 
+/*
 struct node {
     int val;
     int list[5][7];

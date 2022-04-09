@@ -1,6 +1,7 @@
 #ifndef HASH_TABLE_H
 #define HASH_TABLE_H
 
+#include <stddef.h>
 #include "type.h"
 
 typedef struct _TableEntry* TableEntry;
@@ -20,9 +21,12 @@ struct _TableNode {
     TableNode next;
 };
 
+
 Table new_table();
-size_t cal_key(FieldList field);
+void del_table(Table);
+void del_next(TableNode next);
+size_t cal_key_by_field(FieldList field);
+size_t cal_key(char* name);
 void add_table_node(Table table, FieldList field);
-bool find_field(Table table, FieldList field);
-bool field_equal(FieldList field1, FieldList field2);
+FieldList find_field(Table table, char* name);
 #endif
