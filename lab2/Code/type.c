@@ -157,19 +157,22 @@ FieldList create_array_field(Node* node, Node* specifier) {
 }
 
 // if this is struct definiton, create struct type and return, create struct field
-// if StructSpecifier -> STRUCT Tag, check this struct def from stack top to buttom, if found return its type else return NULL
+// if StructSpecifier -> STRUCT Tag, check this struct def from stack top to buttom, if find it return its type else return NULL
 Type create_struct_type(Node* specifier) {
     Node* struct_specifier = specifier->child;
     assert(!strcmp(struct_specifier->id, "StructSpecifier"));
     if (struct_specifier->child->sibling->sibling != NULL) {
         // add this struct itself into table
         FieldList new_struct_field = create_struct_field_for_struct(struct_specifier);
-        return new_struct_field->type;
+        Type res = malloc(sizeof(struct _Type));
+        res->kind = STRUCTURE;
+        res->u.structure = new_struct_field;
+        return res;
     } else if (!strcmp(struct_specifier->child->sibling->id, "Tag")) {
         // find struct in all tables
         char* name = struct_specifier->child->sibling->child->id;
         FieldList field = NULL;
-        size_t stack_index = stack->top;
+        size_t stack_index = stack->top - 1;
         Table table;
         while (stack_index >= 0) {
             table = stack->tables[stack_index];
