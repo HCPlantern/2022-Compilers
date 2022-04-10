@@ -74,6 +74,14 @@ FieldList find_field(Table table, char* name) {
     return NULL;
 }
 
+FieldList find_func_field(Table table, char* name) {
+    FieldList field = find_field(table, name);
+    if (field == NULL) return NULL;
+    if (field->type->kind == FUNC)
+        return field;
+    return NULL;
+}
+
 /*
 // table 中找到等价 field 则返回 true
 // todo: 根据不同的等价规则 若等价则返回 true
