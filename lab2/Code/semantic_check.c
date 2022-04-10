@@ -32,7 +32,7 @@ void check_ExtDef(Node* node) {
         }
     } else if (!strcmp(specifier_node->sibling->id, "FunDec")) {
         // functions
-        check_func(specifier_node, specifier_node->sibling, specifier_node->sibling->sibling);
+        check_func(specifier_node);
     }
 }
 
@@ -74,9 +74,11 @@ FieldList check_VarDec(Node* specifier, Node* node, bool in_struct) {
     }
     return new_field;
 }
-
-void check_func(Node* specifier, Node* fundec, Node* compst) {
+// todo : add func declare only
+void check_func(Node* specifier) {
     // add function def into table
+    Node* fundec = specifier->sibling;
+
     Type func_type = create_func_type(specifier, fundec);
     char* name = fundec->child->data.text;
     FieldList new_func_field = malloc(sizeof(struct _FieldList));
