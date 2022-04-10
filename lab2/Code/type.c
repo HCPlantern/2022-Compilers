@@ -187,7 +187,6 @@ Type create_struct_type(Node* specifier) {
 
 // todo
 Type create_func_type() {
-
 }
 
 // Create Types end ---------------------------------------------------------------------
@@ -195,10 +194,11 @@ Type create_func_type() {
 // Create fields begin ---------------------------------------------------------------------
 
 // check name in table and check fields in struct
+// add struct itself into table
 FieldList create_struct_field_for_struct(Node* struct_specifier) {
     Node* opt_tag = struct_specifier->child->sibling;
     char* id;
-    if(!strcmp(opt_tag->id, "Epsilon")) {
+    if (!strcmp(opt_tag->id, "Epsilon")) {
         id = anonymous_struct_name();
     } else {
         id = opt_tag->child->data.text;

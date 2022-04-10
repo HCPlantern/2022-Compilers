@@ -26,8 +26,10 @@ void check_ExtDef(Node* node) {
         // 全局变量
         check_ExtDecList(specifier_node, specifier_node->sibling);
     } else if (!strcmp(specifier_node->sibling->id, "SEMI")) {
-        // todo: 仅结构体的定义而没有声明结构体变量
-
+        // 忽略 int; 的情况 仅考虑 struct temp {...};
+        if (!strcmp(specifier_node->child->id, "StructSpecifier")) {
+            create_struct_field_for_struct(specifier_node->child);
+        }
     } else if (!strcmp(specifier_node->sibling->id, "FunDec")) {
         // todo: 函数体
     }
