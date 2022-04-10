@@ -131,29 +131,39 @@ Type create_func_type(Node* specifier, Node* fundec) {
     res->kind = FUNC;
     // get return type
     Type return_type;
+    FieldList next_field;
+    res->u.function.args == NULL;
     if (!strcmp(specifier->child->id, "TYPE")) {
         return_type = create_basic_type(specifier);
     } else if (!strcmp(specifier->child->id, "StructSpecifier")) {
         return_type = create_struct_type(specifier);
     }
     res->u.function.return_type = return_type;
-
     // handle args
     if (fundec->child->sibling->sibling->sibling == NULL) {
         res->u.function.arg_len = 0;
-        res->u.function.args = NULL;
     } else {
         Node* varlist = fundec->child->sibling->sibling;
-        Node* paramdec = NULL;
+        Node* paramdec = varlist->child;
         while (true) {
-            paramdec = varlist->child;
-
-            if (paramdec->sibling == NULL) break;
-            else paramdec = paramdec->sibling->sibling->child;
+            FieldList arg = check_VarDec(paramdec->child, paramdec->child->sibling, false);
+            // concat args field
+            if (res->u.function.args == NULL) {
+                res->u.function.args = arg;
+                next_field = arg;
+            } else {
+                next_field->next = arg;
+                next_field = arg;
+            }
+            if (paramdec->sibling == NULL)
+                break;
+            else {
+                paramdec = paramdec->sibling->sibling->child;
+            }
         }
     }
+    return res;
 }
-
 
 FieldList create_basic_and_struct_field_for_var(char* name, Node* specifier) {
     Type new_type;
@@ -213,9 +223,6 @@ FieldList create_array_field(Node* node, Node* specifier) {
     return NULL;
 }
 
-
-
-
 // check name in table and check fields in struct
 // add struct itself into table
 FieldList create_struct_field_for_struct(Node* struct_specifier) {
@@ -233,7 +240,8 @@ FieldList create_struct_field_for_struct(Node* struct_specifier) {
     res->next = NULL;
     res->type = malloc(sizeof(struct _Type));
     res->type->kind = STRUCTURE;
-    FieldList next_structure_field = res->type->u.structure;
+    res->type->u.structure == NULL;
+    FieldList next_field;
 
     // handle deflist
     // in order to check field name
@@ -252,7 +260,7 @@ FieldList create_struct_field_for_struct(Node* struct_specifier) {
                 printf("Error type 15 at line %d: Initialized field \"%s\"", dec->lineno, dec->child->child->data.text);
             }
             Node* vardec = dec->child;
-            FieldList field = check_VarDec(specifier, vardec, true);
+            FieldList field = check_VarDec(specifier, vardec, false);
 
             // check whether field name repeats
             if (find_field(table, field->name) != NULL) {
@@ -261,9 +269,13 @@ FieldList create_struct_field_for_struct(Node* struct_specifier) {
                 add_table_node(table, field);
             }
             // concat StructureField
-            next_structure_field = field;
-            if (next_structure_field->next != NULL)
-                next_structure_field = next_structure_field->next;
+            if (res->type->u.structure == NULL) {
+                res->type->u.structure = field;
+                next_field = field;
+            } else {
+                next_field->next = field;
+                next_field = field;
+            }
 
             if (declist->child->sibling == NULL)
                 break;
@@ -283,4 +295,3 @@ FieldList create_struct_field_for_struct(Node* struct_specifier) {
 
     return res;
 }
-

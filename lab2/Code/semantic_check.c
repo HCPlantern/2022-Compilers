@@ -40,7 +40,7 @@ void check_ExtDef(Node* node) {
 void check_ExtDecList(Node* specifier, Node* node) {
     while (true) {
         assert(!strcmp(node->id, "ExtDecList"));
-        check_VarDec(specifier, node->child, false);
+        check_VarDec(specifier, node->child, true);
         if (node->child->sibling == NULL)
             break;
         else
@@ -49,12 +49,12 @@ void check_ExtDecList(Node* specifier, Node* node) {
 }
 
 // 处理单个变量的定义或数组的定义
-FieldList check_VarDec(Node* specifier, Node* node, bool in_struct) {
+FieldList check_VarDec(Node* specifier, Node* node, bool need_check_table) {
     assert(!strcmp(node->id, "VarDec"));
     FieldList new_field;
     if (!strcmp(node->child->id, "ID")) {
         new_field = create_basic_and_struct_field_for_var(node->child->data.text, specifier);
-        if (!in_struct) {
+        if (need_check_table) {
             if (find_field(curr_table, new_field->name)) {
                 printf("Error type 4 at Line %d: Redefined variable \"%s\".\n", node->lineno, new_field->name);
             } else {
@@ -64,7 +64,7 @@ FieldList check_VarDec(Node* specifier, Node* node, bool in_struct) {
 
     } else if (!strcmp(node->child->id, "VarDec")) {
         new_field = create_array_field(node, specifier);
-        if (!in_struct) {
+        if (need_check_table) {
             if (find_field(curr_table, new_field->name)) {
                 printf("Error type 3 at Line %d: Redefined variable \"%s\".\n", node->lineno, new_field->name);
             } else {
@@ -76,22 +76,45 @@ FieldList check_VarDec(Node* specifier, Node* node, bool in_struct) {
 }
 // todo : add func declare only
 void check_func(Node* specifier) {
-    // add function def into table
     Node* fundec = specifier->sibling;
-
     Type func_type = create_func_type(specifier, fundec);
     char* name = fundec->child->data.text;
-    FieldList new_func_field = malloc(sizeof(struct _FieldList));
-    new_func_field->name = name;
-    new_func_field->type = func_type;
-    new_func_field->is_var = false;
-    // check function def: only check functions in table
-    if (find_func_field(curr_table, name) != NULL) {
-        printf("Error type 4 at Line %d: Redefined function \"%s\".\n", fundec->lineno, name);
+    FieldList field_found = find_func_field(curr_table, name);
+    if (!strcmp(specifier->sibling->sibling->id, "SEMI")) {
+        // func declare only
+        if (field_found != NULL && !type_equal(func_type, field_found->type)) {
+            printf("Error type 19 at Line %d: Inconsistent declaration of function \"%s\".\n", fundec->lineno, name);
+            // todo: delete func_type
+        } else if (field_found == NULL) {
+            FieldList new_func_field = malloc(sizeof(struct _FieldList));
+            new_func_field->name = name;
+            new_func_field->type = func_type;
+            new_func_field->is_var = false;
+            func_type->u.function.is_defined = false;
+            add_table_node(curr_table, new_func_field);
+        }
     } else {
-        add_table_node(curr_table, new_func_field);
+        // compst exists
+        if (field_found != NULL) {
+            if (field_found->type->u.function.is_defined) {
+                printf("Error type 4 at Line %d: Redefined function \"%s\".\n", fundec->lineno, name);
+            } else {
+                if (type_equal(func_type, field_found->type)) {
+                    field_found->type->u.function.is_defined = true;
+                    // todo : delete func_type
+                } else {
+                    printf("Error type 19 at Line %d: Inconsistent declaration of function \"%s\".\n", fundec->lineno, name);
+                }
+            }
+        } else {
+            FieldList new_func_field = malloc(sizeof(struct _FieldList));
+            new_func_field->name = name;
+            new_func_field->type = func_type;
+            new_func_field->is_var = false;
+            func_type->u.function.is_defined = true;
+            add_table_node(curr_table, new_func_field);
+        }
+
+        // todo : check compst
     }
-
-    // todo : check compst
-
 }

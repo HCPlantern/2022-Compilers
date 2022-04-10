@@ -7,34 +7,35 @@
 int global1, global2[3][5];
 int global3;
 */
-
-
-struct temp {
+int main(int a, int c); 
+int main(int a, int b) {
     int i;
-    struct temp {
-        int i;
-    }b;
-    float c;
-}a;
-
-/*
-struct node {
-    int val;
-    int list[5][7];
-}test, test2[3][4];
-
-struct someStruct {
-    int len;
-    int arr[10][9];
-    struct node temp;
-};
-
-int main() {
-    int a[10];
-    a[1.5];
 }
 
-int test() {
-    int c;
-}
-*/
+// struct temp {
+//     int i;
+//     struct temp {
+//         int i;
+//     }b;
+//     float c;
+// }a;
+
+// struct node {
+//     int val;
+//     int list[5][7];
+// }test, test2[3][4];
+
+// struct someStruct {
+//     int len;
+//     int arr[10][9];
+//     struct node temp;
+// };
+
+// int main() {
+//     int a[10];
+//     a[1.5];
+// }
+
+// int test() {
+//     int c;
+// }

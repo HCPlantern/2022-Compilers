@@ -23,6 +23,7 @@ struct _Type {
             int arg_len;
             Type return_type;
             FieldList args;
+            bool is_defined;
         } function;
     } u;
 };

@@ -26,8 +26,8 @@ Table new_table();
 void del_table(Table);
 void del_next(TableNode next);
 size_t cal_key_by_field(FieldList field);
-size_t cal_key(char* name);
+size_t cal_key(const char* name);
 void add_table_node(Table table, FieldList field);
-FieldList find_field(Table table, char* name);
-FieldList find_func_field(Table table, char* name);
+FieldList find_field(Table table, const char* name);
+FieldList find_func_field(Table table, const char* name);
 #endif
