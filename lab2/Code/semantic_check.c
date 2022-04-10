@@ -1,9 +1,12 @@
 #include "semantic_check.h"
 
 #define curr_table (stack->tables[stack->top - 1])
-
+#define FUNC_DEF_ARR_SIZE 100
 extern Node* syntax_tree_root;
 Stack stack;
+FieldList func_def_arr[FUNC_DEF_ARR_SIZE];
+int func_def_lineno_arr[FUNC_DEF_ARR_SIZE];
+size_t func_def_arr_index = 0;
 
 // 遍历所有的 ExtDef 结点
 void semantic_check(Node* node) {
@@ -16,6 +19,7 @@ void semantic_check(Node* node) {
         check_ExtDef(node->child);
         node = node->child->sibling;
     }
+    check_undefined_func();
 }
 
 void check_ExtDef(Node* node) {
@@ -92,6 +96,10 @@ void check_func(Node* specifier) {
             new_func_field->is_var = false;
             func_type->u.function.is_defined = false;
             add_table_node(curr_table, new_func_field);
+
+            func_def_arr[func_def_arr_index] = new_func_field;
+            func_def_lineno_arr[func_def_arr_index] = specifier->lineno;
+            func_def_arr_index++;
         }
     } else {
         // compst exists
@@ -114,7 +122,27 @@ void check_func(Node* specifier) {
             func_type->u.function.is_defined = true;
             add_table_node(curr_table, new_func_field);
         }
-
         // todo : check compst
+        check_DefList(specifier->sibling->sibling->child->sibling);
+        check_StmtList(specifier->sibling->sibling->child->sibling->sibling);
+
+    }
+}
+
+void check_DefList(Node* compst) {
+
+}
+
+void check_StmtList(Node* stmtlist) {
+
+}
+
+void check_undefined_func() {
+    FieldList field;
+    for(size_t i = 0; i < func_def_arr_index; i++) {
+        field = func_def_arr[i];
+        if (!field->type->u.function.is_defined) {
+            printf("Error type 18 at Line %d: Undefined function \"%s\".\n", func_def_lineno_arr[i], field->name);
+        }
     }
 }
