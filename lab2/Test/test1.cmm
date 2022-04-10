@@ -7,18 +7,18 @@
 int global1, global2[3][5];
 int global3;
 */
-int main(int a, int c); 
-int main(int a, int b) {
-    int i;
-}
 
-// struct temp {
-//     int i;
-//     struct temp {
-//         int i;
-//     }b;
-//     float c;
-// }a;
+
+struct temp {
+    int i;
+    struct temp {
+        int i;
+    }b;
+    float c;
+}a;
+
+int main(int temp, int b) {
+}
 
 // struct node {
 //     int val;

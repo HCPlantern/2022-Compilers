@@ -123,23 +123,59 @@ void check_func(Node* specifier) {
             add_table_node(curr_table, new_func_field);
         }
         // todo : check compst
-        check_DefList(specifier->sibling->sibling->child->sibling);
-        check_StmtList(specifier->sibling->sibling->child->sibling->sibling);
+        check_CompSt(specifier->sibling->sibling);
+    }
+}
+void check_CompSt(Node* compst) {
+    // push stack
+    Table table = new_table();
+    push(stack, table);
 
+    Node* deflist = compst->child->sibling;
+    Node* stmtlist = compst->child->sibling->sibling;
+    check_DefList(deflist);
+    check_StmtList(stmtlist);
+}
+
+// todo
+void check_DefList(Node* deflist) {
+    Node* def = NULL;
+    while (strcmp(deflist->id, "Epsilon") != 0) {
+        def = deflist->child;
+        Node* specifier = def->child;
+        Node* declist = specifier->sibling;
+        Node* dec = NULL;
+        while (true) {
+            dec = declist->child;
+            Node* vardec = dec->child;
+            // todo : check structs in all table
+            FieldList field = check_VarDec(specifier, vardec, true);
+
+            if (dec->child->sibling != NULL) {
+                // check assignment
+                Type exp_type = get_exp_type(dec->child->sibling->sibling);
+                Type field_type = field->type;
+                if (!type_equal(exp_type, field_type)) {
+                    printf("Error type 5 at Line %d: Type mismatched for assignment.\n", vardec->lineno);
+                }
+            }
+
+            if (declist->child->sibling == NULL)
+                break;
+            else
+                declist = declist->child->sibling->sibling;
+        }
+        deflist = def->sibling;
     }
 }
 
-void check_DefList(Node* compst) {
-
-}
-
+// todo
 void check_StmtList(Node* stmtlist) {
-
 }
 
 void check_undefined_func() {
     FieldList field;
-    for(size_t i = 0; i < func_def_arr_index; i++) {
+    for (size_t i = 0; i < func_def_arr_index; i++) {
         field = func_def_arr[i];
         if (!field->type->u.function.is_defined) {
             printf("Error type 18 at Line %d: Undefined function \"%s\".\n", func_def_lineno_arr[i], field->name);

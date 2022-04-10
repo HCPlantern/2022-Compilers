@@ -125,7 +125,6 @@ Type create_struct_type(Node* specifier) {
     return NULL;
 }
 
-// todo
 Type create_func_type(Node* specifier, Node* fundec) {
     Type res = malloc(sizeof(struct _Type));
     res->kind = FUNC;
@@ -146,7 +145,7 @@ Type create_func_type(Node* specifier, Node* fundec) {
         Node* varlist = fundec->child->sibling->sibling;
         Node* paramdec = varlist->child;
         while (true) {
-            FieldList arg = check_VarDec(paramdec->child, paramdec->child->sibling, false);
+            FieldList arg = check_VarDec(paramdec->child, paramdec->child->sibling, true);
             // concat args field
             if (res->u.function.args == NULL) {
                 res->u.function.args = arg;
@@ -163,6 +162,11 @@ Type create_func_type(Node* specifier, Node* fundec) {
         }
     }
     return res;
+}
+
+// todo
+Type get_exp_type(Node* exp) {
+
 }
 
 FieldList create_basic_and_struct_field_for_var(char* name, Node* specifier) {
