@@ -56,7 +56,7 @@ FieldList check_VarDec(Node* specifier, Node* node, bool need_check_table) {
         new_field = create_basic_and_struct_field_for_var(node->child->data.text, specifier);
         if (need_check_table) {
             if (find_field(curr_table, new_field->name)) {
-                printf("Error type 4 at Line %d: Redefined variable \"%s\".\n", node->lineno, new_field->name);
+                printf("Error type 3 at Line %d: Redefined variable \"%s\".\n", node->lineno, new_field->name);
             } else {
                 add_table_node(curr_table, new_field);
             }
@@ -74,7 +74,7 @@ FieldList check_VarDec(Node* specifier, Node* node, bool need_check_table) {
     }
     return new_field;
 }
-// todo : add func declare only
+
 void check_func(Node* specifier) {
     Node* fundec = specifier->sibling;
     Type func_type = create_func_type(specifier, fundec);
