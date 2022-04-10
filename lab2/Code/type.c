@@ -75,8 +75,6 @@ char* anonymous_struct_name() {
     return res;
 }
 
-// Create Types begin ---------------------------------------------------------------------
-
 Type create_basic_type(Node* specifier) {
     assert(!strcmp(specifier->child->id, "TYPE"));
 
@@ -97,6 +95,65 @@ Type create_array_type(int size) {
     new_type->u.array.elem = NULL;
     new_type->u.array.size = size;
 }
+
+// if this is struct definiton, create struct type and return, create struct field
+// if StructSpecifier -> STRUCT Tag, check this struct def from stack top to buttom, if find it return its type else return NULL
+Type create_struct_type(Node* specifier) {
+    Node* struct_specifier = specifier->child;
+    assert(!strcmp(struct_specifier->id, "StructSpecifier"));
+    if (struct_specifier->child->sibling->sibling != NULL) {
+        // add this struct itself into table
+        FieldList new_struct_field = create_struct_field_for_struct(struct_specifier);
+        Type res = malloc(sizeof(struct _Type));
+        res->kind = STRUCTURE;
+        res->u.structure = new_struct_field;
+        return res;
+    } else if (!strcmp(struct_specifier->child->sibling->id, "Tag")) {
+        // find struct in all tables
+        char* name = struct_specifier->child->sibling->child->id;
+        FieldList field = NULL;
+        size_t stack_index = stack->top - 1;
+        Table table;
+        while (stack_index >= 0) {
+            table = stack->tables[stack_index];
+            field = find_field(table, name);
+            if (field != NULL) return field->type;
+            stack_index--;
+        }
+        return NULL;
+    }
+    return NULL;
+}
+
+// todo
+Type create_func_type(Node* specifier, Node* fundec) {
+    Type res = malloc(sizeof(struct _Type));
+    res->kind = FUNC;
+    // get return type
+    Type return_type;
+    if (!strcmp(specifier->child->id, "TYPE")) {
+        return_type = create_basic_type(specifier);
+    } else if (!strcmp(specifier->child->id, "StructSpecifier")) {
+        return_type = create_struct_type(specifier);
+    }
+    res->u.function.return_type = return_type;
+
+    // handle args
+    if (fundec->child->sibling->sibling->sibling == NULL) {
+        res->u.function.arg_len = 0;
+        res->u.function.args = NULL;
+    } else {
+        Node* varlist = fundec->child->sibling->sibling;
+        Node* paramdec = NULL;
+        while (true) {
+            paramdec = varlist->child;
+
+            if (paramdec->sibling == NULL) break;
+            else paramdec = paramdec->sibling->sibling->child;
+        }
+    }
+}
+
 
 FieldList create_basic_and_struct_field_for_var(char* name, Node* specifier) {
     Type new_type;
@@ -156,42 +213,8 @@ FieldList create_array_field(Node* node, Node* specifier) {
     return NULL;
 }
 
-// if this is struct definiton, create struct type and return, create struct field
-// if StructSpecifier -> STRUCT Tag, check this struct def from stack top to buttom, if find it return its type else return NULL
-Type create_struct_type(Node* specifier) {
-    Node* struct_specifier = specifier->child;
-    assert(!strcmp(struct_specifier->id, "StructSpecifier"));
-    if (struct_specifier->child->sibling->sibling != NULL) {
-        // add this struct itself into table
-        FieldList new_struct_field = create_struct_field_for_struct(struct_specifier);
-        Type res = malloc(sizeof(struct _Type));
-        res->kind = STRUCTURE;
-        res->u.structure = new_struct_field;
-        return res;
-    } else if (!strcmp(struct_specifier->child->sibling->id, "Tag")) {
-        // find struct in all tables
-        char* name = struct_specifier->child->sibling->child->id;
-        FieldList field = NULL;
-        size_t stack_index = stack->top - 1;
-        Table table;
-        while (stack_index >= 0) {
-            table = stack->tables[stack_index];
-            field = find_field(table, name);
-            if (field != NULL) return field->type;
-            stack_index--;
-        }
-        return NULL;
-    }
-    return NULL;
-}
 
-// todo
-Type create_func_type() {
-}
 
-// Create Types end ---------------------------------------------------------------------
-
-// Create fields begin ---------------------------------------------------------------------
 
 // check name in table and check fields in struct
 // add struct itself into table
@@ -261,4 +284,3 @@ FieldList create_struct_field_for_struct(Node* struct_specifier) {
     return res;
 }
 
-// Create fields end ---------------------------------------------------------------------

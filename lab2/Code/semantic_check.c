@@ -31,7 +31,8 @@ void check_ExtDef(Node* node) {
             create_struct_field_for_struct(specifier_node->child);
         }
     } else if (!strcmp(specifier_node->sibling->id, "FunDec")) {
-        // todo: 函数体
+        // functions
+        check_func(specifier_node, specifier_node->sibling, specifier_node->sibling->sibling);
     }
 }
 
@@ -65,11 +66,30 @@ FieldList check_VarDec(Node* specifier, Node* node, bool in_struct) {
         new_field = create_array_field(node, specifier);
         if (!in_struct) {
             if (find_field(curr_table, new_field->name)) {
-                printf("Error type 4 at Line %d: Redefined variable \"%s\".\n", node->lineno, new_field->name);
+                printf("Error type 3 at Line %d: Redefined variable \"%s\".\n", node->lineno, new_field->name);
             } else {
                 add_table_node(curr_table, new_field);
             }
         }
     }
     return new_field;
+}
+
+void check_func(Node* specifier, Node* fundec, Node* compst) {
+    // add function def into table
+    Type func_type = create_func_type(specifier, fundec);
+    char* name = fundec->child->data.text;
+    FieldList new_func_field = malloc(sizeof(struct _FieldList));
+    new_func_field->name = name;
+    new_func_field->type = func_type;
+    new_func_field->is_var = false;
+    // check function def: only check functions in table
+    if (find_func_field(curr_table, name) != NULL) {
+        printf("Error type 4 at Line %d: Redefined function \"%s\".\n", fundec->lineno, name);
+    } else {
+        add_table_node(curr_table, new_func_field);
+    }
+
+    // todo : check compst
+
 }

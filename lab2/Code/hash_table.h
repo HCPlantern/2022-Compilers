@@ -29,4 +29,5 @@ size_t cal_key_by_field(FieldList field);
 size_t cal_key(char* name);
 void add_table_node(Table table, FieldList field);
 FieldList find_field(Table table, char* name);
+FieldList find_func_field(Table table, char* name);
 #endif
