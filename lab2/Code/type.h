@@ -10,7 +10,7 @@ struct _Type {
     enum {BASIC, ARRAY, STRUCTURE, FUNC, UNDEF} kind;   // UNDEF means conflict (in another word, error).
     union {
         // basic
-        enum {INT, FLOAT} basic;
+        enum yytokentype basic;
         // array
         struct {
             Type elem;
