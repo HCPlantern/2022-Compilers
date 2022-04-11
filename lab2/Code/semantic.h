@@ -21,7 +21,8 @@ void var_dec_check(Node varDec);
 // TODO: add support for array dec
 
 // generate the type of the funDec, check the table.
-void fun_dec_check(Node funDec, Node varList);  // varList is null if no para
+// WARNING: this check should be put in 
+void fun_dec_check(Node funDec, Node varList/*, bool isDef*/);  // varList is null if no para
 
 
 void new_scope();    // meet '{'
@@ -33,7 +34,7 @@ void condition_type_check(Node condition_exp);
 
 // we do not support initialization of array and struct var because exp cannot be array or struct val.
 // so the current type must be basic type.
-void dec_assign_check(Node dec);
+void dec_assign_check(Node father, Node varDec, Node exp);
 
 /* check for exps.
    behavior:
@@ -51,10 +52,10 @@ void parathese_check(Node father, Node inner_exp);  // (exp)
 void minus_check(Node father, Node exp);      // -
 void not_check(Node father, Node exp);        // !
 // void tilde_check(Node father, Node exp);   // ~
-void func_call_check(Node father, Node args);  // if has no arg, args is NULL
-void array_check(Node father, Node index);      // arr[exp]
+void func_call_check(Node father, Node func, Node args);  // if has no arg, args is NULL
+void array_check(Node father, Node array, Node index);      // arr[exp]
 void field_access_check(Node father, Node base, Node field); // exp.field
-void id_check(Node id); // related error: 1 2
-void literal_check(Node node);  // INT FLOAT
+void id_check(Node father); // related error: 1 2
+void literal_check(Node father);  // INT FLOAT
 
 #endif

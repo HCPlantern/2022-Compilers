@@ -1,6 +1,7 @@
 %{
     #include "node.h"
     #include "lex.yy.c"
+    #include "semantic.h"
     extern Node* syntax_tree_root;
 %}
 
@@ -112,29 +113,29 @@ DecList : Dec {$$ = build_tree("DecList", 1, $1);}
     ;
 
 Dec : VarDec {$$ = build_tree("Dec", 1, $1);}
-    | VarDec ASSIGNOP Exp {$$ = build_tree("Dec", 3, $1, $2, $3);}
+    | VarDec ASSIGNOP Exp {$$ = build_tree("Dec", 3, $1, $2, $3); dec_assign_check($$, $1, $2);}
     ;
 
 /* Expressions */
-Exp : Exp ASSIGNOP Exp {$$ = build_tree("Exp", 3, $1, $2, $3);}
-    | Exp AND Exp {$$ = build_tree("Exp", 3, $1, $2, $3);}
-    | Exp OR Exp {$$ = build_tree("Exp", 3, $1, $2, $3);}
-    | Exp RELOP Exp {$$ = build_tree("Exp", 3, $1, $2, $3);}
-    | Exp PLUS Exp {$$ = build_tree("Exp", 3, $1, $2, $3);}
-    | Exp MINUS Exp {$$ = build_tree("Exp", 3, $1, $2, $3);}
-    | Exp STAR Exp {$$ = build_tree("Exp", 3, $1, $2, $3);}
-    | Exp DIV Exp {$$ = build_tree("Exp", 3, $1, $2, $3);}
-    | LP Exp RP {$$ = build_tree("Exp", 3, $1, $2, $3);}
-    | MINUS Exp {$$ = build_tree("Exp", 2, $1, $2);}
-    | NOT Exp {$$ = build_tree("Exp", 2, $1, $2);}
-    | TILDE Exp{$$ = build_tree("Exp", 2, $1, $2);}
-    | ID LP Args RP {$$ = build_tree("Exp", 4, $1, $2, $3, $4);}
-    | ID LP RP {$$ = build_tree("Exp", 3, $1, $2, $3);}
-    | Exp LB Exp RB {$$ = build_tree("Exp", 4, $1, $2, $3, $4);}
-    | Exp DOT ID {$$ = build_tree("Exp", 3, $1, $2, $3);}
-    | ID {$$ = build_tree("Exp", 1, $1);}
-    | INT {$$ = build_tree("Exp", 1, $1);}
-    | FLOAT {$$ = build_tree("Exp", 1, $1);}
+Exp : Exp ASSIGNOP Exp {$$ = build_tree("Exp", 3, $1, $2, $3); assignment_check($$, $1, $3);}
+    | Exp AND Exp {$$ = build_tree("Exp", 3, $1, $2, $3); logical_check($$, $1, $3);}
+    | Exp OR Exp {$$ = build_tree("Exp", 3, $1, $2, $3); logical_check($$, $1, $3);}
+    | Exp RELOP Exp {$$ = build_tree("Exp", 3, $1, $2, $3); relop_check($$, $1, $3);}
+    | Exp PLUS Exp {$$ = build_tree("Exp", 3, $1, $2, $3); binary_cal_check($$, $1, $3);}
+    | Exp MINUS Exp {$$ = build_tree("Exp", 3, $1, $2, $3); binary_cal_check($$, $1, $3);}
+    | Exp STAR Exp {$$ = build_tree("Exp", 3, $1, $2, $3); binary_cal_check($$, $1, $3);}
+    | Exp DIV Exp {$$ = build_tree("Exp", 3, $1, $2, $3); binary_cal_check($$, $1, $3);}
+    | LP Exp RP {$$ = build_tree("Exp", 3, $1, $2, $3); parathese_check($$, $2);}
+    | MINUS Exp {$$ = build_tree("Exp", 2, $1, $2); minus_check($$, $2);}
+    | NOT Exp {$$ = build_tree("Exp", 2, $1, $2); not_check($$, $2);}
+    | TILDE Exp{$$ = build_tree("Exp", 2, $1, $2); /* tilde_check($$, $2); */}
+    | ID LP Args RP {$$ = build_tree("Exp", 4, $1, $2, $3, $4); func_call_check($$, $1, $3);}
+    | ID LP RP {$$ = build_tree("Exp", 3, $1, $2, $3); func_call_check($$, $1, NULL);}
+    | Exp LB Exp RB {$$ = build_tree("Exp", 4, $1, $2, $3, $4); array_check($$, $1, $3);}
+    | Exp DOT ID {$$ = build_tree("Exp", 3, $1, $2, $3); field_access_check($$, $1, $3);}
+    | ID {$$ = build_tree("Exp", 1, $1); id_check($$);}
+    | INT {$$ = build_tree("Exp", 1, $1); literal_check($$);}
+    | FLOAT {$$ = build_tree("Exp", 1, $1); literal_check($$);}
     ;
 
 Args : Exp COMMA Args {$$ = build_tree("Args", 3, $1, $2, $3);}
