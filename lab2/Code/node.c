@@ -2,7 +2,7 @@
 #include "node.h"
 
 Node* syntax_tree_root;
-bool has_error = false;
+bool has_syntax_error = false;
 int prev_error_line = 0;
 
 int start_with_strtof(const char* yytext) {
@@ -77,10 +77,17 @@ Node* build_tree(char* id, int arg_len, ...) {
     return this;
 }
 
+void del_tree(Node* root) {
+    if (root == NULL) return;
+    del_tree(root->child);
+    del_tree(root->sibling);
+    free(root);
+}
+
 /* print tree from root in pre-order */
 void print_tree(Node* root, int indent) {
     // skip if has error and null and epsilon
-    if (has_error || root == NULL/* || !strcmp(root->id, "Epsilon")*/) {
+    if (has_syntax_error || root == NULL/* || !strcmp(root->id, "Epsilon")*/) {
         return;
     }
     // print the indent
@@ -114,7 +121,7 @@ void print_errorA(int lineno, char* msg, char* text) {
         printf("Error Type A at line %d: %s '%s'\n", lineno, msg, text);
         prev_error_line = lineno;
     }
-    has_error = true;
+    has_syntax_error = true;
 }
 
 void yyerror(char* msg) {
@@ -122,12 +129,12 @@ void yyerror(char* msg) {
         printf("Error type B at Line %d: %s\n", yylineno, msg);
         prev_error_line = yylineno;
     }
-    has_error = true;
+    has_syntax_error = true;
 }
 // void print_errorB(int lineno, char* msg) {
 //     if (!(lineno == prev_error_line)) {
 //         printf("Error type B at Line %d: syntax error%s\n", lineno, msg);
 //         prev_error_line = lineno;
 //     }
-//     has_error = true;
+//     has_syntax_error = true;
 // }

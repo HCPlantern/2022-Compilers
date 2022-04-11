@@ -2,6 +2,7 @@
 #include "semantic_check.h"
 
 extern Node* syntax_tree_root;
+extern void del_tree(Node* root);
 
 int main(int argc, char** argv) {
     if (argc<=1) return 1;
@@ -15,6 +16,7 @@ int main(int argc, char** argv) {
     // yydebug = 1;
     yyparse();
     semantic_check(syntax_tree_root);
+    del_tree(syntax_tree_root);
     return 0;
 }
 
