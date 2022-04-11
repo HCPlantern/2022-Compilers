@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "type.h"
 // #define YYDEBUG 1
 
 extern int yylineno;
@@ -28,6 +29,14 @@ typedef struct tree_node {
   struct tree_node* child;
   struct tree_node* sibling;
   bool is_terminal;
+
+  FieldList corresponding_field;  // store inner presentation. (modeled by type and FieldList)
+  Type type;
+  bool is_constant;
+  union constant {
+    int i;
+    float f;
+  } constant;
 } Node;
 
 
