@@ -81,7 +81,7 @@ ParamDec : Specifier VarDec {$$ = build_tree("ParamDec", 2, $1, $2);}
     ;
 
 /* Statements */
-CompSt : LC DefList StmtList RC {$$ = build_tree("CompSt", 4, $1, $2, $3, $4);}
+CompSt : LC {new_scope();} DefList StmtList RC {exit_scope();} {$$ = build_tree("CompSt", 4, $1, $3, $4, $5);}
     | error RC {}
     ;
 
