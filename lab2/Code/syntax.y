@@ -37,6 +37,7 @@ ExtDefList : ExtDef ExtDefList {$$ = build_tree("ExtDefList", 2, $1, $2);}
 ExtDef : Specifier ExtDecList SEMI {$$ = build_tree("ExtDef", 3, $1, $2, $3);}
     | Specifier SEMI {$$ = build_tree("ExtDef", 2, $1, $2);}
     | Specifier FunDec CompSt {$$ = build_tree("ExtDef", 3, $1, $2, $3);}
+    | Specifier FunDec SEMI {$$ = build_tree("ExtDef", 3, $1, $2, $3);}
     | Specifier ExtDecList ASSIGNOP error SEMI {}
     | Specifier error SEMI {}
     | error SEMI {}

@@ -36,7 +36,7 @@ size_t cal_key_by_field(FieldList field) {
     return cal_key(field->name);
 }
 
-size_t cal_key(char* name) {
+size_t cal_key(const char* name) {
     unsigned long val = 0, i;
     for (; *name; ++name) {
         val = (val << 2) + *name;
@@ -60,7 +60,7 @@ void add_table_node(Table table, FieldList field) {
     table[key]->len++;
 }
 
-FieldList find_field(Table table, char* name) {
+FieldList find_field(Table table, const char* name) {
     size_t key = cal_key(name);
     TableNode temp = table[key]->next;
     while (temp != NULL) {
@@ -74,7 +74,7 @@ FieldList find_field(Table table, char* name) {
     return NULL;
 }
 
-FieldList find_func_field(Table table, char* name) {
+FieldList find_func_field(Table table, const char* name) {
     FieldList field = find_field(table, name);
     if (field == NULL) return NULL;
     if (field->type->kind == FUNC)
