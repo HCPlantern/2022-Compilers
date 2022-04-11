@@ -3,6 +3,7 @@
 #define curr_table (stack->tables[stack->top - 1])
 #define FUNC_DEF_ARR_SIZE 100
 extern Node* syntax_tree_root;
+extern bool has_syntax_error;
 Stack stack;
 FieldList func_def_arr[FUNC_DEF_ARR_SIZE];
 int func_def_lineno_arr[FUNC_DEF_ARR_SIZE];
@@ -10,6 +11,7 @@ size_t func_def_arr_index = 0;
 
 // 遍历所有的 ExtDef 结点
 void semantic_check(Node* node) {
+    if (has_syntax_error) return;
     stack = new_stack();
     Table table = new_table();
     push(stack, table);
@@ -122,7 +124,6 @@ void check_func(Node* specifier) {
             func_type->u.function.is_defined = true;
             add_table_node(curr_table, new_func_field);
         }
-        // todo : check compst
         check_CompSt(specifier->sibling->sibling);
     }
 }

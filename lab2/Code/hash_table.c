@@ -14,6 +14,7 @@ Table new_table() {
     return table;
 }
 
+// only delete table 
 void del_table(Table table) {
     for (size_t i = 0; i < TABLE_LEN; i++) {
         del_next(table[i]->next);
@@ -23,12 +24,9 @@ void del_table(Table table) {
 }
 
 void del_next(TableNode next) {
-    if (next->next == NULL)
-        free(next);
-    else {
-        del_next(next->next);
-        free(next);
-    }
+    if (next == NULL) return;
+    del_next(next->next);
+    free(next);
 }
 
 // 计算给定 field 的 hash table 键值

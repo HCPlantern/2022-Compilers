@@ -75,17 +75,25 @@ char* anonymous_struct_name() {
     return res;
 }
 
-Type create_basic_type(Node* specifier) {
-    assert(!strcmp(specifier->child->id, "TYPE"));
-
+Type create_int_type() {
     Type new_type = malloc(sizeof(struct _Type));
     new_type->kind = BASIC;
+    new_type->u.basic = INT;
+}
+
+Type create_float_type() {
+    Type new_type = malloc(sizeof(struct _Type));
+    new_type->kind = BASIC;
+    new_type->u.basic = FLOAT;
+}
+Type create_basic_type(Node* specifier) {
+    assert(!strcmp(specifier->child->id, "TYPE"));
     if (!strcmp(specifier->child->data.text, "int")) {
-        new_type->u.basic = INT;
+        return create_int_type();
     } else if (!strcmp(specifier->child->data.text, "float")) {
-        new_type->u.basic = FLOAT;
+        return create_float_type();
     }
-    return new_type;
+    return NULL;
 }
 
 // u.array.elem is null
@@ -111,16 +119,8 @@ Type create_struct_type(Node* specifier) {
     } else if (!strcmp(struct_specifier->child->sibling->id, "Tag")) {
         // find struct in all tables
         char* name = struct_specifier->child->sibling->child->id;
-        FieldList field = NULL;
-        size_t stack_index = stack->top - 1;
-        Table table;
-        while (stack_index >= 0) {
-            table = stack->tables[stack_index];
-            field = find_field(table, name);
-            if (field != NULL) return field->type;
-            stack_index--;
-        }
-        return NULL;
+        FieldList field = find_any_in_stack(stack, name);
+        return field->type;
     }
     return NULL;
 }
@@ -166,7 +166,30 @@ Type create_func_type(Node* specifier, Node* fundec) {
 
 // todo
 Type get_exp_type(Node* exp) {
+    Node* child = exp->child;
+    char* child_id = child->id;
+    if (!strcmp(child_id, "ID") && child->sibling == NULL) {
+        return find_any_in_stack(stack, child_id)->type;
+    } else if (!strcmp(child_id, "ID") && child->sibling != NULL) {
+        // todo exp is function call
+    } else if (!strcmp(child_id, "INT")) {
+        return create_int_type();
+    } else if (!strcmp(child_id, "FLOAT")) {
+        return create_float_type;
+    } else if (!strcmp(child_id, "LP")) {
+        return get_exp_type(child->sibling);
+    } else if (!strcmp(child_id, "MINUS")) {
+        Type type = get_exp_type(child->sibling);
+        if (type->kind != BASIC)
+            printf("Error type 7 at Line %d: Type mismatched for operands.", child->lineno);
+    } else if (!strcmp(child_id, "NOT")) {
+        Type type = get_exp_type(child->sibling);
+        if (type->kind != BASIC || type->u.basic != INT) {
+            printf("Error type 7 at Line %d: Type mismatched for operands.", child->lineno);
+        }
+    } else if (!strcmp(child_id, "Exp")) {
 
+    }
 }
 
 FieldList create_basic_and_struct_field_for_var(char* name, Node* specifier) {
