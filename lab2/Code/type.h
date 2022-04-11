@@ -7,7 +7,7 @@ typedef struct _Type* Type;
 typedef struct _FieldList* FieldList;
 
 struct _Type {
-    enum { BASIC, ARRAY, STRUCTURE, FUNC} kind;
+    enum {BASIC, ARRAY, STRUCTURE, FUNC, UNDEF} kind;   // UNDEF means conflict (in another word, error).
     union {
         // basic
         enum {INT, FLOAT} basic;

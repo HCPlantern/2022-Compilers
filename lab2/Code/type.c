@@ -63,7 +63,7 @@ bool type_equal(Type type1, Type type2) {
         return false;
     }
 
-    // even the kinds do not match each other.
+    // even the kinds do not match each other or one of which is UNDEF
     return false;
 }
 
