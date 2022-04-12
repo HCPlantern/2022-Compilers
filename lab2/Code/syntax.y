@@ -1,8 +1,14 @@
 %{
     #include "lex.yy.c"
     #include "semantic.h"
+    #include "semantic_check.h"
     #include "node.h"
+    #include "hash_table.h"
+    #include "stack.h"
     extern Node* syntax_tree_root;
+    extern void check_ExtDef(Node* node);
+    extern void check_ExtDecList(Node* specifier, Node* node);
+    extern void check_func(Node* specifier);
 %}
 
 %union {
@@ -13,7 +19,7 @@
 %token <node> INT FLOAT ID SEMI COMMA ASSIGNOP RELOP PLUS MINUS STAR DIV AND OR DOT NOT TYPE LP RP LB RB LC RC STRUCT RETURN IF ELSE WHILE TILDE 
 
 /* declared non-terminals */
-%type <node> Program ExtDefList ExtDef ExtDecList Specifier StructSpecifier OptTag Tag VarDec FunDec VarList ParamDec CompSt StmtList Stmt DefList Def DecList Dec Exp Args
+%type <node> Program ExtDefList ExtDef ExtDecList Specifier StructSpecifier OptTag Tag VarDec FunDec VarList ParamDec CompSt StmtList Stmt DefList Def DecList Dec Exp Args LValue
 
 %right ASSIGNOP
 %left OR
@@ -35,10 +41,10 @@ ExtDefList : ExtDef ExtDefList {$$ = build_tree("ExtDefList", 2, $1, $2);}
     | /* empty */ {$$ = new_node("Epsilon");}
     ;
 /* def of global var, struct and function */
-ExtDef : Specifier ExtDecList SEMI {$$ = build_tree("ExtDef", 3, $1, $2, $3);}
-    | Specifier SEMI {$$ = build_tree("ExtDef", 2, $1, $2);}
-    | Specifier FunDec CompSt {$$ = build_tree("ExtDef", 3, $1, $2, $3);}
-    | Specifier FunDec SEMI {$$ = build_tree("ExtDef", 3, $1, $2, $3);}
+ExtDef : Specifier ExtDecList SEMI {$$ = build_tree("ExtDef", 3, $1, $2, $3);check_ExtDecList($1, $2);}
+    | Specifier SEMI {$$ = build_tree("ExtDef", 2, $1, $2); check_ExtDef($$);}
+    | Specifier FunDec { build_tree("ExtDef", 2, $1, $2); check_func($1);} CompSt {$$->sibling = $4;}
+    | Specifier FunDec SEMI {$$ = build_tree("ExtDef", 3, $1, $2, $3);check_func($$);}
     | Specifier ExtDecList ASSIGNOP error SEMI {}
     | Specifier error SEMI {}
     | error SEMI {}
@@ -117,7 +123,7 @@ Dec : VarDec {$$ = build_tree("Dec", 1, $1);}
     ;
 
 /* Expressions */
-Exp : Exp ASSIGNOP Exp {$$ = build_tree("Exp", 3, $1, $2, $3); assignment_check($$, $1, $3);}
+Exp : LValue ASSIGNOP Exp {$$ = build_tree("Exp", 3, $1, $2, $3); assignment_check($$, $1, $3);}
     | Exp AND Exp {$$ = build_tree("Exp", 3, $1, $2, $3); logical_check($$, $1, $3);}
     | Exp OR Exp {$$ = build_tree("Exp", 3, $1, $2, $3); logical_check($$, $1, $3);}
     | Exp RELOP Exp {$$ = build_tree("Exp", 3, $1, $2, $3); relop_check($$, $1, $3);}
@@ -136,6 +142,11 @@ Exp : Exp ASSIGNOP Exp {$$ = build_tree("Exp", 3, $1, $2, $3); assignment_check(
     | ID {$$ = build_tree("Exp", 1, $1); id_check($$);}
     | INT {$$ = build_tree("Exp", 1, $1); literal_check($$);}
     | FLOAT {$$ = build_tree("Exp", 1, $1); literal_check($$);}
+    ;
+
+LValue : ID {$$ = build_tree("LValue", 1, $1);}
+    | Exp LB Exp RB {$$ = build_tree("LValue", 4, $1, $2, $3, $4);}
+    | Exp DOT ID {$$ = build_tree("LValue", 3, $1, $2, $3);}
     ;
 
 Args : Exp COMMA Args {$$ = build_tree("Args", 3, $1, $2, $3);}

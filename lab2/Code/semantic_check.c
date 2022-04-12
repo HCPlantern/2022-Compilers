@@ -12,28 +12,28 @@ int func_def_lineno_arr[FUNC_DEF_ARR_SIZE];
 size_t func_def_arr_index = 0;
 
 // 遍历所有的 ExtDef 结点
-void semantic_check(Node* node) {
-    if (has_syntax_error) return;
-    stack = new_stack();
-    Table table = new_table();
-    push(stack, table);
-    node = node->child;
-    assert(!strcmp(node->id, "ExtDefList"));
-    while (strcmp(node->id, "Epsilon") != 0) {
-        check_ExtDef(node->child);
-        node = node->child->sibling;
-    }
-    check_undefined_func();
-}
+// void semantic_check(Node* node) {
+//     if (has_syntax_error) return;
+//     stack = new_stack();
+//     Table table = new_table();
+//     push(stack, table);
+//     node = node->child;
+//     assert(!strcmp(node->id, "ExtDefList"));
+//     while (strcmp(node->id, "Epsilon") != 0) {
+//         check_ExtDef(node->child);
+//         node = node->child->sibling;
+//     }
+// }
 
 void check_ExtDef(Node* node) {
     Node* specifier_node = node->child;
     assert(!strcmp(specifier_node->id, "Specifier"));
 
-    if (!strcmp(specifier_node->sibling->id, "ExtDecList")) {
-        // 全局变量
-        check_ExtDecList(specifier_node, specifier_node->sibling);
-    } else if (!strcmp(specifier_node->sibling->id, "SEMI")) {
+    // if (!strcmp(specifier_node->sibling->id, "ExtDecList")) {
+    //     // 全局变量
+    //     check_ExtDecList(specifier_node, specifier_node->sibling);
+    // } else 
+    if (!strcmp(specifier_node->sibling->id, "SEMI")) {
         // 忽略 int; 的情况 仅考虑 struct temp {...};
         if (!strcmp(specifier_node->child->id, "StructSpecifier")) {
             create_struct_field_for_struct(specifier_node->child);
@@ -88,7 +88,7 @@ void check_func(Node* specifier) {
     Type func_type = create_func_type(specifier, fundec);
     char* name = fundec->child->data.text;
     FieldList field_found = find_func_field(curr_table, name);
-    if (!strcmp(specifier->sibling->sibling->id, "SEMI")) {
+    if (specifier->sibling->sibling != NULL) {
         // func declare only
         if (field_found != NULL && !type_equal(func_type, field_found->type)) {
             printf("Error type 19 at Line %d: Inconsistent declaration of function \"%s\".\n", fundec->lineno, name);
@@ -126,7 +126,7 @@ void check_func(Node* specifier) {
             func_type->u.function.is_defined = true;
             add_table_node(curr_table, new_func_field);
         }
-        check_CompSt(specifier->sibling->sibling);
+        // check_CompSt(specifier->sibling->sibling);
     }
 }
 void check_CompSt(Node* compst) {
@@ -140,8 +140,8 @@ void check_CompSt(Node* compst) {
     // check_StmtList(stmtlist);
 }
 
-// todo
-void check_DefList(Node* deflist) {
+// // todo
+// void check_DefList(Node* deflist) {
     // Node* def = NULL;
     // while (strcmp(deflist->id, "Epsilon") != 0) {
     //     def = deflist->child;
@@ -170,11 +170,11 @@ void check_DefList(Node* deflist) {
     //     }
     //     deflist = def->sibling;
     // }
-}
+// }
 
-// todo
-void check_StmtList(Node* stmtlist) {
-}
+// // todo
+// void check_StmtList(Node* stmtlist) {
+// }
 
 void check_undefined_func() {
     FieldList field;

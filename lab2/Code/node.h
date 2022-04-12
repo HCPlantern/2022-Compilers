@@ -9,8 +9,9 @@
 #include <string.h>
 // #define YYDEBUG 1
 
-typedef struct _Type* Type;
-typedef struct _FieldList* FieldList;
+#include "type.h"
+// typedef struct _Type* Type;
+// typedef struct _FieldList* FieldList;
 
 extern int yylineno;
 extern char* yytext;

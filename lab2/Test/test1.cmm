@@ -18,6 +18,7 @@ struct temp {
 }a;
 
 int main(int temp, int b) {
+    int i = 1;
 }
 
 // struct node {

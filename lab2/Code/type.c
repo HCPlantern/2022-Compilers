@@ -262,7 +262,6 @@ FieldList create_struct_field_for_struct(Node* struct_specifier) {
     } else {
         id = opt_tag->child->data.text;
     }
-
     FieldList res = malloc(sizeof(struct _FieldList));
     res->is_var = false;
     res->name = id;
@@ -305,11 +304,15 @@ FieldList create_struct_field_for_struct(Node* struct_specifier) {
                 next_field->next = field;
                 next_field = field;
             }
-
+            assert(declist != NULL);
+            assert(declist->child != NULL);
             if (declist->child->sibling == NULL)
                 break;
-            else
+            else {
+                assert(declist->child->sibling != NULL);
                 declist = declist->child->sibling->sibling;
+            }
+            printf("leave second while\n");
         }
         deflist = def->sibling;
     }
@@ -321,6 +324,5 @@ FieldList create_struct_field_for_struct(Node* struct_specifier) {
     } else {
         add_table_node(curr_table, res);
     }
-
     return res;
 }
