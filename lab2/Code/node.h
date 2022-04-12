@@ -35,7 +35,9 @@ typedef struct tree_node {
 
     FieldList corresponding_field;  // store inner presentation. (modeled by type and FieldList). NULL(abort) for non-field.
     struct _Type type;
-    bool is_constant;
+    // WARNING: in lab2, even the const prop for literals is unsupported.
+    bool is_constant;  // only exp that consists of literals and operators could be constant.
+    
     union _Constant {
         uint32_t i;
         float f;

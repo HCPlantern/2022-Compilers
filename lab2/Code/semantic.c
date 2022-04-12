@@ -3,7 +3,7 @@
 #include "node.h"
 
 static const struct _Type T_BOOL = {BASIC, T_INT};
-static const struct _Type T_UNDEF = {UNDEF, T_INT};
+static const struct _Type T_UNDEF = {UNDEF, T_INT};  // WARNING: kind should be examined before u.basic.
 
 // global variables that help sematic check.
 // make sure that when the current checking process is done,
@@ -12,8 +12,21 @@ static const struct _Type T_UNDEF = {UNDEF, T_INT};
 static Type current_def_type;
 static Node args_for_func_def;
 
+static inline union _constant {int i; float f;} cal(Node* father, Node* exp1, Node* exp2) {
+    union _constant c = {0, 0.0};
+    return c;
+}
+
 static inline bool is_undef(Node* exp) {
     return exp->type.kind == UNDEF;
+}
+
+static inline bool is_int(Node* exp) {
+    return exp->type.kind == BASIC && exp->type.u.basic == T_INT;
+}
+
+static inline bool is_float(Node* exp) {
+    return exp->type.kind == BASIC && exp->type.u.basic == T_FLOAT;
 }
 
 static inline void set_val(Node* father, struct _Type t, bool is_constant, uint32_t i, float f, FieldList field) {
@@ -51,7 +64,11 @@ void return_type_check(Node* ret_exp) {
 }
 
 void condition_type_check(Node* condition_exp) {
-
+    // illegal. currently no ignorance for errors happened in sub exp
+    if (!is_int(condition_exp)) {
+        // it seems that no error type matches this situation.
+        printf("Error type ? at Line %d: Type conflict. condition exp is not int.\n", condition_exp->lineno);
+    }
 }
 
 void dec_assign_check(Node* father, Node* varDec, Node* exp) {
@@ -61,13 +78,32 @@ void dec_assign_check(Node* father, Node* varDec, Node* exp) {
 // calculation
 
 void binary_cal_check(Node* father, Node* exp1, Node* exp2) {
+    // illegal.
     if (is_undef(exp1) || is_undef(exp2)) {
         set_val(father, T_UNDEF, false, 0, 0, NULL);
         return;
     }
     if (!type_equal(&(exp1->type), &(exp2->type))) {
-        
+        set_val(father, T_UNDEF, false, 0, 0, NULL);
+        printf("Error type 7 at Line %d: Type conflict. binary op.\n", father->lineno);
+        return;
     }
+
+    // legal.
+    if (exp1->is_constant && exp2->is_constant) { // only exps that consists of literals and ops could be constant.
+        if (exp1->type.u.basic == T_INT) {
+            set_val(father, exp1->type, true, 0, 0, NULL);
+        }
+        else if (exp1->type.u.basic == T_FLOAT) {
+            set_val(father, exp1->type, true, 0, 0, NULL);
+        }
+        else {
+            assert(0);
+        }
+        return;
+    }
+
+    set_val(father, exp1->type, false, 0, 0, NULL);
 }
 
 void assignment_check(Node* father, Node* lValue, Node* rValue) {
@@ -75,23 +111,78 @@ void assignment_check(Node* father, Node* lValue, Node* rValue) {
 }
 
 void logical_check(Node* father, Node* exp1, Node* exp2) {
+    // illegal.
+    if (is_undef(exp1) || is_undef(exp2)) {
+        set_val(father, T_UNDEF, false, 0, 0, NULL);
+        return;
+    }
+    if (!is_int(exp1) || !is_int(exp2)) {
+        set_val(father, T_UNDEF, false, 0, 0, NULL);
+        printf("Error type 7 at Line %d: Type conflict. logical.\n", father->lineno);
+        return;
+    }
 
+    // legal.
+    set_val(father, T_BOOL, false, 0, 0, NULL);
 }
 
 void relop_check(Node* father, Node* exp1, Node* exp2) {
+    // illegal.
+    if (is_undef(exp1) || is_undef(exp2)) {
+        set_val(father, T_UNDEF, false, 0, 0, NULL);
+        return;
+    }
+    if (!((is_int(exp1) || is_float(exp1)) && type_equal(&(exp1->type), &(exp2->type)))) {
+        set_val(father, T_UNDEF, false, 0, 0, NULL);
+        printf("Error type 7 at Line %d: Type conflict. relop.\n", father->lineno);
+        return;
+    }
 
+    // legal.
+    set_val(father, T_BOOL, false, 0, 0, NULL);
 }
 
 void parathese_check(Node* father, Node* inner_exp) {
+    // illegal.
+    if (is_undef(inner_exp)) {
+        set_val(father, T_UNDEF, false, 0, 0, NULL);
+        return;
+    }
 
+    // legal.
+    set_val(father, inner_exp->type, false, 0, 0, inner_exp->corresponding_field);
 }
 
 void minus_check(Node* father, Node* exp) {
+    // illegal.
+    if (is_undef(exp)) {
+        set_val(father, T_UNDEF, false, 0, 0, NULL);
+        return;
+    }
+    if (!is_int(exp) && !is_float(exp)) {
+        set_val(father, T_UNDEF, false, 0, 0, NULL);
+        printf("Error type 7 at Line %d: Type conflict. minus.\n", father->lineno);
+        return;
+    }
 
+    // legal.
+    set_val(father, exp->type, false, 0, 0, NULL);
 }
 
 void not_check(Node* father, Node* exp) {
+    // illegal.
+    if (is_undef(exp)) {
+        set_val(father, T_UNDEF, false, 0, 0, NULL);
+        return;
+    }
+    if (!is_int(exp)) {
+        set_val(father, T_UNDEF, false, 0, 0, NULL);
+        printf("Error type 7 at Line %d: Type conflict. not.\n", father->lineno);
+        return;
+    }
 
+    // legal.
+    set_val(father, T_BOOL, false, 0, 0, NULL);
 }
 
 // void tilde_check(Node* father, Node* exp);   // ~
