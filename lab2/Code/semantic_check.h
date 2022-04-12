@@ -8,9 +8,7 @@
 #include <stdio.h>
 
 #include "node.h"
-#include "hash_table.h"
 #include "type.h"
-#include "stack.h"
 
 
 
