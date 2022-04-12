@@ -166,33 +166,33 @@ Type create_func_type(Node* specifier, Node* fundec) {
     return res;
 }
 
-// todo
-Type get_exp_type(Node* exp) {
-    Node* child = exp->child;
-    char* child_id = child->id;
-    if (!strcmp(child_id, "ID") && child->sibling == NULL) {
-        return find_any_in_stack(stack, child_id)->type;
-    } else if (!strcmp(child_id, "ID") && child->sibling != NULL) {
-        // todo exp is function call
-    } else if (!strcmp(child_id, "INT")) {
-        return create_int_type();
-    } else if (!strcmp(child_id, "FLOAT")) {
-        return create_float_type();
-    } else if (!strcmp(child_id, "LP")) {
-        return get_exp_type(child->sibling);
-    } else if (!strcmp(child_id, "MINUS")) {
-        Type type = get_exp_type(child->sibling);
-        if (type->kind != BASIC)
-            printf("Error type 7 at Line %d: Type mismatched for operands.", child->lineno);
-    } else if (!strcmp(child_id, "NOT")) {
-        Type type = get_exp_type(child->sibling);
-        if (type->kind != BASIC || type->u.basic != T_INT) {
-            printf("Error type 7 at Line %d: Type mismatched for operands.", child->lineno);
-        }
-    } else if (!strcmp(child_id, "Exp")) {
+// // todo
+// Type get_exp_type(Node* exp) {
+//     Node* child = exp->child;
+//     char* child_id = child->id;
+//     if (!strcmp(child_id, "ID") && child->sibling == NULL) {
+//         return find_any_in_stack(stack, child_id)->type;
+//     } else if (!strcmp(child_id, "ID") && child->sibling != NULL) {
+//         // todo exp is function call
+//     } else if (!strcmp(child_id, "INT")) {
+//         return create_int_type();
+//     } else if (!strcmp(child_id, "FLOAT")) {
+//         return create_float_type();
+//     } else if (!strcmp(child_id, "LP")) {
+//         return get_exp_type(child->sibling);
+//     } else if (!strcmp(child_id, "MINUS")) {
+//         Type type = get_exp_type(child->sibling);
+//         if (type->kind != BASIC)
+//             printf("Error type 7 at Line %d: Type mismatched for operands.", child->lineno);
+//     } else if (!strcmp(child_id, "NOT")) {
+//         Type type = get_exp_type(child->sibling);
+//         if (type->kind != BASIC || type->u.basic != T_INT) {
+//             printf("Error type 7 at Line %d: Type mismatched for operands.", child->lineno);
+//         }
+//     } else if (!strcmp(child_id, "Exp")) {
 
-    }
-}
+//     }
+// }
 
 FieldList create_basic_and_struct_field_for_var(char* name, Node* specifier) {
     Type new_type;
