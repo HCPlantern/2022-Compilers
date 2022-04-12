@@ -121,7 +121,7 @@ Type create_struct_type(Node* specifier) {
     } else if (!strcmp(struct_specifier->child->sibling->id, "Tag")) {
         // find struct in all tables
         char* name = struct_specifier->child->sibling->child->id;
-        FieldList field = find_any_in_stack(stack, name);
+        FieldList field = find_any_in_stack(name);
         return field->type;
     }
     return NULL;

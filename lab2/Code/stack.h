@@ -14,15 +14,15 @@ struct _Stack {
 
 
 Stack new_stack();
-void push(Stack stack, Table table);
-Table pop(Stack stack);
+void push(Table table);
+Table pop();
 bool both(FieldList f);
 bool isVar(FieldList f);
 bool isStructDef(FieldList f);
-FieldList find_helper(Stack stack, const char* name, bool (*filter)(FieldList));
-FieldList find_any_in_stack(Stack stack, const char* name);
-FieldList find_var_in_stack(Stack stack, const char* name);
-FieldList find_struct_def_in_stack(Stack stack, const char* name);
+FieldList find_helper(const char* name, bool (*filter)(FieldList));
+FieldList find_any_in_stack(const char* name);
+FieldList find_var_in_stack(const char* name);
+FieldList find_struct_def_in_stack(const char* name);
 
 
 #endif

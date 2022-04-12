@@ -22,7 +22,7 @@ int main(int argc, char** argv) {
     // yydebug = 1;
     stack = new_stack();
     Table table = new_table();
-    push(stack, table);
+    push(table);
     yyparse();
     check_undefined_func();
     // del_tree(syntax_tree_root);

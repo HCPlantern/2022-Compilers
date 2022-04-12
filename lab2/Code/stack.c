@@ -4,7 +4,7 @@
 #include <stdio.h>
 
 extern Node* syntax_tree_root;
-Stack stack;
+extern Stack stack;
 
 Stack new_stack() {
     Stack s = malloc(sizeof(struct _Stack));
