@@ -1,4 +1,6 @@
 #include "semantic_check.h"
+#include "stack.h"
+#include "hash_table.h"
 
 #define curr_table (stack->tables[stack->top - 1])
 #define FUNC_DEF_ARR_SIZE 100

@@ -1,6 +1,6 @@
 #ifndef STACK_H
 #define STACK_H
-
+#include "type.h"
 #include "hash_table.h"
 
 typedef struct _Stack* Stack;

@@ -42,7 +42,6 @@ struct _FieldList {
     bool is_var;
 };
 
-#include "hash_table.h"
 
 bool type_equal(Type type1, Type type2);
 char* anonymous_struct_name();
