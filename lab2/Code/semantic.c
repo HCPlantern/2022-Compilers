@@ -12,10 +12,12 @@ static const struct _Type T_UNDEF = {UNDEF, T_INT};  // WARNING: kind should be 
 static Type current_def_type;
 static Node args_for_func_def;
 
+/*
 static inline union _constant {int i; float f;} cal(Node* father, Node* exp1, Node* exp2) {
     union _constant c = {0, 0.0};
     return c;
 }
+*/
 
 static inline bool is_undef(Node* exp) {
     return exp->type.kind == UNDEF;
@@ -196,11 +198,23 @@ void array_check(Node* father, Node* array, Node* index) {
 }
 
 void field_access_check(Node* father, Node* base, Node* field) {
+    // illegal.
+    if (is_undef(base) || is_undef(field)) {
+        set_val(father, T_UNDEF, false, 0, 0, NULL);
+        return;
+    }
+    
+    if (base->type.kind != STRUCTURE) {
+        set_val(father, T_UNDEF, false, 0, 0, NULL);
+        printf("Error type 13 at Line %d: Type of base is not struct.\n", father->lineno);
+        return;
+    }
 
+    FieldList fields = base->type.u.structure;
 }
 
-void id_check(Node* father) {
-
+void id_check(Node* father, Node* id) {
+    
 }
 
 void literal_check(Node* father) {

@@ -53,7 +53,11 @@ void not_check(Node* father, Node* exp);        // !
 void func_call_check(Node* father, Node* func, Node* args);  // if has no arg, args is NULL
 void array_check(Node* father, Node* array, Node* index);      // arr[exp]
 void field_access_check(Node* father, Node* base, Node* field); // exp.field
-void id_check(Node* father); // related error: 1 2
+void id_check(Node* father, Node* id); // related error: 1 2
 void literal_check(Node* father);  // INT FLOAT
+
+void lValue_id_check(Node* father, Node* id);
+void lValue_array_access_check(Node* father, Node* array, Node* index);
+void lValue_field_access_check(Node* father, Node* base, Node* field);
 
 #endif
