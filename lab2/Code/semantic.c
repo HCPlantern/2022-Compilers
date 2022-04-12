@@ -37,8 +37,12 @@ void dec_assign_check(Node* father, Node* varDec, Node* exp) {
 
 }
 
-void binary_cal_check(Node* father, Node* exp1, Node* exp2) {
+// calculation
 
+void binary_cal_check(Node* father, Node* exp1, Node* exp2) {
+    if (!type_equal(exp1->type, exp2->type)) {
+        
+    }
 }
 
 void assignment_check(Node* father, Node* lValue, Node* rValue) {
@@ -84,5 +88,29 @@ void id_check(Node* father) {
 }
 
 void literal_check(Node* father) {
+    Node* literal = father->child;
+    bool is_int = !strcmp(literal->id, "INT");
+    bool is_float = !strcmp(literal->id, "FLOAT");
+    assert(is_int || is_float);
+    
+    // process for child itself and father exp. they are the same.
+    literal->is_constant = true;
+    father->is_constant = true;
 
+    literal->type->kind = BASIC;
+    father->type->kind = BASIC;
+
+    if (is_int) {
+        literal->type->u.basic = T_INT;
+        father->type->u.basic = T_INT;
+
+        literal->constant.i = literal->data.i;
+        father->constant.i = literal->data.i;
+    } else {
+        literal->type->u.basic = T_FLOAT;
+        father->type->u.basic = T_FLOAT;
+
+        literal->constant.f = literal->data.f;
+        father->constant.f = literal->data.f;
+    }
 }

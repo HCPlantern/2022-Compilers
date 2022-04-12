@@ -38,8 +38,8 @@ void dec_assign_check(Node* father, Node* varDec, Node* exp);
    behavior:
    1. check the type of children, 
       if legal append the new type to the father node
-      if illegal yield the error.
    2. if the type is legal, do the basic constant propagation.
+      if illegal, yield the error.
  */
 
 void binary_cal_check(Node* father, Node* exp1, Node* exp2); // + - * /
