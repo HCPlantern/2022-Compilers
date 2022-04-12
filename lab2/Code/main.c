@@ -8,7 +8,7 @@
 extern Node* syntax_tree_root;
 extern void del_tree(Node* root);
 extern void check_undefined_func();
-Stack stack;
+extern Stack stack;
 
 int main(int argc, char** argv) {
     if (argc <= 1) return 1;

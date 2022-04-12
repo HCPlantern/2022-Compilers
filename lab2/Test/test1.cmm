@@ -17,8 +17,12 @@ struct temp {
     float c;
 }a;
 
+int temp() {
+    return 1;
+}
 int main(int temp, int b) {
     int i = 1;
+    temp() = 1;
 }
 
 // struct node {

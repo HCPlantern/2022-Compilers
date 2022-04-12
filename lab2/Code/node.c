@@ -125,16 +125,16 @@ void print_errorA(int lineno, char* msg, char* text) {
 }
 
 void yyerror(char* msg) {
-    if (!(yylineno == prev_error_line)) {
-        printf("Error type B at Line %d: %s\n", yylineno, msg);
-        prev_error_line = yylineno;
+    // if (!(yylineno == prev_error_line)) {
+    //     printf("Error type B at Line %d: %s\n", yylineno, msg);
+    //     prev_error_line = yylineno;
+    // }
+    // has_syntax_error = true;
+}
+void print_errorB(int lineno, char* msg) {
+    if (!(lineno == prev_error_line)) {
+        printf("Error type B at Line %d: syntax error%s\n", lineno, msg);
+        prev_error_line = lineno;
     }
     has_syntax_error = true;
 }
-// void print_errorB(int lineno, char* msg) {
-//     if (!(lineno == prev_error_line)) {
-//         printf("Error type B at Line %d: syntax error%s\n", lineno, msg);
-//         prev_error_line = lineno;
-//     }
-//     has_syntax_error = true;
-// }
