@@ -38,7 +38,7 @@ struct _FieldList {
     char* name;
     Type type;
     FieldList next;
-    bool is_var;
+    bool is_var; // should this field be able to hold three kinds of vals: VAR, STRUCT_DEF, FUNC?
 };
 
 
