@@ -6,7 +6,7 @@
 #define FUNC_DEF_ARR_SIZE 100
 extern Node* syntax_tree_root;
 extern bool has_syntax_error;
-Stack stack;
+extern Stack stack;
 FieldList func_def_arr[FUNC_DEF_ARR_SIZE];
 int func_def_lineno_arr[FUNC_DEF_ARR_SIZE];
 size_t func_def_arr_index = 0;
