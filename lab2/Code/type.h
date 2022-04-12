@@ -2,7 +2,6 @@
 #define TYPE_H
 #include <assert.h>
 #include <stdbool.h>
-#include "syntax.tab.h"
 
 typedef struct tree_node Node;
 
@@ -17,7 +16,7 @@ struct _Type {
            UNDEF } kind;  // UNDEF means conflict (in another word, error).
     union {
         // basic
-        enum yytokentype basic;
+        enum {T_INT, T_FLOAT} basic;
         // array
         struct {
             Type elem;

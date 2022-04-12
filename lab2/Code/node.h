@@ -20,25 +20,25 @@ extern void yyerror();
 
 /* left node is child and right node is the first sibling */
 typedef struct tree_node {
-  int lineno;
-  char* id;
-  // 3 different types: string, int and float
-  union data {
-    char* text;
-    uint32_t i;
-    float f;
-  } data;
-  struct tree_node* child;
-  struct tree_node* sibling;
-  bool is_terminal;
+    int lineno;
+    char* id;
+    // 3 different types: string, int and float
+    union data {
+        char* text;
+        uint32_t i;
+        float f;
+    } data;
+    struct tree_node* child;
+    struct tree_node* sibling;
+    bool is_terminal;
 
-  FieldList corresponding_field;  // store inner presentation. (modeled by type and FieldList)
-  Type type;
-  bool is_constant;
-  union constant {
-    int i;
-    float f;
-  } constant;
+    FieldList corresponding_field;  // store inner presentation. (modeled by type and FieldList)
+    Type type;
+    bool is_constant;
+    union constant {
+        int i;
+        float f;
+    } constant;
 } Node;
 
 Node* new_node(char* id);

@@ -80,13 +80,13 @@ char* anonymous_struct_name() {
 Type create_int_type() {
     Type new_type = malloc(sizeof(struct _Type));
     new_type->kind = BASIC;
-    new_type->u.basic = INT;
+    new_type->u.basic = T_INT;
 }
 
 Type create_float_type() {
     Type new_type = malloc(sizeof(struct _Type));
     new_type->kind = BASIC;
-    new_type->u.basic = FLOAT;
+    new_type->u.basic = T_FLOAT;
 }
 Type create_basic_type(Node* specifier) {
     assert(!strcmp(specifier->child->id, "TYPE"));
@@ -186,7 +186,7 @@ Type get_exp_type(Node* exp) {
             printf("Error type 7 at Line %d: Type mismatched for operands.", child->lineno);
     } else if (!strcmp(child_id, "NOT")) {
         Type type = get_exp_type(child->sibling);
-        if (type->kind != BASIC || type->u.basic != INT) {
+        if (type->kind != BASIC || type->u.basic != T_INT) {
             printf("Error type 7 at Line %d: Type mismatched for operands.", child->lineno);
         }
     } else if (!strcmp(child_id, "Exp")) {
