@@ -1,5 +1,8 @@
 
 #include "hash_table.h"
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
 
 extern Node* syntax_tree_root;
 // Hash Table funcs begin ----------------------------------------------------------------------

@@ -2,8 +2,6 @@
 #define SEMANTIC_H
 
 #include "node.h"
-#include "type.h"
-// #include "hashtable.h"
 
 /*
  * because bison use LALR, so when checking the father node,

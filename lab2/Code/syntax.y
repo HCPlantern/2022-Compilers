@@ -1,12 +1,12 @@
 %{
-    #include "node.h"
     #include "lex.yy.c"
     #include "semantic.h"
+    #include "node.h"
     extern Node* syntax_tree_root;
 %}
 
 %union {
-    Node* node;
+    struct tree_node* node;
 }
 
 /* declared tokens */

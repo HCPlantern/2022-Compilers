@@ -1,8 +1,10 @@
 
-#include "type.h"
-
 #include <stdio.h>
+#include <stdlib.h>
+#include <assert.h>
 
+#include "node.h"
+#include "type.h"
 #include "stack.h"
 
 #define curr_table (stack->tables[stack->top - 1])
@@ -175,7 +177,7 @@ Type get_exp_type(Node* exp) {
     } else if (!strcmp(child_id, "INT")) {
         return create_int_type();
     } else if (!strcmp(child_id, "FLOAT")) {
-        return create_float_type;
+        return create_float_type();
     } else if (!strcmp(child_id, "LP")) {
         return get_exp_type(child->sibling);
     } else if (!strcmp(child_id, "MINUS")) {

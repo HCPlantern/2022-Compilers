@@ -1,5 +1,7 @@
 #include "stack.h"
 #include <assert.h>
+#include <stdlib.h>
+#include <stdio.h>
 
 extern Node* syntax_tree_root;
 

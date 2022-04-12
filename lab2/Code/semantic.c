@@ -1,4 +1,6 @@
 #include "semantic.h"
+#include "type.h"
+#include "node.h"
 
 // global variables that help sematic check.
 // make sure that when the current checking process is done,

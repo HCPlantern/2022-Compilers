@@ -1,13 +1,20 @@
 #ifndef TYPE_H
 #define TYPE_H
 #include <assert.h>
-#include "node.h"
+#include <stdbool.h>
+#include "syntax.tab.h"
+
+typedef struct tree_node Node;
 
 typedef struct _Type* Type;
 typedef struct _FieldList* FieldList;
 
 struct _Type {
-    enum {BASIC, ARRAY, STRUCTURE, FUNC, UNDEF} kind;   // UNDEF means conflict (in another word, error).
+    enum { BASIC,
+           ARRAY,
+           STRUCTURE,
+           FUNC,
+           UNDEF } kind;  // UNDEF means conflict (in another word, error).
     union {
         // basic
         enum yytokentype basic;

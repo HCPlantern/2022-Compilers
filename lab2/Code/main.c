@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include "semantic_check.h"
+#include "semantic.h"
 
 extern Node* syntax_tree_root;
 extern void del_tree(Node* root);

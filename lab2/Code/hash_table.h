@@ -1,8 +1,8 @@
 #ifndef HASH_TABLE_H
 #define HASH_TABLE_H
 
-#include <stddef.h>
 #include "type.h"
+#include <stddef.h>
 
 typedef struct _TableEntry* TableEntry;
 typedef struct _TableNode* TableNode;

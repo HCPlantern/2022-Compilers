@@ -7,8 +7,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "type.h"
 // #define YYDEBUG 1
+
+typedef struct _Type* Type;
+typedef struct _FieldList* FieldList;
 
 extern int yylineno;
 extern char* yytext;
@@ -38,7 +40,6 @@ typedef struct tree_node {
     float f;
   } constant;
 } Node;
-
 
 Node* new_node(char* id);
 Node* build_tree(char* id, int arg_len, ...);
