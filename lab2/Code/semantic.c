@@ -2,12 +2,33 @@
 #include "type.h"
 #include "node.h"
 
+static const struct _Type T_BOOL = {BASIC, T_INT};
+static const struct _Type T_UNDEF = {UNDEF, T_INT};
+
 // global variables that help sematic check.
 // make sure that when the current checking process is done,
 // the two vars below is set NULL.
 // because whether they are NULL means different checking procedure.
 static Type current_def_type;
 static Node args_for_func_def;
+
+static inline bool is_undef(Node* exp) {
+    return exp->type.kind == UNDEF;
+}
+
+static inline void set_val(Node* father, struct _Type t, bool is_constant, uint32_t i, float f, FieldList field) {
+    father->type = t;
+    father->corresponding_field = field;
+    father->is_constant = is_constant;
+    if (is_constant) {
+        if (t.kind == T_INT) {
+            father->constant.i = i;
+        }
+        if (t.kind == T_FLOAT) {
+            father->constant.f = f;
+        }
+    }
+}
 
 void var_dec_check(Node* varDec) {
 
@@ -40,7 +61,11 @@ void dec_assign_check(Node* father, Node* varDec, Node* exp) {
 // calculation
 
 void binary_cal_check(Node* father, Node* exp1, Node* exp2) {
-    if (!type_equal(exp1->type, exp2->type)) {
+    if (is_undef(exp1) || is_undef(exp2)) {
+        set_val(father, T_UNDEF, false, 0, 0, NULL);
+        return;
+    }
+    if (!type_equal(&(exp1->type), &(exp2->type))) {
         
     }
 }
@@ -97,18 +122,18 @@ void literal_check(Node* father) {
     literal->is_constant = true;
     father->is_constant = true;
 
-    literal->type->kind = BASIC;
-    father->type->kind = BASIC;
+    literal->type.kind = BASIC;
+    father->type.kind = BASIC;
 
     if (is_int) {
-        literal->type->u.basic = T_INT;
-        father->type->u.basic = T_INT;
+        literal->type.u.basic = T_INT;
+        father->type.u.basic = T_INT;
 
         literal->constant.i = literal->data.i;
         father->constant.i = literal->data.i;
     } else {
-        literal->type->u.basic = T_FLOAT;
-        father->type->u.basic = T_FLOAT;
+        literal->type.u.basic = T_FLOAT;
+        father->type.u.basic = T_FLOAT;
 
         literal->constant.f = literal->data.f;
         father->constant.f = literal->data.f;

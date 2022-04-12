@@ -16,7 +16,7 @@ struct _Type {
            UNDEF } kind;  // UNDEF means conflict (in another word, error).
     union {
         // basic
-        enum {T_INT, T_FLOAT} basic;
+        enum _basic {T_INT, T_FLOAT} basic;
         // array
         struct {
             Type elem;

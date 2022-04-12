@@ -33,9 +33,9 @@ typedef struct tree_node {
     bool is_terminal;
 
     FieldList corresponding_field;  // store inner presentation. (modeled by type and FieldList). NULL(abort) for non-field.
-    Type type;
+    struct _Type type;
     bool is_constant;
-    union constant {
+    union _Constant {
         uint32_t i;
         float f;
     } constant;
