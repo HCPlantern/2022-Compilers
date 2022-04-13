@@ -1,6 +1,7 @@
 #include "semantic.h"
 #include "type.h"
 #include "node.h"
+#include "stack.h"
 
 static const struct _Type T_BOOL = {BASIC, T_INT};
 static const struct _Type T_UNDEF = {UNDEF, T_INT};  // WARNING: kind should be examined before u.basic.
@@ -46,19 +47,19 @@ static inline void set_val(Node* father, struct _Type t, bool is_constant, uint3
 }
 
 void var_dec_check(Node* varDec) {
-
+    // TODO
 }
 
 void fun_dec_check(Node* funDec, Node* varList/*, bool isDef*/) {
-
+    // TODO
 }
 
 void new_scope() {
-
+    // TODO
 }
 
 void exit_scope() {
-
+    // TODO
 }
 
 void return_type_check(Node* ret_exp) {
@@ -74,7 +75,7 @@ void condition_type_check(Node* condition_exp) {
 }
 
 void dec_assign_check(Node* father, Node* varDec, Node* exp) {
-
+    // TODO
 }
 
 // calculation
@@ -109,7 +110,7 @@ void binary_cal_check(Node* father, Node* exp1, Node* exp2) {
 }
 
 void assignment_check(Node* father, Node* lValue, Node* rValue) {
-
+    // TODO
 }
 
 void logical_check(Node* father, Node* exp1, Node* exp2) {
@@ -190,31 +191,61 @@ void not_check(Node* father, Node* exp) {
 // void tilde_check(Node* father, Node* exp);   // ~
 
 void func_call_check(Node* father, Node* func, Node* args) {
-
+    // TODO
 }
 
 void array_check(Node* father, Node* array, Node* index) {
-
+    // TODO
 }
 
-void field_access_check(Node* father, Node* base, Node* field) {
+// the field_name here is just a ID, so it should have no type imformation.
+void field_access_check(Node* father, Node* base, Node* field_name) {
     // illegal.
-    if (is_undef(base) || is_undef(field)) {
+    if (is_undef(base)) {
         set_val(father, T_UNDEF, false, 0, 0, NULL);
-        return;
+        // return;
     }
     
     if (base->type.kind != STRUCTURE) {
         set_val(father, T_UNDEF, false, 0, 0, NULL);
         printf("Error type 13 at Line %d: Type of base is not struct.\n", father->lineno);
-        return;
+        // return;
     }
 
     FieldList fields = base->type.u.structure;
+    while (fields != NULL) {
+        if (!strcmp(fields->name, field_name->data.text)) {
+            // successful to find the field in the struct type.
+            set_val(father, *(fields->type), false, 0, 0, fields);
+            return;
+        }
+
+        fields = fields->next;
+    }
+
+    // in the struct no field matchs the field_name.
+    set_val(father, T_UNDEF, false, 0, 0, NULL);
+    printf("Error type 14 at Line %d: Undefined field.\n", father->lineno);
+    return;
 }
 
+// notice that due to the LALR syntax, only when reduce according exp -> id happens,
+// id_check would be called. (i.e. lValue -> EXP DOT ID or EXP -> EXP DOT ID would not
+// call this function.)
+// and EXP -> ID must be a variable for that in cmm function name could not be a exp.
 void id_check(Node* father, Node* id) {
-    
+    FieldList variable = find_any_in_stack(id->data.text);
+
+    if (variable == NULL || !variable->is_var) {
+        // no variable found in the whole stack.
+        set_val(father, T_UNDEF, false, 0, 0, NULL);
+        printf("Error type 1 at Line %d: Undefined variable.\n", father->lineno);
+        return;
+    }
+
+    // legal.
+    set_val(father, *(variable->type), false, 0, 0, variable);
+    return;
 }
 
 void literal_check(Node* father) {
