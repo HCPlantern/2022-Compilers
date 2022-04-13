@@ -6,6 +6,7 @@
     #include "hash_table.h"
     #include "stack.h"
     extern Node* syntax_tree_root;
+    extern Node* current_specifier_node;
     extern void check_ExtDef(Node* node);
     extern void check_ExtDecList(Node* specifier, Node* node);
     extern void check_func(Node* specifier);
@@ -110,7 +111,7 @@ DefList : Def DefList {$$ = build_tree("DefList", 2, $1, $2);}
     | /* empty */ {$$ = new_node("Epsilon");}
     ;
 
-Def : Specifier DecList SEMI {$$ = build_tree("Def", 3, $1, $2, $3);}
+Def : Specifier{current_specifier_node = $1;} DecList SEMI {$$ = build_tree("Def", 3, $1, $3, $4);current_specifier_node = NULL;}
     | Specifier error SEMI {print_errorB($$->lineno, "");}
     ;
 
@@ -118,8 +119,8 @@ DecList : Dec {$$ = build_tree("DecList", 1, $1);}
     | Dec COMMA DecList {$$ = build_tree("DecList", 3, $1, $2, $3);}
     ;
 
-Dec : VarDec {$$ = build_tree("Dec", 1, $1);}
-    | VarDec ASSIGNOP Exp {$$ = build_tree("Dec", 3, $1, $2, $3); dec_assign_check($$, $1, $2);}
+Dec : VarDec {$$ = build_tree("Dec", 1, $1); var_dec_check($1);}
+    | VarDec {var_dec_check($1);} ASSIGNOP Exp {$$ = build_tree("Dec", 3, $1, $3, $4); dec_assign_check($$, $1, $4);}
     ;
 
 /* Expressions */
@@ -144,7 +145,7 @@ Exp : LValue ASSIGNOP Exp {$$ = build_tree("Exp", 3, $1, $2, $3); assignment_che
     | FLOAT {$$ = build_tree("Exp", 1, $1); literal_check($$);}
     ;
 
-LValue : ID {$$ = build_tree("LValue", 1, $1); id_check($$, $1)}
+LValue : ID {$$ = build_tree("LValue", 1, $1); id_check($$, $1);}
     | Exp LB Exp RB {$$ = build_tree("LValue", 4, $1, $2, $3, $4); array_check($$, $1, $3);}
     | Exp DOT ID {$$ = build_tree("LValue", 3, $1, $2, $3); field_access_check($$, $1, $3);}
     | error {printf("Error type 6 at line %d: The left-hand side of an assignment must be a variable.\n", $$->lineno);}

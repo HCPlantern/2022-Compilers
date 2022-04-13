@@ -2,6 +2,7 @@
 #include "type.h"
 #include "node.h"
 #include "stack.h"
+#include "semantic_check.h"
 
 extern Stack stack;
 static const struct _Type T_BOOL = {BASIC, T_INT};
@@ -13,6 +14,10 @@ static const struct _Type T_UNDEF = {UNDEF, T_INT};  // WARNING: kind should be 
 // because whether they are NULL means different checking procedure.
 static Type current_def_type;
 static Type return_type;
+
+// same functionality as current_def_type, 
+// just make it easier to call funcs in semantic_check.c
+Node* current_specifier_node;
 
 // add to table after the new scope is created when meeting left "{".
 static Node args_for_func_def;
@@ -61,7 +66,8 @@ static inline Node* next_arg(Node* arg) {
 }
 
 void var_dec_check(Node* varDec) {
-    // TODO
+    assert(current_specifier_node != NULL);
+    check_VarDec(current_specifier_node, varDec, true);
 }
 
 void fun_dec_check(Node* funDec, Node* varList/*, bool isDef*/) {
@@ -70,10 +76,13 @@ void fun_dec_check(Node* funDec, Node* varList/*, bool isDef*/) {
 
 void new_scope() {
     // TODO
+    Table table = new_table();
+    push(table);
 }
 
 void exit_scope() {
     // TODO
+    pop();
 }
 
 // assume that when processing a func def compst, the func that is currently processing

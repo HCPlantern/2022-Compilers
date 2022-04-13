@@ -1,28 +1,25 @@
 
 
-
-
-
 /*
 int global1, global2[3][5];
 int global3;
 */
 
-
 struct temp {
     int i;
     struct temp {
         int i;
-    }b;
+    } b;
     float c;
-}a;
+} a;
 
 int temp() {
     return 1;
 }
 int main(int temp, int b) {
-    int i = 1;
-    temp() = 1;
+    {
+        int i;
+    }
 }
 
 // struct node {
