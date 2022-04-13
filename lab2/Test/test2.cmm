@@ -1,7 +1,7 @@
 struct a {
     int i;
 } f() {
-    strcut {
+    struct {
         int j;
     }
     a;
