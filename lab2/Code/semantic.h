@@ -60,4 +60,7 @@ void lValue_id_check(Node* father, Node* id);
 void lValue_array_access_check(Node* father, Node* array, Node* index);
 void lValue_field_access_check(Node* father, Node* base, Node* field);
 
+// check whether there is any function declared undefined. check after 
+// the whole construction and other checks are done.
+void undefined_func_check();
 #endif
