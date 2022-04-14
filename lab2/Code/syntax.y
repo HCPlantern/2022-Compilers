@@ -8,11 +8,13 @@
     extern Node* syntax_tree_root;
     extern Node* current_specifier_node;
     extern bool is_in_compst;
+    extern bool is_in_struct;
     extern Type arg_type;
     void check_ExtDef(Node* node);
     void check_ExtDecList(Node* specifier, Node* node);
     void check_func(Node* specifier);
     void add_args_into_table();
+    void if_in_struct(bool enter);
 %}
 
 %union {
@@ -47,7 +49,7 @@ ExtDefList : ExtDef ExtDefList {$$ = build_tree("ExtDefList", 2, $1, $2);}
 /* def of global var, struct and function */
 ExtDef : Specifier ExtDecList SEMI {$$ = build_tree("ExtDef", 3, $1, $2, $3);check_ExtDecList($1, $2);}
     | Specifier SEMI {$$ = build_tree("ExtDef", 2, $1, $2); check_ExtDef($$);}
-    | Specifier FunDec { build_tree("ExtDef", 2, $1, $2); check_func($1); is_in_compst = true; arg_type = &($2->type);} CompSt {is_in_compst = false; $$->sibling = $4;}
+    | Specifier FunDec { build_tree("ExtDef", 2, $1, $2); check_func($1); is_in_compst = true; arg_type = &($2->type);} CompSt {is_in_compst = false; $2->sibling = $4;}
     | Specifier FunDec SEMI {$$ = build_tree("ExtDef", 3, $1, $2, $3);check_func($$);}
     | Specifier ExtDecList ASSIGNOP error SEMI {print_errorB($2->lineno, ", global variable cannot be initialized.");}
     | Specifier error SEMI {print_errorB($$->lineno, "");}
@@ -63,7 +65,7 @@ Specifier : TYPE {$$ = build_tree("Specifier", 1, $1);}
     | StructSpecifier {$$ = build_tree("Specifier", 1, $1);}
     ;
 
-StructSpecifier : STRUCT OptTag LC DefList RC {$$ = build_tree("StructSpecifier", 5, $1, $2, $3, $4, $5);}
+StructSpecifier : STRUCT OptTag LC {if_in_struct(true);} DefList RC {if_in_struct(false); $$ = build_tree("StructSpecifier", 5, $1, $2, $3, $5, $6);}
     | STRUCT Tag {$$ = build_tree("StructSpecifier", 2, $1, $2);}
     ;
 

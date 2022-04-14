@@ -7,22 +7,22 @@ int global3;
 
 struct temp {
     int i;
-    struct temp {
+    struct temp2 {
         int i;
-    } b;
+    } c;
     float c;
 } a;
 
-int temp() {
-    return 1;
-}
+// int temp() {
+//     return 1;
+// }
 
-int main(int temp, int b) {
-    {
-        int i;
-    }
-    i = 1;
-}
+// int main(int temp, int b) {
+//     {
+//         int i;
+//     }
+//     i = 1;
+// }
 
 // struct node {
 //     int val;

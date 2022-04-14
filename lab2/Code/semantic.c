@@ -25,6 +25,8 @@ Node* current_specifier_node;
 
 bool is_in_compst = false;
 
+bool is_in_struct = false;
+size_t struct_count = 0;
 Type arg_type = NULL;
 
 // add to table after the new scope is created when meeting left "{".
@@ -74,9 +76,26 @@ static inline Node* next_arg(Node* arg) {
 }
 
 void var_dec_check(Node* varDec) {
+    // printf("%d at : %d\n", is_in_struct, yylineno);
     assert(current_specifier_node != NULL);
-    if (is_in_compst)
+    if (is_in_compst && !is_in_struct) {
+        // printf("var_dec_check\n");
         check_VarDec(current_specifier_node, varDec, true);
+    }
+}
+
+// check whether in struct
+void if_in_struct(bool enter) {
+    if (enter) {
+        is_in_struct = true;
+        struct_count++;
+    }
+    else {
+        if (struct_count == 1) {
+            is_in_struct = false;
+        }
+        struct_count--;
+    }
 }
 
 void fun_dec_check(Node* funDec, Node* varList /*, bool isDef*/) {
@@ -93,7 +112,7 @@ void add_args_into_table() {
     if (arg_type != NULL) {
         FieldList args = arg_type->u.function.args;
         for (int i = 0; i < arg_type->u.function.arg_len; i++) {
-            if(find_field(stack->tables[stack->top - 1] ,args->name)) {
+            if (find_field(stack->tables[stack->top - 1], args->name)) {
                 printf("Error type 3 at Line %d: Redefined variable \"%s\".\n", yylineno, args->name);
             }
             add_table_node(stack->tables[stack->top - 1], args);
