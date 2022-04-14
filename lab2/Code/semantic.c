@@ -372,7 +372,7 @@ void field_access_check(Node* father, Node* base, Node* field_name) {
         // return;
     }
 
-    FieldList fields = base->type.u.structure;
+    FieldList fields = base->type.u.structure->type->u.structure;
     while (fields != NULL) {
         if (!strcmp(fields->name, field_name->data.text)) {
             // successful to find the field in the struct type.
