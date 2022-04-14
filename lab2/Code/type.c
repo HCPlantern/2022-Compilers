@@ -1,10 +1,11 @@
 
+#include "type.h"
+
+#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <assert.h>
 
 #include "node.h"
-#include "type.h"
 #include "stack.h"
 
 #define curr_table (stack->tables[stack->top - 1])
@@ -120,9 +121,13 @@ Type create_struct_type(Node* specifier) {
         return res;
     } else if (!strcmp(struct_specifier->child->sibling->id, "Tag")) {
         // find struct in all tables
-        char* name = struct_specifier->child->sibling->child->id;
-        FieldList field = find_any_in_stack(name);
-        return field->type;
+        char* name = struct_specifier->child->sibling->child->data.text;
+        FieldList field = find_struct_def_in_stack(name);
+        if (field == NULL) {
+            printf("Error type 7 at Line %d :Undefined structure \"%s\".\n", struct_specifier->lineno, name);
+        } else {
+            return field->type;
+        }
     }
     return NULL;
 }
@@ -130,6 +135,7 @@ Type create_struct_type(Node* specifier) {
 Type create_func_type(Node* specifier, Node* fundec) {
     Type res = malloc(sizeof(struct _Type));
     res->kind = FUNC;
+    size_t arg_len = 0;
     // get return type
     Type return_type;
     FieldList next_field;
@@ -147,7 +153,8 @@ Type create_func_type(Node* specifier, Node* fundec) {
         Node* varlist = fundec->child->sibling->sibling;
         Node* paramdec = varlist->child;
         while (true) {
-            FieldList arg = check_VarDec(paramdec->child, paramdec->child->sibling, true);
+            FieldList arg = check_VarDec(paramdec->child, paramdec->child->sibling, false);
+
             // concat args field
             if (res->u.function.args == NULL) {
                 res->u.function.args = arg;
@@ -156,6 +163,7 @@ Type create_func_type(Node* specifier, Node* fundec) {
                 next_field->next = arg;
                 next_field = arg;
             }
+            arg_len++;
             if (paramdec->sibling == NULL)
                 break;
             else {
@@ -163,6 +171,8 @@ Type create_func_type(Node* specifier, Node* fundec) {
             }
         }
     }
+    res->u.function.arg_len = arg_len;
+    fundec->type = *res;
     return res;
 }
 
@@ -312,7 +322,6 @@ FieldList create_struct_field_for_struct(Node* struct_specifier) {
                 assert(declist->child->sibling != NULL);
                 declist = declist->child->sibling->sibling;
             }
-            printf("leave second while\n");
         }
         deflist = def->sibling;
     }

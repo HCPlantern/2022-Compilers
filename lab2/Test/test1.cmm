@@ -16,10 +16,12 @@ struct temp {
 int temp() {
     return 1;
 }
+
 int main(int temp, int b) {
     {
         int i;
     }
+    i = 1;
 }
 
 // struct node {

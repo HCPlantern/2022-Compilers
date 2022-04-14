@@ -41,7 +41,11 @@ bool isVar(FieldList f) {
 }
 
 bool isStructDef(FieldList f) {
-    return !f->is_var;
+    return !f->is_var && f->type->kind == STRUCTURE;
+}
+
+bool isFuncDef(FieldList f) {
+    return !f->is_var && f->type->kind == FUNC;
 }
 
 FieldList find_helper(const char* name, bool (*filter)(FieldList)) {
@@ -65,4 +69,8 @@ FieldList find_var_in_stack(const char* name) {
 
 FieldList find_struct_def_in_stack(const char* name) {
     return find_helper(name, isStructDef); 
+}
+
+FieldList find_func_def_in_stack(const char* name) {
+    return find_helper(name, isFuncDef);
 }

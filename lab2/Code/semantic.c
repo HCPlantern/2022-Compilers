@@ -1,10 +1,12 @@
 #include "semantic.h"
-#include "type.h"
+
 #include "node.h"
-#include "stack.h"
 #include "semantic_check.h"
+#include "stack.h"
+#include "type.h"
 
 extern Stack stack;
+FieldList check_VarDec(Node* specifier, Node* node, bool in_struct);
 static const struct _Type T_BOOL = {BASIC, T_INT};
 static const struct _Type T_UNDEF = {UNDEF, T_INT};  // WARNING: kind should be examined before u.basic.
 
@@ -13,14 +15,20 @@ static const struct _Type T_UNDEF = {UNDEF, T_INT};  // WARNING: kind should be 
 // the two vars below is set NULL.
 // because whether they are NULL means different checking procedure.
 static Type current_def_type;
-static Type return_type;
 
-// same functionality as current_def_type, 
+// semantic_check.c will use it too.
+Type return_type;
+
+// same functionality as current_def_type,
 // just make it easier to call funcs in semantic_check.c
 Node* current_specifier_node;
 
+bool is_in_compst = false;
+
+Type arg_type = NULL;
+
 // add to table after the new scope is created when meeting left "{".
-static Node args_for_func_def;
+Node args_for_func_def;
 
 /*
 static inline union _constant {int i; float f;} cal(Node* father, Node* exp1, Node* exp2) {
@@ -67,10 +75,11 @@ static inline Node* next_arg(Node* arg) {
 
 void var_dec_check(Node* varDec) {
     assert(current_specifier_node != NULL);
-    check_VarDec(current_specifier_node, varDec, true);
+    if (is_in_compst)
+        check_VarDec(current_specifier_node, varDec, true);
 }
 
-void fun_dec_check(Node* funDec, Node* varList/*, bool isDef*/) {
+void fun_dec_check(Node* funDec, Node* varList /*, bool isDef*/) {
     // TODO
 }
 
@@ -78,6 +87,17 @@ void new_scope() {
     // TODO
     Table table = new_table();
     push(table);
+}
+
+void add_args_into_table() {
+    if (arg_type != NULL) {
+        FieldList args = arg_type->u.function.args;
+        for (int i = 0; i < arg_type->u.function.arg_len; i++) {
+            add_table_node(stack->tables[stack->top - 1], args);
+            args = args->next;
+        }
+    }
+    arg_type = NULL;
 }
 
 void exit_scope() {
@@ -96,6 +116,8 @@ void return_type_check(Node* ret_exp) {
     }
 
     if (!type_equal(return_type, &(ret_exp->type))) {
+        // printf("%d\n", ret_exp->type.kind);
+        // printf("%d\n", return_type->kind);
         printf("Error type 8 at Line %d: Return type conflict.\n", ret_exp->lineno);
     }
 }
@@ -162,7 +184,7 @@ void binary_cal_check(Node* father, Node* exp1, Node* exp2) {
 
 // be ready to transfer to no token LValue version.
 void assignment_check(Node* father, Node* lValue, Node* rValue) {
-    assert(!strcmp(lValue->id, "LValue"));
+    // assert(!strcmp(lValue->id, "LValue"));
 
     // illegal.
     if (is_undef(lValue) || is_undef(rValue)) {
@@ -280,7 +302,7 @@ void func_call_check(Node* father, Node* func, Node* args) {
         printf("Error type 2 at Line %d: Function call before declaration.\n", father->lineno);
         return;
     }
-    
+
     if (f->type->kind != FUNC) {
         set_val(father, T_UNDEF, false, 0, 0, NULL);
         printf("Error type 11 at Line %d: Call to non-function.\n", father->lineno);
@@ -343,7 +365,7 @@ void field_access_check(Node* father, Node* base, Node* field_name) {
         set_val(father, T_UNDEF, false, 0, 0, NULL);
         // return;
     }
-    
+
     if (base->type.kind != STRUCTURE) {
         set_val(father, T_UNDEF, false, 0, 0, NULL);
         printf("Error type 13 at Line %d: Type of base is not struct.\n", father->lineno);
@@ -354,7 +376,7 @@ void field_access_check(Node* father, Node* base, Node* field_name) {
     while (fields != NULL) {
         if (!strcmp(fields->name, field_name->data.text)) {
             // successful to find the field in the struct type.
-            set_val(father, *(fields->type), false, 0, 0, NULL);    // co_field cannot be described by a FieldList
+            set_val(father, *(fields->type), false, 0, 0, NULL);  // co_field cannot be described by a FieldList
             return;
         }
 
@@ -363,7 +385,7 @@ void field_access_check(Node* father, Node* base, Node* field_name) {
 
     // in the struct no field matchs the field_name.
     set_val(father, T_UNDEF, false, 0, 0, NULL);
-    printf("Error type 14 at Line %d: Undefined field.\n", father->lineno);
+    printf("Error type 14 at Line %d: Undefined field \"%s\".\n", father->lineno, field_name->data.text);
     return;
 }
 
@@ -377,7 +399,7 @@ void id_check(Node* father, Node* id) {
     if (variable == NULL || !variable->is_var) {
         // no variable found in the whole stack.
         set_val(father, T_UNDEF, false, 0, 0, NULL);
-        printf("Error type 1 at Line %d: Undefined variable.\n", father->lineno);
+        printf("Error type 1 at Line %d: Undefined variable \"%s\".\n", father->lineno, id->data.text);
         return;
     }
 
@@ -391,7 +413,7 @@ void literal_check(Node* father) {
     bool is_int = !strcmp(literal->id, "INT");
     bool is_float = !strcmp(literal->id, "FLOAT");
     assert(is_int || is_float);
-    
+
     // process for child itself and father exp. they are the same.
     literal->is_constant = true;
     father->is_constant = true;

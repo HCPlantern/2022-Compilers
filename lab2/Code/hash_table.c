@@ -57,7 +57,7 @@ void add_table_node(Table table, FieldList field) {
     TableNode temp = table[key]->next;
     table[key]->next = node;
     node->next = temp;
-    printf("Add new node %s\n", node->field->name);
+    // printf("Add new node %s\n", node->field->name);
     table[key]->len++;
 }
 
@@ -65,9 +65,8 @@ FieldList find_field(Table table, const char* name) {
     size_t key = cal_key(name);
     TableNode temp = table[key]->next;
     while (temp != NULL) {
-        // printf("current table entry first node name: %s\n", temp->field->name);
         if (!strcmp(temp->field->name, name)) {
-            printf("Find field %s\n", name);
+            // printf("Find field %s\n", name);
             return temp->field;
         }
         temp = temp->next;

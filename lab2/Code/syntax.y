@@ -7,9 +7,12 @@
     #include "stack.h"
     extern Node* syntax_tree_root;
     extern Node* current_specifier_node;
-    extern void check_ExtDef(Node* node);
-    extern void check_ExtDecList(Node* specifier, Node* node);
-    extern void check_func(Node* specifier);
+    extern bool is_in_compst;
+    extern Type arg_type;
+    void check_ExtDef(Node* node);
+    void check_ExtDecList(Node* specifier, Node* node);
+    void check_func(Node* specifier);
+    void add_args_into_table();
 %}
 
 %union {
@@ -35,7 +38,7 @@
 %%
 
 /* High-level Definitions */
-Program : ExtDefList {$$ = build_tree("Program", 1, $1); print_tree($$, 0); syntax_tree_root = $$;}
+Program : ExtDefList {$$ = build_tree("Program", 1, $1); /*print_tree($$, 0); */syntax_tree_root = $$;}
     ;
 /* 0 or some ExtDef */
 ExtDefList : ExtDef ExtDefList {$$ = build_tree("ExtDefList", 2, $1, $2);}
@@ -44,7 +47,7 @@ ExtDefList : ExtDef ExtDefList {$$ = build_tree("ExtDefList", 2, $1, $2);}
 /* def of global var, struct and function */
 ExtDef : Specifier ExtDecList SEMI {$$ = build_tree("ExtDef", 3, $1, $2, $3);check_ExtDecList($1, $2);}
     | Specifier SEMI {$$ = build_tree("ExtDef", 2, $1, $2); check_ExtDef($$);}
-    | Specifier FunDec { build_tree("ExtDef", 2, $1, $2); check_func($1);} CompSt {$$->sibling = $4;}
+    | Specifier FunDec { build_tree("ExtDef", 2, $1, $2); check_func($1); is_in_compst = true; arg_type = &($2->type);} CompSt {is_in_compst = false; $$->sibling = $4;}
     | Specifier FunDec SEMI {$$ = build_tree("ExtDef", 3, $1, $2, $3);check_func($$);}
     | Specifier ExtDecList ASSIGNOP error SEMI {print_errorB($2->lineno, ", global variable cannot be initialized.");}
     | Specifier error SEMI {print_errorB($$->lineno, "");}
@@ -88,7 +91,7 @@ ParamDec : Specifier VarDec {$$ = build_tree("ParamDec", 2, $1, $2);}
     ;
 
 /* Statements */
-CompSt : LC {new_scope();} DefList StmtList RC {exit_scope();} {$$ = build_tree("CompSt", 4, $1, $3, $4, $5);}
+CompSt : LC {new_scope();add_args_into_table();} DefList StmtList RC {exit_scope();} {$$ = build_tree("CompSt", 4, $1, $3, $4, $5);}
     | error RC {print_errorB($$->lineno, "");}
     ;
 
