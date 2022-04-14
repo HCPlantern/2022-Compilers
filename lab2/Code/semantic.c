@@ -6,7 +6,7 @@
 #include "type.h"
 
 extern Stack stack;
-FieldList check_VarDec(Node* specifier, Node* node, bool in_struct);
+FieldList check_VarDec(Node* specifier, Node* node, bool need_check_table);
 static const struct _Type T_BOOL = {BASIC, T_INT};
 static const struct _Type T_UNDEF = {UNDEF, T_INT};  // WARNING: kind should be examined before u.basic.
 
@@ -93,6 +93,9 @@ void add_args_into_table() {
     if (arg_type != NULL) {
         FieldList args = arg_type->u.function.args;
         for (int i = 0; i < arg_type->u.function.arg_len; i++) {
+            if(find_field(stack->tables[stack->top - 1] ,args->name)) {
+                printf("Error type 3 at Line %d: Redefined variable \"%s\".\n", yylineno, args->name);
+            }
             add_table_node(stack->tables[stack->top - 1], args);
             args = args->next;
         }

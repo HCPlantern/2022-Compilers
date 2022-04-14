@@ -64,7 +64,7 @@ FieldList check_VarDec(Node* specifier, Node* node, bool need_check_table) {
     if (!strcmp(node->child->id, "ID")) {
         new_field = create_basic_and_struct_field_for_var(node->child->data.text, specifier);
         if (need_check_table) {
-            if (find_field(curr_table, new_field->name)) {
+            if (find_field(curr_table, new_field->name) != NULL || find_struct_def_in_stack(new_field->name) != NULL) {
                 printf("Error type 3 at Line %d: Redefined variable \"%s\".\n", node->lineno, new_field->name);
             } else {
                 add_table_node(curr_table, new_field);
@@ -74,7 +74,7 @@ FieldList check_VarDec(Node* specifier, Node* node, bool need_check_table) {
     } else if (!strcmp(node->child->id, "VarDec")) {
         new_field = create_array_field(node, specifier);
         if (need_check_table) {
-            if (find_field(curr_table, new_field->name)) {
+            if (find_field(curr_table, new_field->name) != NULL || find_struct_def_in_stack(new_field->name) != NULL) {
                 printf("Error type 3 at Line %d: Redefined variable \"%s\".\n", node->lineno, new_field->name);
             } else {
                 add_table_node(curr_table, new_field);
