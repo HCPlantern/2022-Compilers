@@ -124,9 +124,12 @@ Type create_struct_type(Node* specifier) {
         char* name = struct_specifier->child->sibling->child->data.text;
         FieldList field = find_struct_def_in_stack(name);
         if (field == NULL) {
-            printf("Error type 7 at Line %d :Undefined structure \"%s\".\n", struct_specifier->lineno, name);
+            printf("Error type 17 at Line %d :Undefined structure \"%s\".\n", struct_specifier->lineno, name);
         } else {
-            return field->type;
+            Type res = malloc(sizeof(struct _Type));
+            res->kind = STRUCTURE;
+            res->u.structure = field;
+            return res;
         }
     }
     return NULL;

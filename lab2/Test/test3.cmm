@@ -1,6 +1,14 @@
 
 struct OneDimVector a1;
 
+struct Array {
+  int arr[10];
+} array1;
+
+int main() {
+    array1.arr[5] = 1;
+}
+
 // int main() {
 //     int j;
 //     int i = j;
