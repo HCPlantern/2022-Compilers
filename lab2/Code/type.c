@@ -156,7 +156,7 @@ Type create_func_type(Node* specifier, Node* fundec) {
         Node* varlist = fundec->child->sibling->sibling;
         Node* paramdec = varlist->child;
         while (true) {
-            FieldList arg = check_VarDec(paramdec->child, paramdec->child->sibling, true);
+            FieldList arg = check_VarDec(paramdec->child, paramdec->child->sibling, false);
 
             // concat args field
             if (res->u.function.args == NULL) {

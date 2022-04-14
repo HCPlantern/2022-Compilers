@@ -112,7 +112,7 @@ void add_args_into_table() {
     if (arg_type != NULL) {
         FieldList args = arg_type->u.function.args;
         for (int i = 0; i < arg_type->u.function.arg_len; i++) {
-            if (find_field(stack->tables[stack->top - 1], args->name)) {
+            if (find_field(stack->tables[stack->top - 1], args->name) != NULL || find_struct_def_in_stack(args->name) != NULL) {
                 printf("Error type 3 at Line %d: Redefined variable \"%s\".\n", yylineno, args->name);
             }
             add_table_node(stack->tables[stack->top - 1], args);
