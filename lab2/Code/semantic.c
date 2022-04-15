@@ -353,7 +353,7 @@ void func_call_check(Node* father, Node* func, Node* args) {
 
     if (parameters != NULL || args != NULL) {
         legal = false;
-        printf("Error type 9 at Line %d: Amount of args and paras unmatched.\n", father->lineno);
+        printf("Error type 9 at Line %d: Amount of args and params unmatched.\n", father->lineno);
     }
 
     if (!legal) {

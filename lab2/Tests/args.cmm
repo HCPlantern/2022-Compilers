@@ -1,0 +1,12 @@
+int first(int x, int y, int z) {
+    return x;
+}
+
+int main() {
+    float xf = 0.0;
+    int yi = 1;
+    float zf = 1.0;
+    int haha = 888;
+
+    return first(yi, haha);
+}

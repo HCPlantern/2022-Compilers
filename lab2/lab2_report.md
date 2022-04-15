@@ -10,21 +10,13 @@
 
 
 
-特色内容：对于只由int、float字面量以及运算符组成的表达式，我们支持（在lab2阶段还不支持，但为之后的lab保留了接口）进行常量折叠，常量折叠的结果存放在EXP文法节点的constant结构内。节点结构如下(node.h: 23-45)：
+特色内容：
+
+（1）对于只由int、float字面量以及运算符组成的表达式，我们支持（在lab2阶段还不支持，但为之后的lab保留了接口）进行常量折叠，常量折叠的结果存放在EXP文法节点的constant结构内。节点结构如下(node.h: 23-45)：
 
 ```c
 typedef struct tree_node {
-    int lineno;
-    char* id;
-    // 3 different types: string, int and float
-    union data {
-        char* text;
-        uint32_t i;
-        float f;
-    } data;
-    struct tree_node* child;
-    struct tree_node* sibling;
-    bool is_terminal;
+    // ... Unrelated code
 
     FieldList corresponding_field;
     struct _Type type;
@@ -47,14 +39,36 @@ if (exp1->is_constant && exp2->is_constant) { // only exps that consists of lite
     else if (exp1->type.u.basic == T_FLOAT) {
         set_val(father, exp1->type, true, 0, 0, NULL);
     }
-    else {
-        assert(0);
-    }
     return;
 }
 ```
 
+（2）对于错误类型 9，我们不仅会正确报出手册要求内容，我们还会报出更加详细的错误信息。
 
+如下面的分析目标代码所示：
+
+```c
+int first(int x, int y, int z) {
+    return x;
+}
+
+int main() {
+    float xf = 0.0;
+    int yi = 1;
+    float zf = 1.0;
+    int haha = 888;
+
+    return first(xf, yi, zf, haha);
+}
+```
+
+我们的报错更加详细，不只是报出参数有错误，还会报出第几个参数不匹配，在检查完每一个形参后如果参数数量不匹配，还会再报出参数不匹配错误：
+
+```bash
+Error type 9 at Line 11: Type unmatched at arg 1.
+Error type 9 at Line 11: Type unmatched at arg 3.
+Error type 9 at Line 11: Amount of args and params unmatched.
+```
 
 ## 编译方式
 
