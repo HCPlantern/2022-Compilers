@@ -7,6 +7,7 @@
     #include "stack.h"
     extern Node* syntax_tree_root;
     extern Node* current_specifier_node;
+    extern Node* temp_ExtDef;
     extern bool is_in_compst;
     extern bool is_in_struct;
     extern Type arg_type;
@@ -40,7 +41,7 @@
 %%
 
 /* High-level Definitions */
-Program : ExtDefList {$$ = build_tree("Program", 1, $1); /*print_tree($$, 0); */syntax_tree_root = $$;}
+Program : ExtDefList {$$ = build_tree("Program", 1, $1); /*print_tree($$, 0);*/ syntax_tree_root = $$;}
     ;
 /* 0 or some ExtDef */
 ExtDefList : ExtDef ExtDefList {$$ = build_tree("ExtDefList", 2, $1, $2);}
@@ -49,8 +50,8 @@ ExtDefList : ExtDef ExtDefList {$$ = build_tree("ExtDefList", 2, $1, $2);}
 /* def of global var, struct and function */
 ExtDef : Specifier ExtDecList SEMI {$$ = build_tree("ExtDef", 3, $1, $2, $3);check_ExtDecList($1, $2);}
     | Specifier SEMI {$$ = build_tree("ExtDef", 2, $1, $2); check_ExtDef($$);}
-    | Specifier FunDec { build_tree("ExtDef", 2, $1, $2); check_func($1); is_in_compst = true; arg_type = &($2->type);} CompSt {is_in_compst = false; $2->sibling = $4;}
-    | Specifier FunDec SEMI {$$ = build_tree("ExtDef", 3, $1, $2, $3);check_func($$);}
+    | Specifier FunDec { temp_ExtDef = build_tree("ExtDef", 2, $1, $2); check_func($1); is_in_compst = true; arg_type = &($2->type);} CompSt {is_in_compst = false; $$ = temp_ExtDef; $2->sibling = $4;}
+    | Specifier FunDec SEMI {$$ = build_tree("ExtDef", 3, $1, $2, $3);check_func($1);}
     | Specifier ExtDecList ASSIGNOP error SEMI {print_errorB($2->lineno, ", global variable cannot be initialized.");}
     | Specifier error SEMI {print_errorB($$->lineno, "");}
     | error SEMI {print_errorB($$->lineno, "");}

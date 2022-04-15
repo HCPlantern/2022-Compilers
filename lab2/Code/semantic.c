@@ -32,6 +32,8 @@ Type arg_type = NULL;
 // add to table after the new scope is created when meeting left "{".
 Node args_for_func_def;
 
+Node* temp_ExtDef;
+
 /*
 static inline union _constant {int i; float f;} cal(Node* father, Node* exp1, Node* exp2) {
     union _constant c = {0, 0.0};
