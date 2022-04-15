@@ -148,6 +148,10 @@ void return_type_check(Node* ret_exp) {
 
 void condition_type_check(Node* condition_exp) {
     // illegal. currently no ignorance for errors happened in sub exp
+    if (is_undef(condition_exp)) {
+        return;
+    }
+
     if (!is_int(condition_exp)) {
         // it seems that no error type matches this situation.
         printf("Error type ? at Line %d: Type conflict. condition exp is not int.\n", condition_exp->lineno);
@@ -364,19 +368,19 @@ void func_call_check(Node* father, Node* func, Node* args) {
 void array_check(Node* father, Node* array, Node* index) {
     if (is_undef(array) || is_undef(index)) {
         set_val(father, T_UNDEF, false, 0, 0, NULL);
-        // return;
+        return;
     }
 
     if (array->type.kind != ARRAY) {
         set_val(father, T_UNDEF, false, 0, 0, NULL);
         printf("Error type 10 at Line %d: Access non-array via index.\n", father->lineno);
-        // return;
+        return;
     }
 
     if (!is_int(index)) {
         set_val(father, T_UNDEF, false, 0, 0, NULL);
         printf("Error type 12 at Line %d: Index is not a integer.\n", father->lineno);
-        // return;
+        return;
     }
 
     set_val(father, *(array->type.u.array.elem), false, 0, 0, NULL);
@@ -387,13 +391,13 @@ void field_access_check(Node* father, Node* base, Node* field_name) {
     // illegal.
     if (is_undef(base)) {
         set_val(father, T_UNDEF, false, 0, 0, NULL);
-        // return;
+        return;
     }
 
     if (base->type.kind != STRUCTURE) {
         set_val(father, T_UNDEF, false, 0, 0, NULL);
         printf("Error type 13 at Line %d: Type of base is not struct.\n", father->lineno);
-        // return;
+        return;
     }
 
     FieldList fields = base->type.u.structure->type->u.structure;
