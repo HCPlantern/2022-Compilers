@@ -91,8 +91,7 @@ void if_in_struct(bool enter) {
     if (enter) {
         is_in_struct = true;
         struct_count++;
-    }
-    else {
+    } else {
         if (struct_count == 1) {
             is_in_struct = false;
         }
@@ -160,6 +159,10 @@ void condition_type_check(Node* condition_exp) {
 
 void dec_assign_check(Node* father, Node* varDec, Node* exp) {
     assert(!strcmp(varDec->child->id, "ID"));
+    if (is_in_struct) {
+        // printf("Error type 15 at line %d: Initialized field \"%s\"\n", exp->lineno, varDec->child->data.text);
+        return;
+    }
 
     FieldList var = find_field(stack->tables[stack->top - 1], varDec->child->data.text);
     assert(var != NULL);
