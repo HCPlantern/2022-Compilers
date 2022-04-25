@@ -104,7 +104,6 @@ void fun_dec_check(Node* funDec, Node* varList /*, bool isDef*/) {
 }
 
 void new_scope() {
-    // TODO
     Table table = new_table();
     push(table);
 }
@@ -124,7 +123,6 @@ void add_args_into_table() {
 }
 
 void exit_scope() {
-    // TODO
     pop();
 }
 
