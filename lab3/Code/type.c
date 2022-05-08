@@ -82,12 +82,14 @@ Type create_int_type() {
     Type new_type = malloc(sizeof(struct _Type));
     new_type->kind = BASIC;
     new_type->u.basic = T_INT;
+    new_type->size = 4;
 }
 
 Type create_float_type() {
     Type new_type = malloc(sizeof(struct _Type));
     new_type->kind = BASIC;
     new_type->u.basic = T_FLOAT;
+    new_type->size = 4;
 }
 Type create_basic_type(Node* specifier) {
     assert(!strcmp(specifier->child->id, "TYPE"));
@@ -105,6 +107,7 @@ Type create_array_type(int size) {
     new_type->kind = ARRAY;
     new_type->u.array.elem = NULL;
     new_type->u.array.size = size;
+    new_type->size = -1;
 }
 
 // if this is struct definiton, create struct type and return, create struct field
@@ -118,6 +121,7 @@ Type create_struct_type(Node* specifier) {
         Type res = malloc(sizeof(struct _Type));
         res->kind = STRUCTURE;
         res->u.structure = new_struct_field;
+        res->size = -1;
         return res;
     } else if (!strcmp(struct_specifier->child->sibling->id, "Tag")) {
         // find struct in all tables
@@ -129,6 +133,7 @@ Type create_struct_type(Node* specifier) {
             Type res = malloc(sizeof(struct _Type));
             res->kind = STRUCTURE;
             res->u.structure = field;
+            res->size = -1;
             return res;
         }
     }
@@ -138,6 +143,7 @@ Type create_struct_type(Node* specifier) {
 Type create_func_type(Node* specifier, Node* fundec) {
     Type res = malloc(sizeof(struct _Type));
     res->kind = FUNC;
+    res->size = -1;
     size_t arg_len = 0;
     // get return type
     Type return_type;
@@ -219,6 +225,7 @@ FieldList create_basic_and_struct_field_for_var(char* name, Node* specifier) {
     field->type = new_type;
     field->next = NULL;
     field->is_var = true;
+    field->size = -1;
     return field;
 }
 
@@ -230,6 +237,7 @@ FieldList create_array_field(Node* node, Node* specifier) {
         // printf("最底层\n");
         FieldList field = malloc(sizeof(struct _FieldList));
         field->name = node->child->data.text;
+        field->size = -1;
         Type new_type = create_array_type(node->sibling->sibling->data.i);
         field->type = new_type;
         field->is_var = true;
@@ -276,12 +284,14 @@ FieldList create_struct_field_for_struct(Node* struct_specifier) {
         id = opt_tag->child->data.text;
     }
     FieldList res = malloc(sizeof(struct _FieldList));
+    res->size = -1;
     res->is_var = false;
     res->name = id;
     res->next = NULL;
     res->type = malloc(sizeof(struct _Type));
     res->type->kind = STRUCTURE;
     res->type->u.structure == NULL;
+    res->type->size = -1;
     FieldList next_field;
 
     // handle deflist
@@ -337,4 +347,42 @@ FieldList create_struct_field_for_struct(Node* struct_specifier) {
         add_table_node(curr_table, res);
     }
     return res;
+}
+
+int get_field_size(FieldList field) {
+    if (field->size == -1) {
+        field->size = get_type_size(field->type);
+    }
+    return field->size;
+}
+
+int get_type_size(Type type) {
+    if (type->size != -1) return type->size;
+    // init type size
+    if (type->kind == BASIC) {
+        type->size = 4;
+    } else if (type->kind == ARRAY) {
+        type->size = type->u.array.size * get_type_size(type->u.array.elem);
+    } else if (type->kind == STRUCTURE) {
+        FieldList first = type->u.structure;
+        int total_size = 0;
+        while (first != NULL) {
+            total_size += get_field_size(first);
+            first = first->next;
+        }
+        type->size = total_size;
+    }
+    return type->size;
+}
+
+int get_struct_field_offset(const char* struct_name, const char* field) {
+    FieldList temp = find_struct_def_in_stack(struct_name);
+    int offset = 0;
+    FieldList first = temp->type->u.structure;
+    while (first != NULL) {
+        if (!strcmp(first->name, field)) { return offset; }
+        offset += get_field_size(first);
+        first = first->next;
+    }
+    return -1;
 }

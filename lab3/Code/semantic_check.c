@@ -96,6 +96,7 @@ void check_func(Node* specifier) {
             // todo: delete func_type
         } else if (field_found == NULL) {
             FieldList new_func_field = malloc(sizeof(struct _FieldList));
+            new_func_field->size = -1;
             new_func_field->name = name;
             new_func_field->type = func_type;
             new_func_field->is_var = false;
@@ -121,6 +122,7 @@ void check_func(Node* specifier) {
             }
         } else {
             FieldList new_func_field = malloc(sizeof(struct _FieldList));
+            new_func_field->size = -1;
             new_func_field->name = name;
             new_func_field->type = func_type;
             new_func_field->is_var = false;

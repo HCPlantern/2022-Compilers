@@ -1,0 +1,46 @@
+
+
+/*
+int global1, global2[3][5];
+int global3;
+*/
+
+struct temp {
+    int i;
+    int t[5];
+    struct temp2 {
+        int i;
+    } c;
+    float d;
+} a;
+
+// int temp() {
+//     return 1;
+// }
+
+// int main(int temp, int b) {
+//     {
+//         int i;
+//     }
+//     i = 1;
+// }
+
+// struct node {
+//     int val;
+//     int list[5][7];
+// }test, test2[3][4];
+
+// struct someStruct {
+//     int len;
+//     int arr[10][9];
+//     struct node temp;
+// };
+
+// int main() {
+//     int a[10];
+//     a[1.5];
+// }
+
+// int test() {
+//     int c;
+// }

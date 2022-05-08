@@ -32,6 +32,7 @@ struct _Type {
             bool is_defined;
         } function;
     } u;
+    int size; // memory that this type takes (only enabled for array and structure)
 };
 
 struct _FieldList {
@@ -39,6 +40,7 @@ struct _FieldList {
     Type type;
     FieldList next;
     bool is_var; // should this field be able to hold three kinds of vals: VAR, STRUCT_DEF, FUNC?
+    int size; // memory that the field takes
 };
 
 
@@ -53,5 +55,8 @@ FieldList create_basic_and_struct_field_for_var(char* name, Node* specifier);
 FieldList create_array_field(Node* node, Node* specifier);
 
 FieldList create_struct_field_for_struct(Node* struct_specifier);
+int get_field_size(FieldList field);
+int get_type_size(Type type);
+int get_struct_field_offset(const char* struct_name, const char* field);
 
 #endif
