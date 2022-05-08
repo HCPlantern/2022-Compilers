@@ -8,6 +8,7 @@
 extern Node* syntax_tree_root;
 extern void del_tree(Node* root);
 extern void check_undefined_func();
+extern void new_temp_var_list();
 extern Stack stack;
 
 int main(int argc, char** argv) {
@@ -20,9 +21,14 @@ int main(int argc, char** argv) {
     yyrestart(f);
     // extern yydebug;
     // yydebug = 1;
+
+    // init stack and table;
     stack = new_stack();
     Table table = new_table();
     push(table);
+    // init temp var lsit
+    new_temp_var_list();
+
     yyparse();
     check_undefined_func();
     // del_tree(syntax_tree_root);
