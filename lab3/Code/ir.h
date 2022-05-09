@@ -6,13 +6,18 @@ typedef struct _TempVar TempVar;
 struct _TempVar {
     char* name;
     bool is_const;
-    int const_val;
+    bool is_int;
+    union {
+        int int_val;
+        float float_val;
+    }u;
     TempVar* next;
 };
 
 char* new_ir();
 void new_temp_var_list();
 TempVar* new_temp_var();
-TempVar* find_const_var(int i);
+TempVar* find_int_val(int i);
+TempVar* find_float_val(float f);
 
 #endif

@@ -37,12 +37,12 @@ TempVar* new_temp_var() {
     return res;
 }
 
-// call this when creating or finding const temp var
+// call this when creating or finding const int temp var
 // first find, if not exist then create a new var
-TempVar* find_const_var(int i) {
+TempVar* find_int_val(int i) {
     TempVar* var = temp_var_list->next;
     while (var != NULL) {
-        if (var->is_const && var->const_val == i) {
+        if (var->is_const && var->is_int && var->u.int_val == i) {
             return var;
         }
         var = var->next;
@@ -50,7 +50,24 @@ TempVar* find_const_var(int i) {
     // create new temp var
     TempVar* new_var = new_temp_var();
     new_var->is_const = true;
-    new_var->const_val = i;
+    new_var->is_int = true;
+    new_var->u.int_val = i;
     return new_var;
 }
 
+
+TempVar* find_float_val(float f) {
+    TempVar* var = temp_var_list->next;
+    while (var != NULL) {
+        if (var->is_const && !var->is_int && var->u.float_val == f) {
+            return var;
+        }
+        var = var->next;
+    }
+    // create new temp var
+    TempVar* new_var = new_temp_var();
+    new_var->is_const = true;
+    new_var->is_int = false;
+    new_var->u.float_val = f;
+    return new_var;
+}
