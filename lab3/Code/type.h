@@ -32,7 +32,7 @@ struct _Type {
             bool is_defined;
         } function;
     } u;
-    int size; // memory that this type takes (only enabled for array and structure)
+    int size; // memory that this type takes
 };
 
 struct _FieldList {
