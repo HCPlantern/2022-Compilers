@@ -6,12 +6,20 @@
 
 size_t ir_count = 0;
 size_t temp_var_count = 0;
+size_t lable_count = 0;
 TempVar* temp_var_list;
 
 char* new_ir() {
     char* res = malloc(sizeof(char) * (10));
     sprintf(res, "%s%lu", "v", ir_count);
     ir_count++;
+    return res;
+}
+
+char* new_lable() {
+    char* res = malloc(sizeof(char) * (10));
+    sprintf(res, "%s%lu", "lable", lable_count);
+    lable_count++;
     return res;
 }
 
