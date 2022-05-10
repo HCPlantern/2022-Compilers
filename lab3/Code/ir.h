@@ -4,28 +4,28 @@
 #include "stdbool.h"
 
 typedef struct _TempVar TempVar;
-typedef struct _InterCode InterCode;
+typedef struct _IR IR;
 
 struct _TempVar {
     char* name;
     bool is_const;
-    bool is_int;
-    union {
-        int int_val;
-        float float_val;
-    }u;
+    // bool is_int;
+    // union {
+    //     int int_val;
+    //     float float_val;
+    // }u;
     TempVar* next;
 };
 
-struct _InterCode {
+struct _IR {
     char* code;
-    InterCode* prev;
-    InterCode* next;
+    IR* prev;
+    IR* next;
 };
 
-char* new_ir();
+char* new_ir_var();
 void new_temp_var_list();
-void new_inter_code_list();
+void new_ir_code_list();
 
 TempVar* new_temp_var();
 TempVar* find_int_val(int i);

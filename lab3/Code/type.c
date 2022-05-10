@@ -375,8 +375,7 @@ int get_type_size(Type type) {
     return type->size;
 }
 
-int get_struct_field_offset(const char* struct_name, const char* field) {
-    FieldList temp = find_struct_def_in_stack(struct_name);
+int get_struct_field_offset(FieldList temp, const char* field) {
     int offset = 0;
     FieldList first = temp->type->u.structure;
     while (first != NULL) {

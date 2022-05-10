@@ -18,7 +18,7 @@ void init() {
     push(table);
     // init temp var lsit
     new_temp_var_list();
-    new_inter_code_list();
+    new_ir_code_list();
 }
 
 int main(int argc, char** argv) {
