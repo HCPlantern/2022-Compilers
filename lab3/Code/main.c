@@ -23,6 +23,15 @@ void init() {
     init_read_write_func();
 }
 
+void write_file(FILE* f) {
+    IR* code = ir_list->next;
+    while (code != ir_list) {
+        fprintf(f, "%s\n", code->ir);
+        code = code->next;
+    }
+    fclose(f);
+}
+
 int main(int argc, char** argv) {
     if (argc <= 1) return 1;
     FILE* f = fopen(argv[1], "r");
@@ -30,13 +39,24 @@ int main(int argc, char** argv) {
         perror(argv[1]);
         return 1;
     }
+
     yyrestart(f);
     // extern yydebug;
     // yydebug = 1;
     init();
     yyparse();
     check_undefined_func();
+
     // del_tree(syntax_tree_root);
     print_ir();
+
+    // write to file
+    // FILE* w = fopen(argv[2], "w+");
+    // if (!w) {
+    //     perror(argv[2]);
+    //     return 1;
+    // }
+    // write_file(w);
+
     return 0;
 }

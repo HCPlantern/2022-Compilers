@@ -81,7 +81,7 @@ void plus_gen(Node* father, Node* exp1, Node* exp2) {
         sprintf(ir, "%s := %s + %s",
             father->var_in_ir, exp1->var_in_ir, exp2->var_in_ir);
     }
-    add_last_code(ir);
+    add_last_ir(ir);
 }
 
 void minus_gen(Node* father, Node* exp1, Node* exp2) {
@@ -111,7 +111,7 @@ void minus_gen(Node* father, Node* exp1, Node* exp2) {
         sprintf(ir, "%s := %s - %s",
             father->var_in_ir, exp1->var_in_ir, exp2->var_in_ir);
     }
-    add_last_code(ir);
+    add_last_ir(ir);
 }
 
 void star_gen(Node* father, Node* exp1, Node* exp2) {
@@ -141,7 +141,7 @@ void star_gen(Node* father, Node* exp1, Node* exp2) {
         sprintf(ir, "%s := %s * %s",
             father->var_in_ir, exp1->var_in_ir, exp2->var_in_ir);
     }
-    add_last_code(ir);
+    add_last_ir(ir);
 }
 
 void div_gen(Node* father, Node* exp1, Node* exp2) {
@@ -171,7 +171,7 @@ void div_gen(Node* father, Node* exp1, Node* exp2) {
         sprintf(ir, "%s := %s / %s",
             father->var_in_ir, exp1->var_in_ir, exp2->var_in_ir);
     }
-    add_last_code(ir);
+    add_last_ir(ir);
 }
 
 void negative_gen(Node* father, Node* exp) {
