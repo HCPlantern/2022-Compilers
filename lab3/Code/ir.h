@@ -24,10 +24,12 @@ struct _IR {
     IR* next;
 };
 
+IR* code_list;
+
 char* get_ir_var_by_name(char* name);
 char* get_ir_var_by_field(FieldList fieldlist);
 
-char* new_lable();
+char* new_label();
 void new_temp_var_list();
 void new_ir_code_list();
 void add_last_code(char* code);

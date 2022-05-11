@@ -11,16 +11,15 @@
 extern Stack stack;
 
 #define max_ir_var_len 10
-#define max_lable_len 10
+#define max_label_len 10
 #define max_temp_var_len 10
 #define curr_table (stack->tables[stack->top - 1])
 
 size_t ir_count = 0;
 size_t temp_var_count = 0;
-size_t lable_count = 0;
+size_t label_count = 0;
 
 TempVar* temp_var_list;
-IR* code_list;
 
 void init_read_write_func() {
     Type read_type = malloc(sizeof(struct _Type));
@@ -72,10 +71,10 @@ char* get_ir_var_by_field(FieldList fieldlist) {
     return ir_var;
 }
 
-char* new_lable() {
-    char* res = malloc(sizeof(char) * (max_lable_len));
-    sprintf(res, "%s%lu", "label", lable_count);
-    lable_count++;
+char* new_label() {
+    char* res = malloc(sizeof(char) * (max_label_len));
+    sprintf(res, "%s%lu", "label", label_count);
+    label_count++;
     return res;
 }
 
