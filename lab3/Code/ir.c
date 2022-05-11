@@ -29,24 +29,11 @@ void init_read_write_func() {
     read_type->u.function.args = NULL;
     read_type->u.function.is_defined = true;
     read_type->u.function.return_type = int_type;
-    FieldList read_field = malloc(sizeof(struct _FieldList));
-    read_field->name = "read";
-    read_field->type = read_type;
-    read_field->next = NULL;
-    read_field->is_var = false;
-    read_field->size = -1;
-    read_field->ir_var = NULL;
+    FieldList read_field = init_fieldlist("read", read_type, NULL, false, -1, NULL);
     add_table_node(curr_table, read_field);
 
     // init arg for write
-    FieldList arg = malloc(sizeof(struct _FieldList));
-    arg->name = "input";
-    arg->type = int_type;
-    arg->next = NULL;
-    arg->is_var = true;
-    arg->size = 4;
-    arg->ir_var = NULL;
-
+    FieldList arg = init_fieldlist("input", int_type, NULL, true, 4, NULL);
     Type write_type = malloc(sizeof(struct _Type));
     write_type->kind = FUNC;
     write_type->u.function.arg_len = 1;
@@ -54,13 +41,7 @@ void init_read_write_func() {
     write_type->u.function.is_defined = true;
     write_type->u.function.return_type = int_type;
 
-    FieldList write_field = malloc(sizeof(struct _FieldList));
-    write_field->name = "write";
-    write_field->type = write_type;
-    write_field->next = NULL;
-    write_field->is_var = false;
-    write_field->size = -1;
-    write_field->ir_var = NULL;
+    FieldList write_field = init_fieldlist("write", write_type, NULL, false, -1, NULL);
     add_table_node(curr_table, write_field);
 }
 

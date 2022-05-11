@@ -45,6 +45,7 @@ struct _FieldList {
 };
 
 
+FieldList init_fieldlist(char* name, Type type, FieldList next, bool is_var, int size, char* ir_var);
 bool type_equal(Type type1, Type type2);
 char* anonymous_struct_name();
 Type create_int_type();

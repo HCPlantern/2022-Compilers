@@ -16,10 +16,16 @@ extern FieldList check_VarDec(Node* specifier, Node* node, bool in_struct);
 
 size_t anonymous_struct_count = 0;
 
-// FieldList init_fieldlist(char* name, Type type, FieldList next, bool is_var, int size, char* ir_var) {
-//     FieldList res = malloc(sizeof (struct _FieldList));
-//     strcpy(res->name, name);
-// }
+FieldList init_fieldlist(char* name, Type type, FieldList next, bool is_var, int size, char* ir_var) {
+    FieldList res = malloc(sizeof (struct _FieldList));
+    res->name = name;
+    res->type = type;
+    res->next = next;
+    res->is_var = is_var;
+    res->size = size;
+    res->ir_var = ir_var;
+    return res;
+}
 
 // todo: only compare type. (in structural equivalence)
 bool type_equal(Type type1, Type type2) {
@@ -225,13 +231,7 @@ FieldList create_basic_and_struct_field_for_var(char* name, Node* specifier) {
     } else if (!strcmp(specifier->child->id, "StructSpecifier")) {
         new_type = create_struct_type(specifier);
     }
-    FieldList field = malloc(sizeof(struct _FieldList));
-    field->size = -1;
-    field->ir_var = NULL;
-    field->name = name;
-    field->type = new_type;
-    field->next = NULL;
-    field->is_var = true;
+    FieldList field = init_fieldlist(name, new_type, NULL, true, -1, NULL);
     return field;
 }
 
@@ -241,13 +241,8 @@ FieldList create_array_field(Node* node, Node* specifier) {
     assert(!strcmp(node->id, "VarDec"));
     if (!strcmp(node->child->id, "ID")) {  // 最底层 VarDec
         // printf("最底层\n");
-        FieldList field = malloc(sizeof(struct _FieldList));
-        field->name = node->child->data.text;
-        field->size = -1;
-        field->ir_var = NULL;
         Type new_type = create_array_type(node->sibling->sibling->data.i);
-        field->type = new_type;
-        field->is_var = true;
+        FieldList field = init_fieldlist(node->child->data.text, new_type, NULL, true, -1, NULL);
         return field;
     } else if (!strcmp(node->child->id, "VarDec")) {
         FieldList field;
@@ -290,16 +285,11 @@ FieldList create_struct_field_for_struct(Node* struct_specifier) {
     } else {
         id = opt_tag->child->data.text;
     }
-    FieldList res = malloc(sizeof(struct _FieldList));
-    res->size = -1;
-    res->ir_var = NULL;
-    res->is_var = false;
-    res->name = id;
-    res->next = NULL;
-    res->type = malloc(sizeof(struct _Type));
-    res->type->kind = STRUCTURE;
-    res->type->u.structure == NULL;
-    res->type->size = -1;
+    Type new_type = malloc(sizeof(struct _Type));
+    new_type->kind = STRUCTURE;
+    new_type->u.structure == NULL;
+    new_type->size = -1;
+    FieldList res = init_fieldlist(id, new_type, NULL, false, -1, NULL);
     FieldList next_field;
 
     // handle deflist

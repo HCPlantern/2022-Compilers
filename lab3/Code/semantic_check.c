@@ -95,12 +95,7 @@ void check_func(Node* specifier) {
             printf("Error type 19 at Line %d: Inconsistent declaration of function \"%s\".\n", fundec->lineno, name);
             // todo: delete func_type
         } else if (field_found == NULL) {
-            FieldList new_func_field = malloc(sizeof(struct _FieldList));
-            new_func_field->size = -1;
-            new_func_field->ir_var = NULL;
-            new_func_field->name = name;
-            new_func_field->type = func_type;
-            new_func_field->is_var = false;
+            FieldList new_func_field = init_fieldlist(name, func_type, NULL, false, -1, NULL);
             func_type->u.function.is_defined = false;
             add_table_node(curr_table, new_func_field);
 
@@ -122,12 +117,7 @@ void check_func(Node* specifier) {
                 }
             }
         } else {
-            FieldList new_func_field = malloc(sizeof(struct _FieldList));
-            new_func_field->size = -1;
-            new_func_field->ir_var = NULL;
-            new_func_field->name = name;
-            new_func_field->type = func_type;
-            new_func_field->is_var = false;
+            FieldList new_func_field = init_fieldlist(name, func_type, NULL, false, -1, NULL);
             func_type->u.function.is_defined = true;
             add_table_node(curr_table, new_func_field);
         }
