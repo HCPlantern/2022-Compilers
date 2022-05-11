@@ -45,7 +45,7 @@ typedef struct tree_node {
         float f;
     } constant;
 
-    char* var_in_ir; // valid if !is_constant. could be true ir var or temp var.
+    char var_in_ir[15]; // valid if !is_constant. could be true ir var or temp var.
 } Node;
 
 Node* new_node(char* id);

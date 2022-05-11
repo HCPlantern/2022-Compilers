@@ -42,9 +42,6 @@ Node* new_node(char* id) {
     node->sibling = NULL;
     node->is_terminal = true;
     // printf("new node line: %d; id: %s; text: %s\n", yylineno, id, yytext);
-
-    node->var_in_ir = malloc((12 + 1) * sizeof(char));
-
     return node;
 }
 
