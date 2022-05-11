@@ -3,6 +3,11 @@
 
 #include "stdbool.h"
 
+#define max_ir_var_len 10
+#define max_label_len 10
+#define max_temp_var_len 10
+#define max_single_ir_len 100
+
 typedef struct _TempVar TempVar;
 typedef struct _IR IR;
 typedef struct _FieldList* FieldList;
