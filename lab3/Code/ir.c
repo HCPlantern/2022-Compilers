@@ -90,29 +90,29 @@ void new_temp_var_list() {
 
 void new_ir_code_list() {
     ir_list = malloc(sizeof(IR));
-    ir_list->code = NULL;
+    ir_list->ir = NULL;
     ir_list->next = ir_list;
     ir_list->prev = ir_list;
 }
 
-void add_last_code(char* code) {
-    IR* new_code = malloc(sizeof (IR));
-    new_code->code = malloc(sizeof(char) * 100);
-    strcpy(new_code->code, code);
-    new_code->prev = ir_list->prev;
-    new_code->next = ir_list;
-    ir_list->prev->next = new_code;
-    ir_list->prev = new_code;
+void add_last_ir(char* code) {
+    IR* new_ir = malloc(sizeof (IR));
+    new_ir->ir = malloc(sizeof(char) * 100);
+    strcpy(new_ir->ir, code);
+    new_ir->prev = ir_list->prev;
+    new_ir->next = ir_list;
+    ir_list->prev->next = new_ir;
+    ir_list->prev = new_ir;
 }
 
 void add_first_code(char* code) {
-    IR* new_code = malloc(sizeof (IR));
-    new_code->code = malloc(sizeof(char) * 100);
-    strcpy(new_code->code, code);
-    new_code->prev = ir_list;
-    new_code->next = ir_list->next;
-    ir_list->next->prev = new_code;
-    ir_list->next = new_code;
+    IR* new_ir = malloc(sizeof (IR));
+    new_ir->ir = malloc(sizeof(char) * 100);
+    strcpy(new_ir->ir, code);
+    new_ir->prev = ir_list;
+    new_ir->next = ir_list->next;
+    ir_list->next->prev = new_ir;
+    ir_list->next = new_ir;
 }
 
 void remove_first_code() {
@@ -129,10 +129,10 @@ void remove_last_code() {
     free(temp);
 }
 
-void print_ir_code() {
+void print_ir() {
     IR* code = ir_list->next;
     while (code != ir_list) {
-        printf("%s\n", code->code);
+        printf("%s\n", code->ir);
         code = code->next;
     }
 }
