@@ -30,6 +30,7 @@ char* get_ir_var_by_field(FieldList fieldlist);
 char* new_lable();
 void new_temp_var_list();
 void new_ir_code_list();
+void add_last_code(char* code);
 
 TempVar* get_temp_var(int type);
 // TempVar* find_int_val(int i);

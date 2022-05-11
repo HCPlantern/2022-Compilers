@@ -16,6 +16,11 @@ extern FieldList check_VarDec(Node* specifier, Node* node, bool in_struct);
 
 size_t anonymous_struct_count = 0;
 
+// FieldList init_fieldlist(char* name, Type type, FieldList next, bool is_var, int size, char* ir_var) {
+//     FieldList res = malloc(sizeof (struct _FieldList));
+//     strcpy(res->name, name);
+// }
+
 // todo: only compare type. (in structural equivalence)
 bool type_equal(Type type1, Type type2) {
     if (type1->kind == BASIC && type2->kind == BASIC) {
