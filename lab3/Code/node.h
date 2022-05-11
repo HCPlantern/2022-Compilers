@@ -37,11 +37,15 @@ typedef struct tree_node {
     struct _Type type;
     // WARNING: in lab2, even the const prop for literals is unsupported.
     bool is_constant;  // only exp that consists of literals and operators could be constant.
+
+    size_t addr_offset;
     
     union _Constant {
-        uint32_t i;
+        int i;
         float f;
     } constant;
+
+    char* var_in_ir; // valid if !is_constant. could be true ir var or temp var.
 } Node;
 
 Node* new_node(char* id);
