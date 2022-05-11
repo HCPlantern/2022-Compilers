@@ -41,6 +41,7 @@ struct _FieldList {
     FieldList next;
     bool is_var; // should this field be able to hold three kinds of vals: VAR, STRUCT_DEF, FUNC?
     int size; // memory that the field takes
+    char* ir_var;
 };
 
 
@@ -59,4 +60,6 @@ int get_field_size(FieldList field);
 int get_type_size(Type type);
 int get_struct_field_offset(FieldList temp, const char* field);
 
+char* get_ir_var_by_name(char* name);
+char* get_ir_var_by_field(FieldList fieldList);
 #endif

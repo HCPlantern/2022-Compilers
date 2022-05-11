@@ -1,8 +1,11 @@
 
-#include "ir.h"
 #include "stdio.h"
 #include "stdlib.h"
 #include "stdbool.h"
+
+#include "ir.h"
+#include "type.h"
+#include "stack.h"
 
 #define max_ir_var_len 10
 #define max_lable_len 10
@@ -15,11 +18,30 @@ size_t lable_count = 0;
 TempVar* temp_var_list;
 IR* code_list;
 
-char* new_ir_var() {
-    char* res = malloc(sizeof(char) * (max_ir_var_len));
-    sprintf(res, "%s%lu", "v", ir_count);
+char* get_ir_var_by_name(char* name) {
+    FieldList filedlist = find_any_in_stack(name);
+    return get_ir_var_by_field(filedlist);
+}
+
+char* get_ir_var_by_field(FieldList fieldlist) {
+    if (fieldlist->ir_var != NULL) {
+        return fieldlist->ir_var;
+    }
+
+    Type type = fieldlist->type;
+    char* ir_var = malloc(sizeof(char) * (max_ir_var_len));
+    if (type->kind == BASIC) {
+        if (type->u.basic == T_INT) {
+            sprintf(ir_var, "%s%lu", "iv", ir_count);
+        } else if (type->u.basic == T_FLOAT) {
+            sprintf(ir_var, "%s%lu", "fv", ir_count);
+        }
+    } else {
+        sprintf(ir_var, "%s%lu", "v", ir_count);
+    }
+    fieldlist->ir_var = ir_var;
     ir_count++;
-    return res;
+    return ir_var;
 }
 
 char* new_lable() {
@@ -82,10 +104,14 @@ void remove_last_code() {
 
 
 // call this when creating non-const temp var
-TempVar* new_temp_var() {
+TempVar* get_temp_var(int type) {
     TempVar* res = malloc(sizeof(TempVar));
     char* name = malloc(sizeof(char) * (max_temp_var_len));
-    sprintf(name, "%s%lu", "t", temp_var_count);
+    if (type == 0) {
+        sprintf(name, "%s%lu", "it", temp_var_count);
+    } else if (type == 1) {
+        sprintf(name, "%s%lu", "ft", temp_var_count);
+    }
     temp_var_count++;
     res->name = name;
     res->is_const = false;
@@ -95,6 +121,7 @@ TempVar* new_temp_var() {
 
     return res;
 }
+
 
 
 // // call this when creating or finding const int temp var

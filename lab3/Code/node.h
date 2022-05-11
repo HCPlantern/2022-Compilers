@@ -42,8 +42,6 @@ typedef struct tree_node {
         uint32_t i;
         float f;
     } constant;
-
-    char* ir_var;
 } Node;
 
 Node* new_node(char* id);

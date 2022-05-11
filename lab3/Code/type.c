@@ -221,11 +221,12 @@ FieldList create_basic_and_struct_field_for_var(char* name, Node* specifier) {
         new_type = create_struct_type(specifier);
     }
     FieldList field = malloc(sizeof(struct _FieldList));
+    field->size = -1;
+    field->ir_var = NULL;
     field->name = name;
     field->type = new_type;
     field->next = NULL;
     field->is_var = true;
-    field->size = -1;
     return field;
 }
 
@@ -238,6 +239,7 @@ FieldList create_array_field(Node* node, Node* specifier) {
         FieldList field = malloc(sizeof(struct _FieldList));
         field->name = node->child->data.text;
         field->size = -1;
+        field->ir_var = NULL;
         Type new_type = create_array_type(node->sibling->sibling->data.i);
         field->type = new_type;
         field->is_var = true;
@@ -285,6 +287,7 @@ FieldList create_struct_field_for_struct(Node* struct_specifier) {
     }
     FieldList res = malloc(sizeof(struct _FieldList));
     res->size = -1;
+    res->ir_var = NULL;
     res->is_var = false;
     res->name = id;
     res->next = NULL;
