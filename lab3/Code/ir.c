@@ -83,7 +83,7 @@ char* get_ir_var_by_field(FieldList fieldlist) {
             sprintf(ir_var, "%s%lu", "fv", ir_count);
         }
     } else {
-        sprintf(ir_var, "%s%lu", "v", ir_count);
+        sprintf(ir_var, "%s%lu", "&v", ir_count);
     }
     fieldlist->ir_var = ir_var;
     ir_count++;
