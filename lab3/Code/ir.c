@@ -10,9 +10,6 @@
 
 extern Stack stack;
 
-#define max_ir_var_len 10
-#define max_label_len 10
-#define max_temp_var_len 10
 #define curr_table (stack->tables[stack->top - 1])
 
 size_t ir_count = 0;
@@ -97,7 +94,7 @@ void new_ir_code_list() {
 
 void add_last_ir(char* code) {
     IR* new_ir = malloc(sizeof (IR));
-    new_ir->ir = malloc(sizeof(char) * 100);
+    new_ir->ir = malloc(sizeof(char) * max_single_ir_len);
     strcpy(new_ir->ir, code);
     new_ir->prev = ir_list->prev;
     new_ir->next = ir_list;
@@ -107,7 +104,7 @@ void add_last_ir(char* code) {
 
 void add_first_code(char* code) {
     IR* new_ir = malloc(sizeof (IR));
-    new_ir->ir = malloc(sizeof(char) * 100);
+    new_ir->ir = malloc(sizeof(char) * max_single_ir_len);
     strcpy(new_ir->ir, code);
     new_ir->prev = ir_list;
     new_ir->next = ir_list->next;
