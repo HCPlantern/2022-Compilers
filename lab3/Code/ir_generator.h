@@ -12,7 +12,7 @@ void minus_gen(Node* father, Node* exp1, Node* exp2);
 void star_gen(Node* father, Node* exp1, Node* exp2);
 void div_gen(Node* father, Node* exp1, Node* exp2);
 void negative_gen(Node* father, Node* exp);
-void parathesis_reduce(Node* exp);
+void parathesis_reduce(Node* father, Node* exp);
 void negative_gen(Node* father, Node* exp);
 // void tilde_gen(Node* exp); // vm does not support tilde.
 void func_call_gen(Node* father, Node* id, Node* args); // special process for read() and write(x)

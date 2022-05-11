@@ -154,12 +154,16 @@ void negative_gen(Node* father, Node* exp) {
     // TODO
 }
 
-void parathesis_reduce(Node* exp) {
-    // TODO
-}
+void parathesis_reduce(Node* father, Node* exp) {
+    if (exp->is_constant) {
+        father->is_constant = true;
+        father->constant.i = exp->constant.i;
+        return;
+    }
 
-void negative_gen(Node* father, Node* exp) {
-    // TODO
+    father->is_constant = false;
+    father->addr_offset = 0;
+    strncpy(father->var_in_ir, exp->var_in_ir, 10);
 }
 
 // void tilde_gen(Node* exp); // vm does not support tilde.
@@ -189,7 +193,7 @@ void id_gen(Node* father, Node* id) {
     char* ir_var = get_ir_var_by_name(id->data.text);
     father->is_constant = false;
     father->addr_offset = 0;
-    strncpy(father->var_in_ir, ir_var, 15);
+    strncpy(father->var_in_ir, ir_var, 10);
 }
 
 void int_gen(Node* father, Node* int_literal) {
