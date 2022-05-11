@@ -85,7 +85,6 @@ void plus_gen(Node* father, Node* exp1, Node* exp2) {
 }
 
 void minus_gen(Node* father, Node* exp1, Node* exp2) {
-    // TODO
     if (exp1->is_constant && exp2->is_constant) {
         father->is_constant = true;
         if (exp1->type.u.basic == T_INT) {
@@ -116,7 +115,6 @@ void minus_gen(Node* father, Node* exp1, Node* exp2) {
 }
 
 void star_gen(Node* father, Node* exp1, Node* exp2) {
-    // TODO
     if (exp1->is_constant && exp2->is_constant) {
         father->is_constant = true;
         if (exp1->type.u.basic == T_INT) {
@@ -147,7 +145,33 @@ void star_gen(Node* father, Node* exp1, Node* exp2) {
 }
 
 void div_gen(Node* father, Node* exp1, Node* exp2) {
-    // TODO
+    if (exp1->is_constant && exp2->is_constant) {
+        father->is_constant = true;
+        if (exp1->type.u.basic == T_INT) {
+            father->constant.i = exp1->constant.i / exp2->constant.i;
+        }
+        else {
+            father->constant.f = exp1->constant.f / exp2->constant.f;
+        }
+        return;
+    }
+    
+    father->is_constant = false;
+    char ir[100];
+    strncpy(father->var_in_ir, get_temp_var(0)->name, 10);
+    if (exp1->is_constant) {
+        sprintf(ir, "%s := #%d / %s",
+            father->var_in_ir, exp1->constant.i, exp2->var_in_ir);
+    }
+    else if (exp2->is_constant){
+        sprintf(ir, "%s := %s / #%d",
+            father->var_in_ir, exp1->var_in_ir, exp2->constant.i);
+    }
+    else {
+        sprintf(ir, "%s := %s / %s",
+            father->var_in_ir, exp1->var_in_ir, exp2->var_in_ir);
+    }
+    add_last_code(ir);
 }
 
 void negative_gen(Node* father, Node* exp) {
