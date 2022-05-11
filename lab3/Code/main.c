@@ -37,5 +37,6 @@ int main(int argc, char** argv) {
     yyparse();
     check_undefined_func();
     // del_tree(syntax_tree_root);
+    print_ir_code();
     return 0;
 }

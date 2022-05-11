@@ -46,7 +46,7 @@ void binary_cal_check(Node* father, Node* exp1, Node* exp2); // + - * /
 void assignment_check(Node* father, Node* lValue, Node* rValue); // not only the type but also the lValue.
 void logical_check(Node* father, Node* exp1, Node* exp2);    // AND OR
 void relop_check(Node* father, Node* exp1, Node* exp2);      // relop
-void parathese_check(Node* father, Node* inner_exp);  // (exp)
+void parentheses_check(Node* father, Node* inner_exp);  // (exp)
 void minus_check(Node* father, Node* exp);      // -
 void not_check(Node* father, Node* exp);        // !
 // void tilde_check(Node* father, Node* exp);   // ~

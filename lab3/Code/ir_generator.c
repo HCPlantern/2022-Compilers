@@ -178,7 +178,7 @@ void negative_gen(Node* father, Node* exp) {
     // TODO
 }
 
-void parathesis_reduce(Node* father, Node* exp) {
+void parentheses_reduce(Node* father, Node* exp) {
     if (exp->is_constant) {
         father->is_constant = true;
         father->constant.i = exp->constant.i;

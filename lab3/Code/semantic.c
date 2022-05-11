@@ -274,7 +274,7 @@ void relop_check(Node* father, Node* exp1, Node* exp2) {
     set_val(father, T_BOOL, false, 0, 0, NULL);
 }
 
-void parathese_check(Node* father, Node* inner_exp) {
+void parentheses_check(Node* father, Node* inner_exp) {
     // illegal.
     if (is_undef(inner_exp)) {
         set_val(father, T_UNDEF, false, 0, 0, NULL);

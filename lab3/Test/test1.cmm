@@ -5,25 +5,25 @@ int global1, global2[3][5];
 int global3;
 */
 
-struct temp {
-    int i;
-    int t[5];
-    struct temp2 {
-        int i;
-    } c;
-    float d;
-} a;
+// struct temp {
+//     int i;
+//     int t[5];
+//     struct temp2 {
+//         int i;
+//     } c;
+//     float d;
+// } a;
 
 // int temp() {
 //     return 1;
 // }
 
-// int main(int temp, int b) {
-//     {
-//         int i;
-//     }
-//     i = 1;
-// }
+int main(int temp, int b) {
+    int i = 1;
+    // i = 1 + 2 * 3;
+    i = i + 4 / 2;
+    return i;
+}
 
 // struct node {
 //     int val;

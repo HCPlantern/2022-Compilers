@@ -5,6 +5,7 @@
     #include "node.h"
     #include "hash_table.h"
     #include "stack.h"
+    #include "ir_generator.h"
     extern Node* syntax_tree_root;
     extern Node* current_specifier_node;
     extern Node* temp_ExtDef;
@@ -134,11 +135,31 @@ Exp : LValue ASSIGNOP Exp {$$ = build_tree("Exp", 3, $1, $2, $3); assignment_che
     | Exp AND Exp {$$ = build_tree("Exp", 3, $1, $2, $3); logical_check($$, $1, $3);}
     | Exp OR Exp {$$ = build_tree("Exp", 3, $1, $2, $3); logical_check($$, $1, $3);}
     | Exp RELOP Exp {$$ = build_tree("Exp", 3, $1, $2, $3); relop_check($$, $1, $3);}
-    | Exp PLUS Exp {$$ = build_tree("Exp", 3, $1, $2, $3); binary_cal_check($$, $1, $3);}
-    | Exp MINUS Exp {$$ = build_tree("Exp", 3, $1, $2, $3); binary_cal_check($$, $1, $3);}
-    | Exp STAR Exp {$$ = build_tree("Exp", 3, $1, $2, $3); binary_cal_check($$, $1, $3);}
-    | Exp DIV Exp {$$ = build_tree("Exp", 3, $1, $2, $3); binary_cal_check($$, $1, $3);}
-    | LP Exp RP {$$ = build_tree("Exp", 3, $1, $2, $3); parathese_check($$, $2);}
+    | Exp PLUS Exp {
+            $$ = build_tree("Exp", 3, $1, $2, $3); 
+            binary_cal_check($$, $1, $3);
+            plus_gen($$, $1, $3); 
+        }
+    | Exp MINUS Exp {
+            $$ = build_tree("Exp", 3, $1, $2, $3);
+            binary_cal_check($$, $1, $3);
+            minus_gen($$, $1, $3);
+        }
+    | Exp STAR Exp {
+            $$ = build_tree("Exp", 3, $1, $2, $3);
+            binary_cal_check($$, $1, $3);
+            star_gen($$, $1, $3);
+        }
+    | Exp DIV Exp {
+            $$ = build_tree("Exp", 3, $1, $2, $3);
+            binary_cal_check($$, $1, $3);
+            div_gen($$, $1, $3);
+        }
+    | LP Exp RP {
+            $$ = build_tree("Exp", 3, $1, $2, $3);
+            parentheses_check($$, $2);
+            parentheses_reduce($$, $2);
+        }
     | MINUS Exp {$$ = build_tree("Exp", 2, $1, $2); minus_check($$, $2);}
     | NOT Exp {$$ = build_tree("Exp", 2, $1, $2); not_check($$, $2);}
     | TILDE Exp{$$ = build_tree("Exp", 2, $1, $2); /* tilde_check($$, $2); */}
@@ -146,12 +167,28 @@ Exp : LValue ASSIGNOP Exp {$$ = build_tree("Exp", 3, $1, $2, $3); assignment_che
     | ID LP RP {$$ = build_tree("Exp", 3, $1, $2, $3); func_call_check($$, $1, NULL);}
     | LValue LB Exp RB {$$ = build_tree("Exp", 4, $1, $2, $3, $4); array_check($$, $1, $3);}
     | LValue DOT ID {$$ = build_tree("Exp", 3, $1, $2, $3); field_access_check($$, $1, $3);}
-    | ID {$$ = build_tree("Exp", 1, $1); id_check($$, $1);}
-    | INT {$$ = build_tree("Exp", 1, $1); literal_check($$);}
-    | FLOAT {$$ = build_tree("Exp", 1, $1); literal_check($$);}
+    | ID {  
+            $$ = build_tree("Exp", 1, $1);
+            id_check($$, $1);
+            id_gen($$, $1);
+        }
+    | INT {
+            $$ = build_tree("Exp", 1, $1); 
+            literal_check($$);
+            int_gen($$, $1);
+        }
+    | FLOAT {
+            $$ = build_tree("Exp", 1, $1);
+            literal_check($$);
+            float_gen($$, $1);
+        }
     ;
 
-LValue : ID {$$ = build_tree("LValue", 1, $1); id_check($$, $1);}
+LValue : ID {
+        $$ = build_tree("LValue", 1, $1);
+        id_check($$, $1);
+        id_gen($$, $1);
+    }
     | LValue LB Exp RB {$$ = build_tree("LValue", 4, $1, $2, $3, $4); array_check($$, $1, $3);}
     | LValue DOT ID {$$ = build_tree("LValue", 3, $1, $2, $3); field_access_check($$, $1, $3);}
     | error {printf("Error type 6 at line %d: The left-hand side of an assignment must be a variable.\n", $$->lineno);}

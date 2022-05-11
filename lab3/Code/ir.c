@@ -2,6 +2,7 @@
 #include "stdio.h"
 #include "stdlib.h"
 #include "stdbool.h"
+#include "string.h"
 
 #include "ir.h"
 #include "type.h"
@@ -97,7 +98,8 @@ void new_ir_code_list() {
 
 void add_last_code(char* code) {
     IR* new_code = malloc(sizeof (IR));
-    new_code->code = code;
+    new_code->code = malloc(sizeof(char) * 100);
+    strcpy(new_code->code, code);
     new_code->prev = code_list->prev;
     new_code->next = code_list;
     code_list->prev->next = new_code;
@@ -106,7 +108,8 @@ void add_last_code(char* code) {
 
 void add_first_code(char* code) {
     IR* new_code = malloc(sizeof (IR));
-    new_code->code = code;
+    new_code->code = malloc(sizeof(char) * 100);
+    strcpy(new_code->code, code);
     new_code->prev = code_list;
     new_code->next = code_list->next;
     code_list->next->prev = new_code;
@@ -127,6 +130,13 @@ void remove_last_code() {
     free(temp);
 }
 
+void print_ir_code() {
+    IR* code = code_list->next;
+    while (code != code_list) {
+        printf("%s\n", code->code);
+        code = code->next;
+    }
+}
 // code list methods end;
 
 
