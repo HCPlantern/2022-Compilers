@@ -11,14 +11,41 @@ static inline void set_float_const(Node* node, float f) {
     node->constant.f = f;
 }
 
+bool prefix(const char *pre, const char *str) {
+    return strncmp(pre, str, strlen(pre)) == 0;
+}
+
+size_t indexOfAssignOp(char* ir) {
+    for (size_t i = 0; i < strlen(ir) - 1; i++) {
+        if (':' == ir[i] && '=' == ir[i + 1]) {
+            return i;
+        }
+    }
+
+    return -1;
+}
+
 void assign_gen(Node* father, Node* lValue, Node* exp) {
     // TODO
-    // check if the last ir's lValue is exp->var_in_ir
+    // for primitive type, check if the last ir's lValue is exp->var_in_ir
     // if true, just modify the last ir,
     // else gen a new ir.
+    
+    char buf[max_single_ir_len];
+    if (exp->type.kind == BASIC && prefix(exp->var_in_ir, ir_list->prev->ir)) {
+        size_t colon_index = indexOfAssignOp(ir_list->prev->ir);
+        assert(colon_index > 0);
+        sprintf(buf, "%s %s", lValue->var_in_ir, ir_list->prev->ir + colon_index); // WARNING: make sure that lValue has a var_in_ir.
+        strncpy(ir_list->prev->ir, buf, max_single_ir_len);
+        return;
+    }
+
+    sprintf(buf, "%s := %s", lValue->var_in_ir, exp->var_in_ir);
+    add_last_ir(buf);
 }
 
 void not_gen(Node* father, Node* exp) {
+    // TODO
     if (exp->is_constant) {
         if (exp->type.u.basic == T_INT) {
             assert(exp->type.kind == BASIC);
@@ -81,7 +108,7 @@ void plus_gen(Node* father, Node* exp1, Node* exp2) {
         sprintf(ir, "%s := %s + %s",
             father->var_in_ir, exp1->var_in_ir, exp2->var_in_ir);
     }
-    add_last_code(ir);
+    add_last_ir(ir);
 }
 
 void minus_gen(Node* father, Node* exp1, Node* exp2) {
@@ -111,7 +138,7 @@ void minus_gen(Node* father, Node* exp1, Node* exp2) {
         sprintf(ir, "%s := %s - %s",
             father->var_in_ir, exp1->var_in_ir, exp2->var_in_ir);
     }
-    add_last_code(ir);
+    add_last_ir(ir);
 }
 
 void star_gen(Node* father, Node* exp1, Node* exp2) {
@@ -141,7 +168,7 @@ void star_gen(Node* father, Node* exp1, Node* exp2) {
         sprintf(ir, "%s := %s * %s",
             father->var_in_ir, exp1->var_in_ir, exp2->var_in_ir);
     }
-    add_last_code(ir);
+    add_last_ir(ir);
 }
 
 void div_gen(Node* father, Node* exp1, Node* exp2) {
@@ -171,7 +198,7 @@ void div_gen(Node* father, Node* exp1, Node* exp2) {
         sprintf(ir, "%s := %s / %s",
             father->var_in_ir, exp1->var_in_ir, exp2->var_in_ir);
     }
-    add_last_code(ir);
+    add_last_ir(ir);
 }
 
 void negative_gen(Node* father, Node* exp) {
