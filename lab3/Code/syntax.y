@@ -152,8 +152,8 @@ Exp : LValue ASSIGNOP Exp {$$ = build_tree("Exp", 3, $1, $2, $3); assignment_che
     ;
 
 LValue : ID {$$ = build_tree("LValue", 1, $1); id_check($$, $1);}
-    | Exp LB Exp RB {$$ = build_tree("LValue", 4, $1, $2, $3, $4); array_check($$, $1, $3);}
-    | Exp DOT ID {$$ = build_tree("LValue", 3, $1, $2, $3); field_access_check($$, $1, $3);}
+    | LValue LB Exp RB {$$ = build_tree("LValue", 4, $1, $2, $3, $4); array_check($$, $1, $3);}
+    | LValue DOT ID {$$ = build_tree("LValue", 3, $1, $2, $3); field_access_check($$, $1, $3);}
     | error {printf("Error type 6 at line %d: The left-hand side of an assignment must be a variable.\n", $$->lineno);}
     ;
 
