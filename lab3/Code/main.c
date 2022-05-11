@@ -9,6 +9,7 @@
 extern Node* syntax_tree_root;
 extern void del_tree(Node* root);
 extern void check_undefined_func();
+extern void init_read_write_func();
 extern Stack stack;
 
 void init() {
@@ -19,6 +20,7 @@ void init() {
     // init temp var lsit
     new_temp_var_list();
     new_ir_code_list();
+    init_read_write_func();
 }
 
 int main(int argc, char** argv) {

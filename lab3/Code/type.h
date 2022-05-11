@@ -47,6 +47,8 @@ struct _FieldList {
 
 bool type_equal(Type type1, Type type2);
 char* anonymous_struct_name();
+Type create_int_type();
+Type create_float_type();
 Type create_basic_type(Node* specifier);
 Type create_array_type(int size);
 Type create_struct_type(Node* specifier);

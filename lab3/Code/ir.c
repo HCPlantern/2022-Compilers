@@ -7,9 +7,12 @@
 #include "type.h"
 #include "stack.h"
 
+extern Stack stack;
+
 #define max_ir_var_len 10
 #define max_lable_len 10
 #define max_temp_var_len 10
+#define curr_table (stack->tables[stack->top - 1])
 
 size_t ir_count = 0;
 size_t temp_var_count = 0;
@@ -17,6 +20,49 @@ size_t lable_count = 0;
 
 TempVar* temp_var_list;
 IR* code_list;
+
+void init_read_write_func() {
+    Type read_type = malloc(sizeof(struct _Type));
+    Type int_type = create_int_type();
+    read_type->kind = FUNC;
+    read_type->u.function.arg_len = 0;
+    read_type->u.function.args = NULL;
+    read_type->u.function.is_defined = true;
+    read_type->u.function.return_type = int_type;
+    FieldList read_field = malloc(sizeof(struct _FieldList));
+    read_field->name = "read";
+    read_field->type = read_type;
+    read_field->next = NULL;
+    read_field->is_var = false;
+    read_field->size = -1;
+    read_field->ir_var = NULL;
+    add_table_node(curr_table, read_field);
+
+    // init arg for write
+    FieldList arg = malloc(sizeof(struct _FieldList));
+    arg->name = "input";
+    arg->type = int_type;
+    arg->next = NULL;
+    arg->is_var = true;
+    arg->size = 4;
+    arg->ir_var = NULL;
+
+    Type write_type = malloc(sizeof(struct _Type));
+    write_type->kind = FUNC;
+    write_type->u.function.arg_len = 1;
+    write_type->u.function.args = arg;
+    write_type->u.function.is_defined = true;
+    write_type->u.function.return_type = int_type;
+
+    FieldList write_field = malloc(sizeof(struct _FieldList));
+    write_field->name = "write";
+    write_field->type = write_type;
+    write_field->next = NULL;
+    write_field->is_var = false;
+    write_field->size = -1;
+    write_field->ir_var = NULL;
+    add_table_node(curr_table, write_field);
+}
 
 char* get_ir_var_by_name(char* name) {
     FieldList filedlist = find_any_in_stack(name);
