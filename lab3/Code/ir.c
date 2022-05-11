@@ -102,7 +102,7 @@ void add_last_ir(char* code) {
     ir_list->prev = new_ir;
 }
 
-void add_first_code(char* code) {
+void add_first_ir(char* code) {
     IR* new_ir = malloc(sizeof (IR));
     new_ir->ir = malloc(sizeof(char) * max_single_ir_len);
     strcpy(new_ir->ir, code);
@@ -112,14 +112,14 @@ void add_first_code(char* code) {
     ir_list->next = new_ir;
 }
 
-void remove_first_code() {
+void remove_first_ir() {
     IR* temp = ir_list->next;
     ir_list->next = ir_list->next->next;
     ir_list->next->prev = ir_list;
     free(temp);
 }
 
-void remove_last_code() {
+void remove_last_ir() {
     IR* temp = ir_list->prev;
     ir_list->prev = ir_list->prev->prev;
     ir_list->prev->next = ir_list;
