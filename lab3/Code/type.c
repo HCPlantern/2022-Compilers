@@ -375,8 +375,8 @@ int get_type_size(Type type) {
 
 int get_struct_field_offset(Type temp, const char* field) {
     int offset = 0;
-    assert(temp->kind == STRUCTURE);
-    FieldList first = temp->u.structure;
+    assert(temp->u.structure->type->kind == STRUCTURE);
+    FieldList first = temp->u.structure->type->u.structure;
     while (first != NULL) {
         if (!strcmp(first->name, field)) { return offset; }
         offset += get_field_size(first);
