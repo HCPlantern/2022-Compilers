@@ -226,6 +226,16 @@ void div_gen(Node* father, Node* exp1, Node* exp2) {
 
 void negative_gen(Node* father, Node* exp) {
     // TODO
+    if (exp->is_constant) {
+        set_int_const(father, -(exp->constant.i));
+    } else {
+        father->is_constant = false;
+        char* temp_var = get_temp_var(0)->name;
+        sprintf(father->var_in_ir, "%s", temp_var);
+        char buf[max_single_ir_len];
+        sprintf(buf, "%s := #0 - %s", father->var_in_ir, exp->var_in_ir);
+        add_last_ir(buf);
+    }
 }
 
 void parentheses_reduce(Node* father, Node* exp) {
@@ -295,15 +305,29 @@ void array_store_gen(Node* father, Node* array, Node* index) {
 void array_load_gen(Node* father, Node* array, Node* index) {
     // TODO
     size_t element_size = get_type_size(&(father->type));
-    printf("%ld\n", element_size);
     
     char buf[max_single_ir_len];
     if (index->is_constant) {
-        father->addr_offset = array->addr_offset + element_size + index->constant.i;
+        father->addr_offset = array->addr_offset + element_size * index->constant.i;
         char* addr_var = get_temp_var(0)->name;
         if (father->type.kind == BASIC) {
-            sprintf(buf, "%s := %s + #%ld", addr_var, array->var_in_ir, father->addr_offset);
-            sprintf(father->var_in_ir, "*%s", addr_var);
+            /*
+            if (father->addr_offset == 0) {
+                sprintf(father->var_in_ir, "*%s", addr_var);
+            } else {
+                sprintf(buf, "%s := %s + #%ld", addr_var, array->var_in_ir, father->addr_offset);
+                sprintf(father->var_in_ir, "*%s", addr_var);
+            }
+            */
+            if (father->addr_offset == 0) {
+                sprintf(buf, "%s := %s", addr_var, array->var_in_ir);
+                add_last_ir(buf);
+                sprintf(father->var_in_ir, "*%s", addr_var);
+            } else {
+                sprintf(buf, "%s := %s + #%ld", addr_var, array->var_in_ir, father->addr_offset);
+                add_last_ir(buf);
+                sprintf(father->var_in_ir, "*%s", addr_var);
+            }
         } else {
             strncpy(father->var_in_ir, addr_var, max_ir_var_len);
         }
@@ -360,10 +384,13 @@ void field_store_gen(Node* father, Node* base, Node* field) {
     if (father->type.kind != BASIC) {
         strncpy(father->var_in_ir, base->var_in_ir, max_ir_var_len);
     } else {
+        char* field_addr_var = get_temp_var(0)->name;
         if (father->addr_offset == 0) {
-            sprintf(father->var_in_ir, "*%s", base->var_in_ir);
+            sprintf(buf, "%s := %s", field_addr_var, base->var_in_ir);
+            add_last_ir(buf);
+
+            sprintf(father->var_in_ir, "*%s", field_addr_var);
         } else {
-            char* field_addr_var = get_temp_var(0)->name;
             sprintf(buf, "%s := %s + #%ld", field_addr_var, base->var_in_ir, father->addr_offset);
             add_last_ir(buf);
         
