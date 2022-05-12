@@ -8,5 +8,8 @@ int main()
     write(c);
     final = a + 10 * a * b + c * 4 + (b / a - 6);
     write(final);
+    int a[3];
+    int b[4];
+    a = b;
     return 0;
 }
