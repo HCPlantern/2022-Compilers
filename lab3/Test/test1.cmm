@@ -7,15 +7,15 @@
 //     float d;
 // } a;
 
-int temp(int d, int f) {
-    return 1;
+int plus(int d, int f) {
+    return d + f;
 }
 
 int main(int i, int b) {
     b = read();
-    i = temp(i, b);
-    i = 3;
-    b = 10;
+    i = plus(i, b);
+    write(0);
+    write(b);
     return i;
 }
 

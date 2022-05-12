@@ -247,6 +247,21 @@ void func_call_gen(Node* father, Node* id, Node* args) {
     // TODO
     FieldList fieldlist = find_any_in_stack(id->data.text);
     Type type = fieldlist->type;
+    if (!strcmp(id->data.text, "write")) {
+        assert(type->u.function.arg_len == 1);
+        Node* exp = args->child;
+        char* ir_var = exp->var_in_ir;
+        char ir[max_single_ir_len];
+        if (exp->is_constant) {
+            if (exp->type.u.basic == T_INT){sprintf(ir, "WRITE #%d", exp->constant.i);}
+            else if (exp->type.u.basic == T_FLOAT){sprintf(ir, "WRITE #%f", exp->constant.f);}
+            add_last_ir(ir);
+        } else {
+            sprintf(ir, "WRITE %s", exp->var_in_ir);
+            add_last_ir(ir);
+        }
+        return;
+    }
     if (args != NULL) {
         int arg_len = type->u.function.arg_len;
         Node* exps[arg_len];
