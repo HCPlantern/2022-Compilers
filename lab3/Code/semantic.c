@@ -119,7 +119,12 @@ void add_args_into_table() {
 
             char* ir_var = get_ir_var_by_field(args);
             char ir[100];
-            sprintf(ir, "PARAM %s", ir_var);
+            if (ir_var[0] == '&') {
+                assert(ir_var[0] == '&');
+                sprintf(ir, "PARAM %s", ir_var + 1);
+            } else {
+                sprintf(ir, "PARAM %s", ir_var);
+            }
             add_last_ir(ir);
 
             args = args->next;

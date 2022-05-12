@@ -266,6 +266,7 @@ void parentheses_reduce(Node* father, Node* exp) {
 void func_call_gen(Node* father, Node* id, Node* args) {
     FieldList fieldlist = find_any_in_stack(id->data.text);
     Type type = fieldlist->type;
+    // handle function "write"
     if (!strcmp(id->data.text, "write")) {
         assert(type->u.function.arg_len == 1);
         Node* exp = args->child;
@@ -281,6 +282,7 @@ void func_call_gen(Node* father, Node* id, Node* args) {
         }
         return;
     }
+
     if (args != NULL) {
         int arg_len = type->u.function.arg_len;
         Node* exps[arg_len];
@@ -292,7 +294,13 @@ void func_call_gen(Node* father, Node* id, Node* args) {
         exps[arg_len - 1] = exp;
         for (int i = arg_len - 1; i >= 0; i--) {
             char ir[max_single_ir_len];
-            sprintf(ir, "ARG %s", exps[i]->var_in_ir);
+            if (exps[i]->type.kind == BASIC) {
+                sprintf(ir, "ARG %s", exps[i]->var_in_ir);
+            } else {
+                assert (exps[i]->type.kind == STRUCTURE || exps[i]->type.kind == ARRAY);
+                assert(exps[i]->var_in_ir[0] == '&');
+                sprintf(ir, "ARG %s", exps[i]->var_in_ir + 1);
+            }
             add_last_ir(ir);
         }
     }
