@@ -1,4 +1,5 @@
 #include "ir_generator.h"
+
 #include "ir.h"
 #include "stack.h"
 
@@ -15,7 +16,7 @@ static inline void set_float_const(Node* node, float f) {
     node->constant.f = f;
 }
 
-bool prefix(const char *pre, const char *str) {
+bool prefix(const char* pre, const char* str) {
     return strncmp(pre, str, strlen(pre)) == 0;
 }
 
@@ -34,7 +35,7 @@ void assign_gen(Node* father, Node* lValue, Node* exp) {
     // for primitive type, check if the last ir's lValue is exp->var_in_ir
     // if true, just modify the last ir,
     // else gen a new ir.
-    
+
     char buf[max_single_ir_len];
     if (exp->type.kind == BASIC) {
         if (exp->is_constant) {
@@ -42,17 +43,15 @@ void assign_gen(Node* father, Node* lValue, Node* exp) {
             sprintf(buf, "%s := #%d", lValue->var_in_ir, exp->constant.i);
             add_last_ir(buf);
             return;
-        }
-        else if (prefix(exp->var_in_ir, ir_list->prev->ir)) {
+        } else if (prefix(exp->var_in_ir, ir_list->prev->ir)) {
             father->is_constant = false;
             strncpy(father->var_in_ir, lValue->var_in_ir, 10);
             size_t colon_index = indexOfAssignOp(ir_list->prev->ir);
             assert(colon_index > 0);
-            sprintf(buf, "%s %s", lValue->var_in_ir, ir_list->prev->ir + colon_index); // WARNING: make sure that lValue has a var_in_ir.
+            sprintf(buf, "%s %s", lValue->var_in_ir, ir_list->prev->ir + colon_index);  // WARNING: make sure that lValue has a var_in_ir.
             strncpy(ir_list->prev->ir, buf, max_single_ir_len);
             return;
-        }
-        else {
+        } else {
             father->is_constant = false;
             strncpy(father->var_in_ir, lValue->var_in_ir, 10);
             sprintf(buf, "%s := %s", lValue->var_in_ir, exp->var_in_ir);
@@ -64,8 +63,8 @@ void assign_gen(Node* father, Node* lValue, Node* exp) {
     // lValue is array or struct
     int lValue_size = get_type_size(&(lValue->type));
     int exp_size = get_type_size(&(exp->type));
-    int min_size = lValue_size < exp_size? lValue_size : exp_size;
-    
+    int min_size = lValue_size < exp_size ? lValue_size : exp_size;
+
     for (int i = 0; i < min_size; i++) {
         char* lValue_ptr_var = get_temp_var(0)->name;
         sprintf(buf, "%s := %s + #%d", lValue_ptr_var, lValue->var_in_ir, i);
@@ -122,27 +121,24 @@ void plus_gen(Node* father, Node* exp1, Node* exp2) {
         father->is_constant = true;
         if (exp1->type.u.basic == T_INT) {
             father->constant.i = exp1->constant.i + exp2->constant.i;
-        }
-        else {
+        } else {
             father->constant.f = exp1->constant.f + exp2->constant.f;
         }
         return;
     }
-    
+
     father->is_constant = false;
     char ir[100];
     strncpy(father->var_in_ir, get_temp_var(0)->name, 10);
     if (exp1->is_constant) {
         sprintf(ir, "%s := #%d + %s",
-            father->var_in_ir, exp1->constant.i, exp2->var_in_ir);
-    }
-    else if (exp2->is_constant){
+                father->var_in_ir, exp1->constant.i, exp2->var_in_ir);
+    } else if (exp2->is_constant) {
         sprintf(ir, "%s := %s + #%d",
-            father->var_in_ir, exp1->var_in_ir, exp2->constant.i);
-    }
-    else {
+                father->var_in_ir, exp1->var_in_ir, exp2->constant.i);
+    } else {
         sprintf(ir, "%s := %s + %s",
-            father->var_in_ir, exp1->var_in_ir, exp2->var_in_ir);
+                father->var_in_ir, exp1->var_in_ir, exp2->var_in_ir);
     }
     add_last_ir(ir);
 }
@@ -152,27 +148,24 @@ void minus_gen(Node* father, Node* exp1, Node* exp2) {
         father->is_constant = true;
         if (exp1->type.u.basic == T_INT) {
             father->constant.i = exp1->constant.i - exp2->constant.i;
-        }
-        else {
+        } else {
             father->constant.f = exp1->constant.f - exp2->constant.f;
         }
         return;
     }
-    
+
     father->is_constant = false;
     char ir[100];
     strncpy(father->var_in_ir, get_temp_var(0)->name, 10);
     if (exp1->is_constant) {
         sprintf(ir, "%s := #%d - %s",
-            father->var_in_ir, exp1->constant.i, exp2->var_in_ir);
-    }
-    else if (exp2->is_constant){
+                father->var_in_ir, exp1->constant.i, exp2->var_in_ir);
+    } else if (exp2->is_constant) {
         sprintf(ir, "%s := %s - #%d",
-            father->var_in_ir, exp1->var_in_ir, exp2->constant.i);
-    }
-    else {
+                father->var_in_ir, exp1->var_in_ir, exp2->constant.i);
+    } else {
         sprintf(ir, "%s := %s - %s",
-            father->var_in_ir, exp1->var_in_ir, exp2->var_in_ir);
+                father->var_in_ir, exp1->var_in_ir, exp2->var_in_ir);
     }
     add_last_ir(ir);
 }
@@ -182,27 +175,24 @@ void star_gen(Node* father, Node* exp1, Node* exp2) {
         father->is_constant = true;
         if (exp1->type.u.basic == T_INT) {
             father->constant.i = exp1->constant.i * exp2->constant.i;
-        }
-        else {
+        } else {
             father->constant.f = exp1->constant.f * exp2->constant.f;
         }
         return;
     }
-    
+
     father->is_constant = false;
     char ir[100];
     strncpy(father->var_in_ir, get_temp_var(0)->name, 10);
     if (exp1->is_constant) {
         sprintf(ir, "%s := #%d * %s",
-            father->var_in_ir, exp1->constant.i, exp2->var_in_ir);
-    }
-    else if (exp2->is_constant){
+                father->var_in_ir, exp1->constant.i, exp2->var_in_ir);
+    } else if (exp2->is_constant) {
         sprintf(ir, "%s := %s * #%d",
-            father->var_in_ir, exp1->var_in_ir, exp2->constant.i);
-    }
-    else {
+                father->var_in_ir, exp1->var_in_ir, exp2->constant.i);
+    } else {
         sprintf(ir, "%s := %s * %s",
-            father->var_in_ir, exp1->var_in_ir, exp2->var_in_ir);
+                father->var_in_ir, exp1->var_in_ir, exp2->var_in_ir);
     }
     add_last_ir(ir);
 }
@@ -212,27 +202,24 @@ void div_gen(Node* father, Node* exp1, Node* exp2) {
         father->is_constant = true;
         if (exp1->type.u.basic == T_INT) {
             father->constant.i = exp1->constant.i / exp2->constant.i;
-        }
-        else {
+        } else {
             father->constant.f = exp1->constant.f / exp2->constant.f;
         }
         return;
     }
-    
+
     father->is_constant = false;
     char ir[100];
     strncpy(father->var_in_ir, get_temp_var(0)->name, 10);
     if (exp1->is_constant) {
         sprintf(ir, "%s := #%d / %s",
-            father->var_in_ir, exp1->constant.i, exp2->var_in_ir);
-    }
-    else if (exp2->is_constant){
+                father->var_in_ir, exp1->constant.i, exp2->var_in_ir);
+    } else if (exp2->is_constant) {
         sprintf(ir, "%s := %s / #%d",
-            father->var_in_ir, exp1->var_in_ir, exp2->constant.i);
-    }
-    else {
+                father->var_in_ir, exp1->var_in_ir, exp2->constant.i);
+    } else {
         sprintf(ir, "%s := %s / %s",
-            father->var_in_ir, exp1->var_in_ir, exp2->var_in_ir);
+                father->var_in_ir, exp1->var_in_ir, exp2->var_in_ir);
     }
     add_last_ir(ir);
 }
@@ -302,9 +289,12 @@ void var_dec_gen(Node* vardec) {
     char* id = temp->data.text;
     FieldList fieldlist = find_any_in_stack(id);
     char* ir_var = get_ir_var_by_field(fieldlist);
+    strcpy(vardec->var_in_ir, ir_var);
     // in compst func dec is impossible
     assert(fieldlist->type->kind != FUNC);
-    if (fieldlist->type->kind == BASIC) return;
+    if (fieldlist->type->kind == BASIC) {
+        return;
+    }
     // kind is structure and array
     size_t size = get_field_size(fieldlist);
     char ir[100];

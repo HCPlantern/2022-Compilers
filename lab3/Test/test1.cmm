@@ -21,6 +21,7 @@ struct temp {
 int main(int i, int b) {
     int op[1][2];
     struct temp c;
+    int td = 4;
     return i;
 }
 

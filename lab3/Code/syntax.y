@@ -135,7 +135,8 @@ Dec : VarDec {
             var_dec_gen($1);} 
       ASSIGNOP Exp {
             $$ = build_tree("Dec", 3, $1, $3, $4); 
-            dec_assign_check($$, $1, $4);}
+            dec_assign_check($$, $1, $4);
+            assign_gen($$, $1, $4);}
     ;
 
 /* Expressions */
