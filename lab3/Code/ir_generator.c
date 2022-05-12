@@ -65,7 +65,7 @@ void assign_gen(Node* father, Node* lValue, Node* exp) {
     int exp_size = get_type_size(&(exp->type));
     int min_size = lValue_size < exp_size ? lValue_size : exp_size;
 
-    for (int i = 0; i < min_size; i++) {
+    for (int i = 0; i < min_size; i += 4) {
         char* lValue_ptr_var = get_temp_var(0)->name;
         sprintf(buf, "%s := %s + #%d", lValue_ptr_var, lValue->var_in_ir, i);
         add_last_ir(buf);
