@@ -126,12 +126,24 @@ DecList : Dec {$$ = build_tree("DecList", 1, $1);}
     | Dec COMMA DecList {$$ = build_tree("DecList", 3, $1, $2, $3);}
     ;
 
-Dec : VarDec {$$ = build_tree("Dec", 1, $1); var_dec_check($1);}
-    | VarDec {var_dec_check($1);} ASSIGNOP Exp {$$ = build_tree("Dec", 3, $1, $3, $4); dec_assign_check($$, $1, $4);}
+Dec : VarDec {
+            $$ = build_tree("Dec", 1, $1);
+            var_dec_check($1);
+            var_dec_gen($1);}
+    | VarDec {
+            var_dec_check($1); 
+            var_dec_gen($1);} 
+      ASSIGNOP Exp {
+            $$ = build_tree("Dec", 3, $1, $3, $4); 
+            dec_assign_check($$, $1, $4);}
     ;
 
 /* Expressions */
-Exp : LValue ASSIGNOP Exp {$$ = build_tree("Exp", 3, $1, $2, $3); assignment_check($$, $1, $3);}
+Exp : LValue ASSIGNOP Exp {
+            $$ = build_tree("Exp", 3, $1, $2, $3);
+            assignment_check($$, $1, $3);
+            assign_gen($$, $1, $3);
+        }
     | Exp AND Exp {$$ = build_tree("Exp", 3, $1, $2, $3); logical_check($$, $1, $3);}
     | Exp OR Exp {$$ = build_tree("Exp", 3, $1, $2, $3); logical_check($$, $1, $3);}
     | Exp RELOP Exp {$$ = build_tree("Exp", 3, $1, $2, $3); relop_check($$, $1, $3);}

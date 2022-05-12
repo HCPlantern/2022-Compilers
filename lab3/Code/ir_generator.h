@@ -24,4 +24,6 @@ void id_gen(Node* father, Node* id);
 void int_gen(Node* father, Node* _int);
 void float_gen(Node* father, Node* _float);
 
+void var_dec_gen( Node* vardec);
+
 #endif
