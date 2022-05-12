@@ -254,6 +254,7 @@ void array_store_gen(Node* father, Node* array, Node* index) {
 void array_load_gen(Node* father, Node* array, Node* index) {
     // TODO
     size_t element_size = get_type_size(&(father->type));
+    printf("%ld\n", element_size);
     
     char buf[max_single_ir_len];
     if (index->is_constant) {
@@ -311,6 +312,8 @@ void field_store_gen(Node* father, Node* base, Node* field) {
     ///*
     int offset = get_struct_field_offset(&(base->type), field->data.text);
     
+    // printf("%d\n", offset); // offset is always -1.
+
     char buf[100];
     if (father->type.kind != BASIC) {
         strncpy(father->var_in_ir, base->var_in_ir, max_ir_var_len);
@@ -359,11 +362,11 @@ void var_dec_gen(Node* vardec) {
     // in compst func dec is impossible
     assert(fieldlist->type->kind != FUNC);
     if (fieldlist->type->kind == BASIC) {
-        vardec->addr_offset = -1;
+        // vardec->addr_offset = -1;
         return;
     }
     // kind is structure and array
-    vardec->addr_offset = 0;
+    // vardec->addr_offset = 0;
     size_t size = get_field_size(fieldlist);
     char ir[100];
     // start from index 1 of ir_var (ir_var[0] is '&')

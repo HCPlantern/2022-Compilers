@@ -208,8 +208,16 @@ Exp : LValue ASSIGNOP Exp {
     | TILDE Exp{$$ = build_tree("Exp", 2, $1, $2); /* tilde_check($$, $2); */}
     | ID LP Args RP {$$ = build_tree("Exp", 4, $1, $2, $3, $4); func_call_check($$, $1, $3);}
     | ID LP RP {$$ = build_tree("Exp", 3, $1, $2, $3); func_call_check($$, $1, NULL);}
-    | LValue LB Exp RB {$$ = build_tree("Exp", 4, $1, $2, $3, $4); array_check($$, $1, $3);}
-    | LValue DOT ID {$$ = build_tree("Exp", 3, $1, $2, $3); field_access_check($$, $1, $3);}
+    | LValue LB Exp RB {
+            $$ = build_tree("Exp", 4, $1, $2, $3, $4);
+            array_check($$, $1, $3);
+            array_load_gen($$, $1, $3);
+        }
+    | LValue DOT ID {
+            $$ = build_tree("Exp", 3, $1, $2, $3);
+            field_access_check($$, $1, $3);
+            field_store_gen($$, $1, $3);
+        }
     | ID {  
             $$ = build_tree("Exp", 1, $1);
             id_check($$, $1);
@@ -231,9 +239,17 @@ LValue : ID {
         $$ = build_tree("LValue", 1, $1);
         id_check($$, $1);
         id_gen($$, $1);
-    }
-    | LValue LB Exp RB {$$ = build_tree("LValue", 4, $1, $2, $3, $4); array_check($$, $1, $3);}
-    | LValue DOT ID {$$ = build_tree("LValue", 3, $1, $2, $3); field_access_check($$, $1, $3);}
+        }
+    | LValue LB Exp RB {
+            $$ = build_tree("Exp", 4, $1, $2, $3, $4);
+            array_check($$, $1, $3);
+            array_load_gen($$, $1, $3);
+        }
+    | LValue DOT ID {
+            $$ = build_tree("Exp", 3, $1, $2, $3);
+            field_access_check($$, $1, $3);
+            field_store_gen($$, $1, $3);
+        }
     | error {printf("Error type 6 at line %d: The left-hand side of an assignment must be a variable.\n", $$->lineno);}
     ;
 
