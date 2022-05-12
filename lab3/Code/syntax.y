@@ -12,10 +12,10 @@
     extern bool is_in_compst;
     extern bool is_in_struct;
     extern Type arg_type;
+    extern void add_args_into_table();
     void check_ExtDef(Node* node);
     void check_ExtDecList(Node* specifier, Node* node);
     void check_func(Node* specifier);
-    void add_args_into_table();
     void if_in_struct(bool enter);
 %}
 
@@ -42,16 +42,32 @@
 %%
 
 /* High-level Definitions */
-Program : ExtDefList {$$ = build_tree("Program", 1, $1); /*print_tree($$, 0);*/ syntax_tree_root = $$;}
+Program : ExtDefList {$$ = build_tree("Program", 1, $1); print_tree($$, 0); syntax_tree_root = $$;}
     ;
 /* 0 or some ExtDef */
 ExtDefList : ExtDef ExtDefList {$$ = build_tree("ExtDefList", 2, $1, $2);}
     | /* empty */ {$$ = new_node("Epsilon");}
     ;
 /* def of global var, struct and function */
-ExtDef : Specifier ExtDecList SEMI {$$ = build_tree("ExtDef", 3, $1, $2, $3);check_ExtDecList($1, $2);}
-    | Specifier SEMI {$$ = build_tree("ExtDef", 2, $1, $2); check_ExtDef($$);}
-    | Specifier FunDec { temp_ExtDef = build_tree("ExtDef", 2, $1, $2); check_func($1); is_in_compst = true; arg_type = &($2->type);} CompSt {is_in_compst = false; $$ = temp_ExtDef; $2->sibling = $4;}
+ExtDef : Specifier ExtDecList SEMI {
+            $$ = build_tree("ExtDef", 3, $1, $2, $3);
+            check_ExtDecList($1, $2);
+        }
+    | Specifier SEMI {
+            $$ = build_tree("ExtDef", 2, $1, $2);
+            check_ExtDef($$);
+        }
+    | Specifier FunDec {
+            temp_ExtDef = build_tree("ExtDef", 2, $1, $2); 
+            check_func($1); 
+            arg_type = &($2->type);
+            is_in_compst = true; 
+        } 
+      CompSt {
+            is_in_compst = false; 
+            $$ = temp_ExtDef; 
+            $2->sibling = $4;
+        }
     | Specifier FunDec SEMI {$$ = build_tree("ExtDef", 3, $1, $2, $3);check_func($1);}
     | Specifier ExtDecList ASSIGNOP error SEMI {print_errorB($2->lineno, ", global variable cannot be initialized.");}
     | Specifier error SEMI {print_errorB($$->lineno, "");}
@@ -82,8 +98,11 @@ VarDec : ID {$$ = build_tree("VarDec", 1, $1);}
     | VarDec LB INT RB {$$ = build_tree("VarDec", 4, $1, $2, $3, $4);}
     ;
 
-FunDec : ID LP VarList RP {$$ = build_tree("FunDec", 4, $1, $2, $3, $4);}
-    | ID LP RP {$$ = build_tree("FunDec", 3, $1, $2, $3);}
+FunDec : ID LP {func_dec_gen($1);} VarList RP {$$ = build_tree("FunDec", 4, $1, $2, $4, $5);}
+    | ID LP RP {
+            $$ = build_tree("FunDec", 3, $1, $2, $3);
+            func_dec_gen($1); 
+        }
     | error RP {print_errorB($$->lineno, "");}
     ;
 
@@ -91,11 +110,19 @@ VarList : ParamDec COMMA VarList {$$ = build_tree("VarList", 3, $1, $2, $3);}
     | ParamDec {$$ = build_tree("VarList", 1, $1);}
     ;
 
-ParamDec : Specifier VarDec {$$ = build_tree("ParamDec", 2, $1, $2);}
+ParamDec : Specifier VarDec {
+        $$ = build_tree("ParamDec", 2, $1, $2);
+    }
     ;
 
 /* Statements */
-CompSt : LC {new_scope();add_args_into_table();} DefList StmtList RC {exit_scope();} {$$ = build_tree("CompSt", 4, $1, $3, $4, $5);}
+CompSt : LC {
+        new_scope();
+        add_args_into_table();
+    } 
+      DefList StmtList RC 
+        {exit_scope();} 
+        {$$ = build_tree("CompSt", 4, $1, $3, $4, $5);}
     | error RC {print_errorB($$->lineno, "");}
     ;
 
@@ -129,14 +156,17 @@ DecList : Dec {$$ = build_tree("DecList", 1, $1);}
 Dec : VarDec {
             $$ = build_tree("Dec", 1, $1);
             var_dec_check($1);
-            var_dec_gen($1);}
+            var_dec_gen($1);
+        }
     | VarDec {
             var_dec_check($1); 
-            var_dec_gen($1);} 
+            var_dec_gen($1);
+        } 
       ASSIGNOP Exp {
             $$ = build_tree("Dec", 3, $1, $3, $4); 
             dec_assign_check($$, $1, $4);
-            assign_gen($$, $1, $4);}
+            assign_gen($$, $1, $4);
+        }
     ;
 
 /* Expressions */
