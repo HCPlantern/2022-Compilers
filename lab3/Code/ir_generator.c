@@ -67,11 +67,11 @@ void assign_gen(Node* father, Node* lValue, Node* exp) {
 
     for (int i = 0; i < min_size; i += 4) {
         char* lValue_ptr_var = get_temp_var(0)->name;
-        sprintf(buf, "%s := %s + #%d", lValue_ptr_var, lValue->var_in_ir, i);
+        sprintf(buf, "%s := %s + #%d", lValue_ptr_var, lValue->var_in_ir, lValue->addr_offset + i);
         add_last_ir(buf);
 
         char* rValue_ptr_var = get_temp_var(0)->name;
-        sprintf(buf, "%s := %s + #%d", rValue_ptr_var, exp->var_in_ir, i);
+        sprintf(buf, "%s := %s + #%d", rValue_ptr_var, exp->var_in_ir, exp->addr_offset + i);
         add_last_ir(buf);
 
         sprintf(buf, "*%s := *%s", lValue_ptr_var, rValue_ptr_var);
@@ -253,10 +253,76 @@ void array_store_gen(Node* father, Node* array, Node* index) {
 
 void array_load_gen(Node* father, Node* array, Node* index) {
     // TODO
+    int element_size = get_type_size(&(father->type));
+    
+    char* buf[max_single_ir_len];
+    if (index->is_constant) {
+        father->addr_offset = array->addr_offset + element_size + index->constant.i;
+        char* addr_var = get_temp_var(0)->name;
+        if (father->type.kind == BASIC) {
+            sprintf(buf, "%s := %s + #%d", addr_var, array->var_in_ir, father->addr_offset);
+            sprintf(father->var_in_ir, "*%s", addr_var);
+        } else {
+            strncpy(father->var_in_ir, addr_var, max_ir_var_len);
+        }
+    } else {
+        father->addr_offset = 0;
+
+        char* current_offset = get_temp_var(0)->name;
+        sprintf(buf, "%s := %s * #%d", current_offset, index->var_in_ir, element_size);
+        add_last_ir(buf);
+
+        char* total_offset = get_temp_var(0)->name;
+        sprintf(buf, "%s := #%d + %s", total_offset, array->addr_offset, current_offset);
+        add_last_ir(buf);
+
+        char* addr_var = get_temp_var(0)->name;
+        sprintf(buf, "%s := %s + %s", addr_var, array->var_in_ir, total_offset);
+        add_last_ir(buf);
+
+        if (father->type.kind == BASIC) {
+            sprintf(father->var_in_ir, "*%s", addr_var);
+        } else {
+            sprintf(father->var_in_ir, "%s", addr_var);
+        }
+    }
 }
 
 void field_store_gen(Node* father, Node* base, Node* field) {
-    // TODO
+    // below is the implementation without optimization.
+    /*
+    char* field_addr_var = get_temp_var(0)->name;
+    int offset = get_struct_field_offset(&(base->type), field->data.text);
+    
+    char buf[100];
+    sprintf(buf, "%s := %s + #%d", field_addr_var, base->var_in_ir, offset);
+    add_last_ir(buf);
+
+    if (father->type.kind == BASIC) {
+        char star_and_addr_var[max_ir_var_len];
+        sprintf(star_and_addr_var, "*%s", field_addr_var);
+        strncpy(father->var_in_ir, star_and_addr_var, max_ir_var_len);
+    } else {
+        strncpy(father->var_in_ir, field_addr_var, max_ir_var_len);
+    }
+    */
+
+    // below is the implementation with optimization.
+    ///*
+    int offset = get_struct_field_offset(&(base->type), field->data.text);
+    
+    char buf[100];
+    if (father->type.kind != BASIC) {
+        strncpy(father->var_in_ir, base->var_in_ir, max_ir_var_len);
+        father->addr_offset = base->addr_offset + offset;
+    } else {
+        char* field_addr_var = get_temp_var(0)->name;
+        sprintf(buf, "%s := %s + #%d", field_addr_var, base->var_in_ir, base->addr_offset + offset);
+        add_last_ir(buf);
+
+        sprintf(father->var_in_ir, "*%s", field_addr_var);
+    }
+    //*/
 }
 
 void field_load_gen(Node* father, Node* base, Node* field) {
@@ -293,9 +359,11 @@ void var_dec_gen(Node* vardec) {
     // in compst func dec is impossible
     assert(fieldlist->type->kind != FUNC);
     if (fieldlist->type->kind == BASIC) {
+        vardec->addr_offset = -1;
         return;
     }
     // kind is structure and array
+    vardec->addr_offset = 0;
     size_t size = get_field_size(fieldlist);
     char ir[100];
     // start from index 1 of ir_var (ir_var[0] is '&')
