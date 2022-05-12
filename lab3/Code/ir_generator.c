@@ -32,16 +32,48 @@ void assign_gen(Node* father, Node* lValue, Node* exp) {
     // else gen a new ir.
     
     char buf[max_single_ir_len];
-    if (exp->type.kind == BASIC && prefix(exp->var_in_ir, ir_list->prev->ir)) {
-        size_t colon_index = indexOfAssignOp(ir_list->prev->ir);
-        assert(colon_index > 0);
-        sprintf(buf, "%s %s", lValue->var_in_ir, ir_list->prev->ir + colon_index); // WARNING: make sure that lValue has a var_in_ir.
-        strncpy(ir_list->prev->ir, buf, max_single_ir_len);
-        return;
+    if (exp->type.kind == BASIC) {
+        if (exp->is_constant) {
+            set_int_const(father, exp->constant.i);
+            sprintf(buf, "%s := #%d", lValue->var_in_ir, exp->constant.i);
+            add_last_ir(buf);
+            return;
+        }
+        else if (prefix(exp->var_in_ir, ir_list->prev->ir)) {
+            father->is_constant = false;
+            strncpy(father->var_in_ir, lValue->var_in_ir, 10);
+            size_t colon_index = indexOfAssignOp(ir_list->prev->ir);
+            assert(colon_index > 0);
+            sprintf(buf, "%s %s", lValue->var_in_ir, ir_list->prev->ir + colon_index); // WARNING: make sure that lValue has a var_in_ir.
+            strncpy(ir_list->prev->ir, buf, max_single_ir_len);
+            return;
+        }
+        else {
+            father->is_constant = false;
+            strncpy(father->var_in_ir, lValue->var_in_ir, 10);
+            sprintf(buf, "%s := %s", lValue->var_in_ir, exp->var_in_ir);
+            add_last_ir(buf);
+            return;
+        }
     }
 
-    sprintf(buf, "%s := %s", lValue->var_in_ir, exp->var_in_ir);
-    add_last_ir(buf);
+    // lValue is array or struct
+    int lValue_size = get_type_size(&(lValue->type));
+    int exp_size = get_type_size(&(exp->type));
+    int min_size = lValue_size < exp_size? lValue_size : exp_size;
+    
+    for (int i = 0; i < min_size; i++) {
+        char* lValue_ptr_var = get_temp_var(0)->name;
+        sprintf(buf, "%s := %s + #%d", lValue_ptr_var, lValue->var_in_ir, i);
+        add_last_ir(buf);
+
+        char* rValue_ptr_var = get_temp_var(0)->name;
+        sprintf(buf, "%s := %s + #%d", rValue_ptr_var, exp->var_in_ir, i);
+        add_last_ir(buf);
+
+        sprintf(buf, "*%s := *%s", lValue_ptr_var, rValue_ptr_var);
+        add_last_ir(buf);
+    }
 }
 
 void not_gen(Node* father, Node* exp) {
