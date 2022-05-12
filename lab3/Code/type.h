@@ -61,7 +61,7 @@ FieldList create_array_field(Node* node, Node* specifier);
 FieldList create_struct_field_for_struct(Node* struct_specifier);
 int get_field_size(FieldList field);
 int get_type_size(Type type);
-int get_struct_field_offset(FieldList temp, const char* field);
+int get_struct_field_offset(Type temp, const char* field);
 
 char* get_ir_var_by_name(char* name);
 char* get_ir_var_by_field(FieldList fieldList);
