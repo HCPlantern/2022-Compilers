@@ -223,12 +223,12 @@ Exp : LValue ASSIGNOP Exp {
     | LValue LB Exp RB {
             $$ = build_tree("Exp", 4, $1, $2, $3, $4);
             array_check($$, $1, $3);
-            array_load_gen($$, $1, $3);
+            array_access_gen($$, $1, $3);
         }
     | LValue DOT ID {
             $$ = build_tree("Exp", 3, $1, $2, $3);
             field_access_check($$, $1, $3);
-            field_store_gen($$, $1, $3);
+            field_access_gen($$, $1, $3);
         }
     | ID {  
             $$ = build_tree("Exp", 1, $1);
@@ -255,12 +255,12 @@ LValue : ID {
     | LValue LB Exp RB {
             $$ = build_tree("Exp", 4, $1, $2, $3, $4);
             array_check($$, $1, $3);
-            array_load_gen($$, $1, $3);
+            array_access_gen($$, $1, $3);
         }
     | LValue DOT ID {
             $$ = build_tree("Exp", 3, $1, $2, $3);
             field_access_check($$, $1, $3);
-            field_store_gen($$, $1, $3);
+            field_access_gen($$, $1, $3);
         }
     | error {printf("Error type 6 at line %d: The left-hand side of an assignment must be a variable.\n", $$->lineno);}
     ;

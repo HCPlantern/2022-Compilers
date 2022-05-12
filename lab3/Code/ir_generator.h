@@ -17,8 +17,8 @@ void negative_gen(Node* father, Node* exp);
 // void tilde_gen(Node* exp); // vm does not support tilde.
 void func_call_gen(Node* father, Node* id, Node* args);  // special process for read() and write(x)
 void array_store_gen(Node* father, Node* array, Node* index);
-void array_load_gen(Node* father, Node* array, Node* index);
-void field_store_gen(Node* father, Node* base, Node* field);
+void array_access_gen(Node* father, Node* array, Node* index);
+void field_access_gen(Node* father, Node* base, Node* field);
 void field_load_gen(Node* father, Node* base, Node* field);
 void id_gen(Node* father, Node* id);
 void int_gen(Node* father, Node* _int);
