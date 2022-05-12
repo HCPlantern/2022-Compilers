@@ -340,16 +340,20 @@ void field_store_gen(Node* father, Node* base, Node* field) {
     
     // printf("%d\n", offset); // offset is always -1.
 
+    father->addr_offset = base->addr_offset + offset;
     char buf[100];
     if (father->type.kind != BASIC) {
         strncpy(father->var_in_ir, base->var_in_ir, max_ir_var_len);
-        father->addr_offset = base->addr_offset + offset;
     } else {
-        char* field_addr_var = get_temp_var(0)->name;
-        sprintf(buf, "%s := %s + #%ld", field_addr_var, base->var_in_ir, base->addr_offset + offset);
-        add_last_ir(buf);
-
-        sprintf(father->var_in_ir, "*%s", field_addr_var);
+        if (father->addr_offset == 0) {
+            sprintf(father->var_in_ir, "*%s", base->var_in_ir);
+        } else {
+            char* field_addr_var = get_temp_var(0)->name;
+            sprintf(buf, "%s := %s + #%ld", field_addr_var, base->var_in_ir, father->addr_offset);
+            add_last_ir(buf);
+        
+            sprintf(father->var_in_ir, "*%s", field_addr_var);
+        }
     }
     //*/
 }
