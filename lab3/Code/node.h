@@ -36,7 +36,7 @@ typedef struct tree_node {
     // WARNING: in lab2, even the const prop for literals is unsupported.
     bool is_constant;  // only exp that consists of literals and operators could be constant.
 
-    size_t addr_offset;
+    size_t addr_offset; // used to cal offset from array/struct. -1 means this is not a addr(but you should not rely on it)
     
     union _Constant {
         int i;

@@ -3,7 +3,7 @@
 
 #include "stdbool.h"
 
-#define max_ir_var_len 10
+#define max_ir_var_len 10   // '*' and '&' are taken into account.
 #define max_label_len 10
 #define max_temp_var_len 10
 #define max_single_ir_len 100
