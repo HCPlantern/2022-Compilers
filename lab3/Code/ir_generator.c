@@ -1,5 +1,9 @@
 #include "ir_generator.h"
 #include "ir.h"
+#include "stack.h"
+
+extern bool is_in_compst;
+extern bool is_in_struct;
 
 static inline void set_int_const(Node* node, int i) {
     node->is_constant = true;
@@ -285,4 +289,26 @@ void int_gen(Node* father, Node* int_literal) {
 
 void float_gen(Node* father, Node* float_literal) {
     set_float_const(father, float_literal->data.f);
+}
+
+void var_dec_gen(Node* vardec) {
+    if (is_in_struct) return;
+    assert(is_in_compst);
+    // in compst
+    Node* temp = vardec;
+    while (strcmp(temp->id, "ID") != 0) {
+        temp = temp->child;
+    }
+    char* id = temp->data.text;
+    FieldList fieldlist = find_any_in_stack(id);
+    char* ir_var = get_ir_var_by_field(fieldlist);
+    // in compst func dec is impossible
+    assert(fieldlist->type->kind != FUNC);
+    if (fieldlist->type->kind == BASIC) return;
+    // kind is structure and array
+    size_t size = get_field_size(fieldlist);
+    char ir[100];
+    // start from index 1 of ir_var (ir_var[0] is '&')
+    sprintf(ir, "DEC %s %ld", ir_var + 1, size);
+    add_last_ir(ir);
 }
