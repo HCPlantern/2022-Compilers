@@ -10,6 +10,7 @@ extern Node* syntax_tree_root;
 extern void del_tree(Node* root);
 extern void check_undefined_func();
 extern void init_read_write_func();
+extern bool has_syntax_error;
 extern Stack stack;
 
 void init() {
@@ -24,6 +25,7 @@ void init() {
 }
 
 void write_file(FILE* f) {
+    if (has_syntax_error) return;
     IR* code = ir_list->next;
     while (code != ir_list) {
         fprintf(f, "%s\n", code->ir);

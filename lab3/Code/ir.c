@@ -9,6 +9,7 @@
 #include "stack.h"
 
 extern Stack stack;
+extern bool has_syntax_error;
 
 #define curr_table (stack->tables[stack->top - 1])
 
@@ -127,6 +128,7 @@ void remove_last_ir() {
 }
 
 void print_ir() {
+    if (has_syntax_error) return;
     IR* code = ir_list->next;
     while (code != ir_list) {
         printf("%s\n", code->ir);

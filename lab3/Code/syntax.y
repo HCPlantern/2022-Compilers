@@ -220,12 +220,12 @@ Exp : LValue ASSIGNOP Exp {
             func_call_check($$, $1, NULL);
             func_call_gen($$, $1, NULL);
         }
-    | Exp LB Exp RB {
+    | LValue LB Exp RB {
             $$ = build_tree("Exp", 4, $1, $2, $3, $4);
             array_check($$, $1, $3);
             array_access_gen($$, $1, $3);
         }
-    | Exp DOT ID {
+    | LValue DOT ID {
             $$ = build_tree("Exp", 3, $1, $2, $3);
             field_access_check($$, $1, $3);
             field_access_gen($$, $1, $3);
@@ -252,17 +252,17 @@ LValue : ID {
         id_check($$, $1);
         id_gen($$, $1);
         }
-    | Exp LB Exp RB {
+    | LValue LB Exp RB {
             $$ = build_tree("Exp", 4, $1, $2, $3, $4);
             array_check($$, $1, $3);
             array_access_gen($$, $1, $3);
         }
-    | Exp DOT ID {
+    | LValue DOT ID {
             $$ = build_tree("Exp", 3, $1, $2, $3);
             field_access_check($$, $1, $3);
             field_access_gen($$, $1, $3);
         }
-    | error {printf("Error type 6 at line %d: The left-hand side of an assignment must be a variable.\n", $$->lineno);}
+    | error {print_errorB($$->lineno, ", the left-hand side of an assignment must be a variable.");}
     ;
 
 Args : Exp COMMA Args {$$ = build_tree("Args", 3, $1, $2, $3);}
