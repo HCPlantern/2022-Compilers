@@ -67,11 +67,11 @@ void assign_gen(Node* father, Node* lValue, Node* exp) {
 
     for (int i = 0; i < min_size; i += 4) {
         char* lValue_ptr_var = get_temp_var(0)->name;
-        sprintf(buf, "%s := %s + #%d", lValue_ptr_var, lValue->var_in_ir, lValue->addr_offset + i);
+        sprintf(buf, "%s := %s + #%ld", lValue_ptr_var, lValue->var_in_ir, lValue->addr_offset + i);
         add_last_ir(buf);
 
         char* rValue_ptr_var = get_temp_var(0)->name;
-        sprintf(buf, "%s := %s + #%d", rValue_ptr_var, exp->var_in_ir, exp->addr_offset + i);
+        sprintf(buf, "%s := %s + #%ld", rValue_ptr_var, exp->var_in_ir, exp->addr_offset + i);
         add_last_ir(buf);
 
         sprintf(buf, "*%s := *%s", lValue_ptr_var, rValue_ptr_var);
@@ -253,14 +253,14 @@ void array_store_gen(Node* father, Node* array, Node* index) {
 
 void array_load_gen(Node* father, Node* array, Node* index) {
     // TODO
-    int element_size = get_type_size(&(father->type));
+    size_t element_size = get_type_size(&(father->type));
     
-    char* buf[max_single_ir_len];
+    char buf[max_single_ir_len];
     if (index->is_constant) {
         father->addr_offset = array->addr_offset + element_size + index->constant.i;
         char* addr_var = get_temp_var(0)->name;
         if (father->type.kind == BASIC) {
-            sprintf(buf, "%s := %s + #%d", addr_var, array->var_in_ir, father->addr_offset);
+            sprintf(buf, "%s := %s + #%ld", addr_var, array->var_in_ir, father->addr_offset);
             sprintf(father->var_in_ir, "*%s", addr_var);
         } else {
             strncpy(father->var_in_ir, addr_var, max_ir_var_len);
@@ -269,11 +269,11 @@ void array_load_gen(Node* father, Node* array, Node* index) {
         father->addr_offset = 0;
 
         char* current_offset = get_temp_var(0)->name;
-        sprintf(buf, "%s := %s * #%d", current_offset, index->var_in_ir, element_size);
+        sprintf(buf, "%s := %s * #%ld", current_offset, index->var_in_ir, element_size);
         add_last_ir(buf);
 
         char* total_offset = get_temp_var(0)->name;
-        sprintf(buf, "%s := #%d + %s", total_offset, array->addr_offset, current_offset);
+        sprintf(buf, "%s := #%ld + %s", total_offset, array->addr_offset, current_offset);
         add_last_ir(buf);
 
         char* addr_var = get_temp_var(0)->name;
@@ -317,7 +317,7 @@ void field_store_gen(Node* father, Node* base, Node* field) {
         father->addr_offset = base->addr_offset + offset;
     } else {
         char* field_addr_var = get_temp_var(0)->name;
-        sprintf(buf, "%s := %s + #%d", field_addr_var, base->var_in_ir, base->addr_offset + offset);
+        sprintf(buf, "%s := %s + #%ld", field_addr_var, base->var_in_ir, base->addr_offset + offset);
         add_last_ir(buf);
 
         sprintf(father->var_in_ir, "*%s", field_addr_var);
