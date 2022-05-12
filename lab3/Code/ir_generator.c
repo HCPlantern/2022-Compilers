@@ -245,6 +245,32 @@ void parentheses_reduce(Node* father, Node* exp) {
 // special process for read() and write(x)
 void func_call_gen(Node* father, Node* id, Node* args) {
     // TODO
+    FieldList fieldlist = find_any_in_stack(id->data.text);
+    Type type = fieldlist->type;
+    if (args != NULL) {
+        int arg_len = type->u.function.arg_len;
+        Node* exps[arg_len];
+        Node* exp = args->child;
+        for (int i = 0; i < arg_len - 1; i++) {
+            exps[i] = exp;
+            exp = exp->sibling->sibling->child;
+        }
+        exps[arg_len - 1] = exp;
+        for (int i = arg_len - 1; i >= 0; i--) {
+            char ir[max_single_ir_len];
+            sprintf(ir, "ARG %s", exps[i]->var_in_ir);
+            add_last_ir(ir);
+        }
+    }
+    father->is_constant = false;
+    strncpy(father->var_in_ir, get_temp_var(0)->name, 10);
+    char ir[max_single_ir_len];
+    if (!strcmp(id->data.text, "read")) {
+        sprintf(ir, "READ %s", father->var_in_ir);
+    } else {
+        sprintf(ir, "%s := CALL %s", father->var_in_ir, fieldlist->name);
+    }
+    add_last_ir(ir);
 }
 
 void array_store_gen(Node* father, Node* array, Node* index) {

@@ -1,10 +1,3 @@
-
-
-/*
-int global1, global2[3][5];
-int global3;
-*/
-
 // struct temp {
 //     int i;
 //     int t[5];
@@ -14,11 +7,13 @@ int global3;
 //     float d;
 // } a;
 
-// int temp() {
-//     return 1;
-// }
+int temp(int d, int f) {
+    return 1;
+}
 
 int main(int i, int b) {
+    b = read();
+    i = temp(i, b);
     i = 3;
     b = 10;
     return i;

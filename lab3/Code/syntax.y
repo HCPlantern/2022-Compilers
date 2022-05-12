@@ -42,7 +42,7 @@
 %%
 
 /* High-level Definitions */
-Program : ExtDefList {$$ = build_tree("Program", 1, $1); print_tree($$, 0); syntax_tree_root = $$;}
+Program : ExtDefList {$$ = build_tree("Program", 1, $1); /*print_tree($$, 0);*/ syntax_tree_root = $$;}
     ;
 /* 0 or some ExtDef */
 ExtDefList : ExtDef ExtDefList {$$ = build_tree("ExtDefList", 2, $1, $2);}
@@ -206,8 +206,16 @@ Exp : LValue ASSIGNOP Exp {
     | MINUS Exp {$$ = build_tree("Exp", 2, $1, $2); minus_check($$, $2);}
     | NOT Exp {$$ = build_tree("Exp", 2, $1, $2); not_check($$, $2);}
     | TILDE Exp{$$ = build_tree("Exp", 2, $1, $2); /* tilde_check($$, $2); */}
-    | ID LP Args RP {$$ = build_tree("Exp", 4, $1, $2, $3, $4); func_call_check($$, $1, $3);}
-    | ID LP RP {$$ = build_tree("Exp", 3, $1, $2, $3); func_call_check($$, $1, NULL);}
+    | ID LP Args RP {
+            $$ = build_tree("Exp", 4, $1, $2, $3, $4);
+            func_call_check($$, $1, $3);
+            func_call_gen($$, $1, $3);
+        }
+    | ID LP RP {
+            $$ = build_tree("Exp", 3, $1, $2, $3);
+            func_call_check($$, $1, NULL);
+            func_call_gen($$, $1, NULL);
+        }
     | LValue LB Exp RB {$$ = build_tree("Exp", 4, $1, $2, $3, $4); array_check($$, $1, $3);}
     | LValue DOT ID {$$ = build_tree("Exp", 3, $1, $2, $3); field_access_check($$, $1, $3);}
     | ID {  
