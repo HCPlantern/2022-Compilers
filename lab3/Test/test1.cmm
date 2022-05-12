@@ -7,16 +7,17 @@
 //     float d;
 // } a;
 
-int plus(int d, int f) {
-    return d + f;
+int plus(int d[2], int f[2]) {
+    return d[0] + f[0];
 }
 
-int main(int i, int b) {
-    b = read();
-    i = plus(i, b);
-    write(0);
-    write(b);
-    return i;
+int main() {
+    int d[2], f[2];
+    int c;
+    d[0] = 1;
+    f[0] = 2;
+    c = plus(d, f);
+    return c;
 }
 
 // struct node {
