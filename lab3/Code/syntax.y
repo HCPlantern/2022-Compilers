@@ -105,7 +105,7 @@ StmtList : Stmt StmtList {$$ = build_tree("StmtList", 2, $1, $2);}
 
 Stmt : Exp SEMI {$$ = build_tree("Stmt", 2, $1, $2);}
     | CompSt {$$ = build_tree("Stmt", 1, $1);}
-    | RETURN Exp SEMI {$$ = build_tree("Stmt", 3, $1, $2, $3); return_type_check($2);}
+    | RETURN Exp SEMI {$$ = build_tree("Stmt", 3, $1, $2, $3); return_type_check($2); return_gen($2);}
     | IF LP Exp RP Stmt %prec LOWER_THAN_ELSE {$$ = build_tree("Stmt", 5, $1, $2, $3, $4, $5); condition_type_check($3);}
     | IF LP Exp RP Stmt ELSE Stmt {$$ = build_tree("Stmt", 7, $1, $2, $3, $4, $5, $6, $7); condition_type_check($3);}
     | WHILE LP Exp RP Stmt {$$ = build_tree("Stmt", 5, $1, $2, $3, $4, $5); condition_type_check($3);}

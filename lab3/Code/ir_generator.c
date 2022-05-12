@@ -302,3 +302,14 @@ void var_dec_gen(Node* vardec) {
     sprintf(ir, "DEC %s %ld", ir_var + 1, size);
     add_last_ir(ir);
 }
+
+void return_gen(Node* exp) {
+    char buf[max_single_ir_len];
+    if (exp->is_constant) {
+        sprintf(buf, "RETURN #%d", exp->constant.i);
+        add_last_ir(buf);
+    } else {
+        sprintf(buf, "RETURN %s", exp->var_in_ir);
+        add_last_ir(buf);
+    }
+}
