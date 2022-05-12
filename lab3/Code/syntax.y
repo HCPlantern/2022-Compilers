@@ -203,7 +203,11 @@ Exp : LValue ASSIGNOP Exp {
             parentheses_check($$, $2);
             parentheses_reduce($$, $2);
         }
-    | MINUS Exp {$$ = build_tree("Exp", 2, $1, $2); minus_check($$, $2);}
+    | MINUS Exp {
+        $$ = build_tree("Exp", 2, $1, $2);
+        minus_check($$, $2);
+        negative_gen($$, $2);
+        }
     | NOT Exp {$$ = build_tree("Exp", 2, $1, $2); not_check($$, $2);}
     | TILDE Exp{$$ = build_tree("Exp", 2, $1, $2); /* tilde_check($$, $2); */}
     | ID LP Args RP {
