@@ -15,7 +15,7 @@ void negative_gen(Node* father, Node* exp);
 void parentheses_reduce(Node* father, Node* exp);
 void negative_gen(Node* father, Node* exp);
 // void tilde_gen(Node* exp); // vm does not support tilde.
-void func_call_gen(Node* father, Node* id, Node* args); // special process for read() and write(x)
+void func_call_gen(Node* father, Node* id, Node* args);  // special process for read() and write(x)
 void array_store_gen(Node* father, Node* array, Node* index);
 void array_load_gen(Node* father, Node* array, Node* index);
 void field_store_gen(Node* father, Node* base, Node* field);
@@ -24,7 +24,8 @@ void id_gen(Node* father, Node* id);
 void int_gen(Node* father, Node* _int);
 void float_gen(Node* father, Node* _float);
 
-void var_dec_gen( Node* vardec);
 void return_gen(Node* exp);
-
+void var_dec_gen(Node* vardec);
+void func_dec_gen(Node* id);
+void param_dec_gen(Type arg_type);
 #endif

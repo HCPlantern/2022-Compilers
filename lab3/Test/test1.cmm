@@ -5,23 +5,22 @@ int global1, global2[3][5];
 int global3;
 */
 
-struct temp {
-    int i;
-    int t[5];
-    struct temp2 {
-        int i;
-    } c;
-    float d;
-} a;
+// struct temp {
+//     int i;
+//     int t[5];
+//     struct temp2 {
+//         int i;
+//     } c;
+//     float d;
+// } a;
 
 // int temp() {
 //     return 1;
 // }
 
 int main(int i, int b) {
-    int op[1][2];
-    struct temp c;
-    int td = 4;
+    i = 3;
+    b = 10;
     return i;
 }
 

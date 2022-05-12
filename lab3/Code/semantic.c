@@ -6,6 +6,7 @@
 #include "type.h"
 
 extern Stack stack;
+extern void add_last_ir(char* code);
 FieldList check_VarDec(Node* specifier, Node* node, bool need_check_table);
 static const struct _Type T_BOOL = {BASIC, T_INT};
 static const struct _Type T_UNDEF = {UNDEF, T_INT};  // WARNING: kind should be examined before u.basic.
@@ -27,8 +28,7 @@ bool is_in_compst = false;
 
 bool is_in_struct = false;
 size_t struct_count = 0;
-Type arg_type = NULL;
-
+Type arg_type;
 // add to table after the new scope is created when meeting left "{".
 Node args_for_func_def;
 
@@ -116,6 +116,12 @@ void add_args_into_table() {
                 printf("Error type 3 at Line %d: Redefined variable \"%s\".\n", yylineno, args->name);
             }
             add_table_node(stack->tables[stack->top - 1], args);
+
+            char* ir_var = get_ir_var_by_field(args);
+            char ir[100];
+            sprintf(ir, "PARAM %s", ir_var);
+            add_last_ir(ir);
+
             args = args->next;
         }
     }

@@ -313,3 +313,20 @@ void return_gen(Node* exp) {
         add_last_ir(buf);
     }
 }
+
+void func_dec_gen(Node* id) {
+    char ir[max_single_ir_len];
+    sprintf(ir, "FUNCTION %s :", id->data.text);
+    add_last_ir(ir);
+}
+
+// void param_dec_gen(Type arg_type) {
+//     FieldList args = arg_type->u.function.args;
+//     for (int i = 0; i < arg_type->u.function.arg_len; i++) {
+//         char* ir_var = get_ir_var_by_field(args);
+//         char ir[max_single_ir_len];
+//         sprintf(ir, "PARAM %s", ir_var);
+//         add_last_ir(ir);
+//         args = args->next;
+//     }
+// }
