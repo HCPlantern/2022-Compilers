@@ -17,6 +17,7 @@ int main() {
     d[0] = 1;
     f[0] = 2;
     c = plus(d, f);
+    write(c);
     return c;
 }
 

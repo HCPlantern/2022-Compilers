@@ -51,12 +51,12 @@ int main(int argc, char** argv) {
     print_ir();
 
     // write to file
-    // FILE* w = fopen(argv[2], "w+");
-    // if (!w) {
-    //     perror(argv[2]);
-    //     return 1;
-    // }
-    // write_file(w);
+    FILE* w = fopen(argv[2], "w+");
+    if (!w) {
+        perror(argv[2]);
+        return 1;
+    }
+    write_file(w);
 
     return 0;
 }
