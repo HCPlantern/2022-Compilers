@@ -601,3 +601,7 @@ void while_gen(Node* father, Node* M1, Node* cond_exp, Node* M2, Node* stmt) {
     sprintf(buf, "GOTO %s", M1->label);
     add_last_ir(buf);
 }
+
+void exp_for_if_gen(Node* exp) {
+
+}

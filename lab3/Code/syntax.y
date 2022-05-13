@@ -134,7 +134,7 @@ StmtList : StmtList M Stmt {$$ = build_tree("StmtList", 2, $1, $3); backPatch($1
 
 SLP : LP {$$ = build_tree("SLP", 1, $1); is_in_cond = true;}
 
-SRP : RP {$$ = build_tree("SRP", 1, $1); is_in_cond = false;}
+SRP : RP {$$ = build_tree("SRP", 1, $1); is_in_cond = false; exp_for_if_gen(current_exp);}
 
 Stmt : Exp SEMI {$$ = build_tree("Stmt", 2, $1, $2); $$->next_list = NULL;}
     | CompSt {$$ = build_tree("Stmt", 1, $1); $$->next_list = $1->next_list;}
@@ -151,10 +151,10 @@ Stmt : Exp SEMI {$$ = build_tree("Stmt", 2, $1, $2); $$->next_list = NULL;}
             condition_type_check($3);
             if_else_gen($$, $3, $5, $6, $8, $9, $10);
         }
-    | WHILE M LP {is_in_cond = true;} Exp RP {is_in_cond = false;} M Stmt {
-            $$ = build_tree("Stmt", 5, $1, $3, $5, $6, $9);
-            condition_type_check($5);
-            while_gen($$, $2, $5, $8, $9);
+    | WHILE M SLP Exp SRP M Stmt {
+            $$ = build_tree("Stmt", 5, $1, $3, $4, $5, $7);
+            condition_type_check($4);
+            while_gen($$, $2, $4, $6, $7);
         }
     | error RP {print_errorB($$->lineno, "");}
     | error SEMI {print_errorB($$->lineno, "");}
@@ -191,92 +191,112 @@ Dec : VarDec {
 
 /* Expressions */
 Exp : LValue ASSIGNOP Exp {
+            current_exp = $$;
             $$ = build_tree("Exp", 3, $1, $2, $3);
             assignment_check($$, $1, $3);
             assign_gen($$, $1, $3);
         }
     | Exp AND M Exp {
+            current_exp = $$;
             $$ = build_tree("Exp", 3, $1, $2, $4); 
             logical_check($$, $1, $4);
             and_gen($$, $1, $3, $4);
         }
     | Exp OR M Exp {
+            current_exp = $$;
             $$ = build_tree("Exp", 3, $1, $2, $4); 
             logical_check($$, $1, $4);
             or_gen($$, $1, $3, $4);
         }
     | Exp RELOP Exp {
+            current_exp = $$;
             $$ = build_tree("Exp", 3, $1, $2, $3); 
             relop_check($$, $1, $3);
             relop_gen($$, $1, $2, $3);
         }
     | Exp PLUS Exp {
+            current_exp = $$;
             $$ = build_tree("Exp", 3, $1, $2, $3); 
             binary_cal_check($$, $1, $3);
             plus_gen($$, $1, $3); 
         }
     | Exp MINUS Exp {
+            current_exp = $$;
             $$ = build_tree("Exp", 3, $1, $2, $3);
             binary_cal_check($$, $1, $3);
             minus_gen($$, $1, $3);
         }
     | Exp STAR Exp {
+            current_exp = $$;
             $$ = build_tree("Exp", 3, $1, $2, $3);
             binary_cal_check($$, $1, $3);
             star_gen($$, $1, $3);
         }
     | Exp DIV Exp {
+            current_exp = $$;
             $$ = build_tree("Exp", 3, $1, $2, $3);
             binary_cal_check($$, $1, $3);
             div_gen($$, $1, $3);
         }
     | LP Exp RP {
+            current_exp = $$;
             $$ = build_tree("Exp", 3, $1, $2, $3);
             parentheses_check($$, $2);
             parentheses_reduce($$, $2);
         }
     | MINUS Exp {
+            current_exp = $$;
             $$ = build_tree("Exp", 2, $1, $2);
             minus_check($$, $2);
             negative_gen($$, $2);
         }
     | NOT Exp {
+            current_exp = $$;
             $$ = build_tree("Exp", 2, $1, $2); 
             not_check($$, $2);
             not_gen($$, $2);
         }
-    | TILDE Exp{$$ = build_tree("Exp", 2, $1, $2); /* tilde_check($$, $2); */}
+    | TILDE Exp{
+        current_exp = $$;
+        $$ = build_tree("Exp", 2, $1, $2); /* tilde_check($$, $2); */}
     | ID LP Args RP {
+            current_exp = $$;
             $$ = build_tree("Exp", 4, $1, $2, $3, $4);
             func_call_check($$, $1, $3);
             func_call_gen($$, $1, $3);
         }
     | ID LP RP {
+            current_exp = $$;
             $$ = build_tree("Exp", 3, $1, $2, $3);
             func_call_check($$, $1, NULL);
             func_call_gen($$, $1, NULL);
         }
     | LValue LB Exp RB {
+            current_exp = $$;
             $$ = build_tree("Exp", 4, $1, $2, $3, $4);
             array_check($$, $1, $3);
             array_access_gen($$, $1, $3);
         }
     | LValue DOT ID {
+            current_exp = $$;
             $$ = build_tree("Exp", 3, $1, $2, $3);
             field_access_check($$, $1, $3);
             field_access_gen($$, $1, $3);
         }
     | ID {  
+            current_exp = $$;
             $$ = build_tree("Exp", 1, $1);
             id_check($$, $1);
             id_gen($$, $1);
         }
     | INT {
+            current_exp = $$;
             $$ = build_tree("Exp", 1, $1); 
             literal_check($$);
             int_gen($$, $1);
         }
     | FLOAT {
+            current_exp = $$;
             $$ = build_tree("Exp", 1, $1);
             literal_check($$);
             float_gen($$, $1);
@@ -284,16 +304,19 @@ Exp : LValue ASSIGNOP Exp {
     ;
 
 LValue : ID {
+        current_exp = $$;
         $$ = build_tree("LValue", 1, $1);
         id_check($$, $1);
         id_gen($$, $1);
         }
     | LValue LB Exp RB {
+            current_exp = $$;
             $$ = build_tree("Exp", 4, $1, $2, $3, $4);
             array_check($$, $1, $3);
             array_access_gen($$, $1, $3);
         }
     | LValue DOT ID {
+            current_exp = $$;
             $$ = build_tree("Exp", 3, $1, $2, $3);
             field_access_check($$, $1, $3);
             field_access_gen($$, $1, $3);
