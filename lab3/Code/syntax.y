@@ -62,7 +62,6 @@ ExtDef : Specifier ExtDecList SEMI {
     | Specifier FunDec {
             temp_ExtDef = build_tree("ExtDef", 2, $1, $2); 
             check_func($1); 
-            arg_type = &($2->type);
             is_in_compst = true; 
         } 
       CompSt {

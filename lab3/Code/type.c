@@ -10,6 +10,7 @@
 
 #define curr_table (stack->tables[stack->top - 1])
 
+extern Type arg_type;
 extern Node* syntax_tree_root;
 extern Stack stack;
 extern FieldList check_VarDec(Node* specifier, Node* node, bool in_struct);
@@ -192,7 +193,8 @@ Type create_func_type(Node* specifier, Node* fundec) {
         }
     }
     res->u.function.arg_len = arg_len;
-    fundec->type = *res;
+    // fundec->type = *res;
+    arg_type = res;
     return res;
 }
 

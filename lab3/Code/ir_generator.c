@@ -529,6 +529,9 @@ void func_dec_gen(Node* id) {
 
 void param_dec_gen(Type arg_type) {
     if (arg_type == NULL) return;
+    char* prev_ir = ir_list->prev->ir;
+    bool has_printed = !prefix("FUNCTION", prev_ir) && !prefix("PARAM", prev_ir);
+    if (has_printed) return;
     FieldList args = arg_type->u.function.args;
     for (int i = 0; i < arg_type->u.function.arg_len; i++) {
         char* ir_var = get_ir_var_by_field(args);
