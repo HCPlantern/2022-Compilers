@@ -325,13 +325,13 @@ void func_call_gen(Node* father, Node* id, Node* args) {
         for (int i = arg_len - 1; i >= 0; i--) {
             char ir[max_single_ir_len];
             if (!exps[i]->is_constant) {
-                if (exps[i]->type.kind == BASIC) {
-                    sprintf(ir, "ARG %s", exps[i]->var_in_ir);
-                } else {
-                    assert(exps[i]->type.kind == STRUCTURE || exps[i]->type.kind == ARRAY);
-                    assert(exps[i]->var_in_ir[0] == '&');
-                    sprintf(ir, "ARG %s", exps[i]->var_in_ir + 1);
-                }
+                // if (exps[i]->type.kind == BASIC) {
+                sprintf(ir, "ARG %s", exps[i]->var_in_ir);
+                // } else {
+                //     assert(exps[i]->type.kind == STRUCTURE || exps[i]->type.kind == ARRAY);
+                //     assert(exps[i]->var_in_ir[0] == '&');
+                //     sprintf(ir, "ARG %s", exps[i]->var_in_ir + 1);
+                // }
             } else {
                 sprintf(ir, "ARG #%d", exps[i]->constant.i);
             }
@@ -539,6 +539,11 @@ void param_dec_gen(Type arg_type) {
         if (ir_var[0] == '&') {
             assert(ir_var[0] == '&');
             sprintf(ir, "PARAM %s", ir_var + 1);
+            // remove '&' for all params
+            char* ir_var2 = malloc(sizeof(char) * 10);
+            sprintf(ir_var2, "%s", ir_var + 1);
+            args->ir_var = ir_var2;
+            free(ir_var);
         } else {
             sprintf(ir, "PARAM %s", ir_var);
         }
