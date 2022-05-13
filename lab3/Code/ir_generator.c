@@ -123,13 +123,13 @@ void relop_gen(Node* father, Node* exp1, Node* relop, Node* exp2) {
     char ir[max_single_ir_len];
     char* relop_neg = relop_negative(relop->data.text);
     if (!exp1->is_constant && !exp1->is_constant) {
-        sprintf(ir, "if %s %s %s GOTO", exp1->var_in_ir, relop_neg, exp2->var_in_ir);
+        sprintf(ir, "IF %s %s %s GOTO", exp1->var_in_ir, relop_neg, exp2->var_in_ir);
     } else if (exp1->is_constant && !exp2->is_constant) {
-        sprintf(ir, "if %d %s %s GOTO", exp1->constant.i, relop_neg, exp2->var_in_ir);
+        sprintf(ir, "IF #%d %s %s GOTO", exp1->constant.i, relop_neg, exp2->var_in_ir);
     } else if (!exp1->is_constant && exp2->is_constant) {
-        sprintf(ir, "if %s %s %d GOTO", exp1->var_in_ir, relop_neg, exp2->constant.i);
+        sprintf(ir, "IF %s %s #%d GOTO", exp1->var_in_ir, relop_neg, exp2->constant.i);
     } else {
-        sprintf(ir, "if %d %s %d GOTO", exp1->constant.i, relop_neg, exp2->constant.i);
+        sprintf(ir, "IF #%d %s #%d GOTO", exp1->constant.i, relop_neg, exp2->constant.i);
     }
     add_last_ir(ir);
     father->false_list = makeList(ir_list->prev);
@@ -454,7 +454,7 @@ void id_gen(Node* father, Node* id) {
     strncpy(father->var_in_ir, ir_var, 10);
     if (is_in_cond) {
         char ir[max_single_ir_len];
-        sprintf(ir, "if %s == #0 GOTO", ir_var);
+        sprintf(ir, "IF %s == #0 GOTO", ir_var);
         add_last_ir(ir);
         father->false_list = makeList(ir_list->prev);
         father->true_list = NULL;
@@ -465,7 +465,7 @@ void int_gen(Node* father, Node* int_literal) {
     set_int_const(father, int_literal->data.i);
     if (is_in_cond) {
         char ir[max_single_ir_len];
-        sprintf(ir, "if %d == #0 GOTO", int_literal->data.i);
+        sprintf(ir, "IF #%d == #0 GOTO", int_literal->data.i);
         add_last_ir(ir);
         father->false_list = makeList(ir_list->prev);
         father->true_list = NULL;
