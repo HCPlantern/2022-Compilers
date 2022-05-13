@@ -5,6 +5,7 @@
 
 extern bool is_in_compst;
 extern bool is_in_struct;
+extern Type arg_type;
 
 static inline void set_int_const(Node* node, int i) {
     node->is_constant = true;
@@ -264,8 +265,11 @@ void func_call_gen(Node* father, Node* id, Node* args) {
         char* ir_var = exp->var_in_ir;
         char ir[max_single_ir_len];
         if (exp->is_constant) {
-            if (exp->type.u.basic == T_INT){sprintf(ir, "WRITE #%d", exp->constant.i);}
-            else if (exp->type.u.basic == T_FLOAT){sprintf(ir, "WRITE #%f", exp->constant.f);}
+            if (exp->type.u.basic == T_INT) {
+                sprintf(ir, "WRITE #%d", exp->constant.i);
+            } else if (exp->type.u.basic == T_FLOAT) {
+                sprintf(ir, "WRITE #%f", exp->constant.f);
+            }
             add_last_ir(ir);
         } else {
             sprintf(ir, "WRITE %s", exp->var_in_ir);
@@ -288,7 +292,7 @@ void func_call_gen(Node* father, Node* id, Node* args) {
             if (exps[i]->type.kind == BASIC) {
                 sprintf(ir, "ARG %s", exps[i]->var_in_ir);
             } else {
-                assert (exps[i]->type.kind == STRUCTURE || exps[i]->type.kind == ARRAY);
+                assert(exps[i]->type.kind == STRUCTURE || exps[i]->type.kind == ARRAY);
                 assert(exps[i]->var_in_ir[0] == '&');
                 sprintf(ir, "ARG %s", exps[i]->var_in_ir + 1);
             }
@@ -313,7 +317,7 @@ void array_store_gen(Node* father, Node* array, Node* index) {
 void array_load_gen(Node* father, Node* array, Node* index) {
     // TODO
     size_t element_size = get_type_size(&(father->type));
-    
+
     char buf[max_single_ir_len];
     if (index->is_constant) {
         father->addr_offset = array->addr_offset + element_size * index->constant.i;
@@ -367,7 +371,7 @@ void field_store_gen(Node* father, Node* base, Node* field) {
     /*
     char* field_addr_var = get_temp_var(0)->name;
     int offset = get_struct_field_offset(&(base->type), field->data.text);
-    
+
     char buf[100];
     sprintf(buf, "%s := %s + #%d", field_addr_var, base->var_in_ir, offset);
     add_last_ir(buf);
@@ -384,7 +388,7 @@ void field_store_gen(Node* father, Node* base, Node* field) {
     // below is the implementation with optimization.
     ///*
     int offset = get_struct_field_offset(&(base->type), field->data.text);
-    
+
     // printf("%d\n", offset); // offset is always -1.
 
     father->addr_offset = base->addr_offset + offset;
@@ -401,7 +405,7 @@ void field_store_gen(Node* father, Node* base, Node* field) {
         } else {
             sprintf(buf, "%s := %s + #%ld", field_addr_var, base->var_in_ir, father->addr_offset);
             add_last_ir(buf);
-        
+
             sprintf(father->var_in_ir, "*%s", field_addr_var);
         }
     }
@@ -471,13 +475,18 @@ void func_dec_gen(Node* id) {
     add_last_ir(ir);
 }
 
-// void param_dec_gen(Type arg_type) {
-//     FieldList args = arg_type->u.function.args;
-//     for (int i = 0; i < arg_type->u.function.arg_len; i++) {
-//         char* ir_var = get_ir_var_by_field(args);
-//         char ir[max_single_ir_len];
-//         sprintf(ir, "PARAM %s", ir_var);
-//         add_last_ir(ir);
-//         args = args->next;
-//     }
-// }
+void param_dec_gen(Type arg_type) {
+    FieldList args = arg_type->u.function.args;
+    for (int i = 0; i < arg_type->u.function.arg_len; i++) {
+        char* ir_var = get_ir_var_by_field(args);
+        char ir[100];
+        if (ir_var[0] == '&') {
+            assert(ir_var[0] == '&');
+            sprintf(ir, "PARAM %s", ir_var + 1);
+        } else {
+            sprintf(ir, "PARAM %s", ir_var);
+        }
+        add_last_ir(ir);
+    }
+    arg_type = NULL;
+}
