@@ -5,9 +5,9 @@
 bool is_in_cond;
 void assign_gen(Node* father, Node* lValue, Node* exp);
 void not_gen(Node* father, Node* exp);
-void and_gen(Node* father, Node* exp1, Node* exp2);
-void or_gen(Node* father, Node* exp1, Node* exp2);
-void relop_gen(Node* father, Node* exp1, Node* exp2);
+void and_gen(Node* father, Node* exp1, Node*M, Node* exp2);
+void or_gen(Node* father, Node* exp1, Node* M, Node* exp2);
+void relop_gen(Node* father, Node* exp1, Node* relop, Node* exp2);
 void plus_gen(Node* father, Node* exp1, Node* exp2);
 void minus_gen(Node* father, Node* exp1, Node* exp2);
 void star_gen(Node* father, Node* exp1, Node* exp2);
@@ -31,6 +31,7 @@ void func_dec_gen(Node* id);
 void param_dec_gen(Type arg_type);
 void M_gen(Node* node);
 void N_gen(Node* node);
+char* relop_negative(char* relop);
 
 void if_gen(Node* father, Node* cond_exp, Node* M, Node* stmt);
 void if_else_gen(Node* father, Node* cond_exp, Node* M1, Node* true_stmt, Node* N, Node* M2, Node* false_stmt);

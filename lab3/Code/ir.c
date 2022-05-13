@@ -1,12 +1,12 @@
 
+#include "ir.h"
+
+#include "stack.h"
+#include "stdbool.h"
 #include "stdio.h"
 #include "stdlib.h"
-#include "stdbool.h"
 #include "string.h"
-
-#include "ir.h"
 #include "type.h"
-#include "stack.h"
 
 extern Stack stack;
 extern bool has_syntax_error;
@@ -83,7 +83,6 @@ void new_temp_var_list() {
     temp_var_list->next = NULL;
 }
 
-
 // code list methods begin
 
 void new_ir_code_list() {
@@ -94,7 +93,7 @@ void new_ir_code_list() {
 }
 
 void add_last_ir(char* code) {
-    IR* new_ir = malloc(sizeof (IR));
+    IR* new_ir = malloc(sizeof(IR));
     new_ir->ir = malloc(sizeof(char) * max_single_ir_len);
     strcpy(new_ir->ir, code);
     new_ir->prev = ir_list->prev;
@@ -104,7 +103,7 @@ void add_last_ir(char* code) {
 }
 
 void add_first_ir(char* code) {
-    IR* new_ir = malloc(sizeof (IR));
+    IR* new_ir = malloc(sizeof(IR));
     new_ir->ir = malloc(sizeof(char) * max_single_ir_len);
     strcpy(new_ir->ir, code);
     new_ir->prev = ir_list;
@@ -137,7 +136,6 @@ void print_ir() {
 }
 // code list methods end;
 
-
 // call this when creating non-const temp var
 TempVar* get_temp_var(int type) {
     TempVar* res = malloc(sizeof(TempVar));
@@ -150,14 +148,12 @@ TempVar* get_temp_var(int type) {
     temp_var_count++;
     res->name = name;
     res->is_const = false;
-    
+
     res->next = temp_var_list->next;
     temp_var_list->next = res;
 
     return res;
 }
-
-
 
 // // call this when creating or finding const int temp var
 // // first find, if not exist then create a new var
@@ -176,7 +172,6 @@ TempVar* get_temp_var(int type) {
 //     new_var->u.int_val = i;
 //     return new_var;
 // }
-
 
 // TempVar* find_float_val(float f) {
 //     TempVar* var = temp_var_list->next;

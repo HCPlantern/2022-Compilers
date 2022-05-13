@@ -199,12 +199,18 @@ Exp : LValue ASSIGNOP Exp {
     | Exp AND M Exp {
             $$ = build_tree("Exp", 3, $1, $2, $4); 
             logical_check($$, $1, $4);
+            and_gen($$, $1, $3, $4);
         }
     | Exp OR M Exp {
             $$ = build_tree("Exp", 3, $1, $2, $4); 
             logical_check($$, $1, $4);
+            or_gen($$, $1, $3, $4);
         }
-    | Exp RELOP Exp {$$ = build_tree("Exp", 3, $1, $2, $3); relop_check($$, $1, $3);}
+    | Exp RELOP Exp {
+            $$ = build_tree("Exp", 3, $1, $2, $3); 
+            relop_check($$, $1, $3);
+            relop_gen($$, $1, $2, $3);
+        }
     | Exp PLUS Exp {
             $$ = build_tree("Exp", 3, $1, $2, $3); 
             binary_cal_check($$, $1, $3);
@@ -231,11 +237,15 @@ Exp : LValue ASSIGNOP Exp {
             parentheses_reduce($$, $2);
         }
     | MINUS Exp {
-        $$ = build_tree("Exp", 2, $1, $2);
-        minus_check($$, $2);
-        negative_gen($$, $2);
+            $$ = build_tree("Exp", 2, $1, $2);
+            minus_check($$, $2);
+            negative_gen($$, $2);
         }
-    | NOT Exp {$$ = build_tree("Exp", 2, $1, $2); not_check($$, $2);}
+    | NOT Exp {
+            $$ = build_tree("Exp", 2, $1, $2); 
+            not_check($$, $2);
+            not_gen($$, $2);
+        }
     | TILDE Exp{$$ = build_tree("Exp", 2, $1, $2); /* tilde_check($$, $2); */}
     | ID LP Args RP {
             $$ = build_tree("Exp", 4, $1, $2, $3, $4);

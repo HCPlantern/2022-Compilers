@@ -80,41 +80,59 @@ void assign_gen(Node* father, Node* lValue, Node* exp) {
     }
 }
 
+char* relop_negative(char* relop) {
+    char* res = malloc(sizeof(char) * 3);
+    if (!strcmp(relop, "==")) {
+        strcpy(res, "!=");
+    } else if (!strcmp(relop, "!=")) {
+        strcpy(res, "==");
+    } else if (!strcmp(relop, ">")) {
+        strcpy(res, "<=");
+    } else if (!strcmp(relop, "<")) {
+        strcpy(res, ">=");
+    } else if (!strcmp(relop, ">=")) {
+        strcpy(res, "<");
+    } else if (!strcmp(relop, "<=")) {
+        strcpy(res, ">");
+    }
+    return res;
+}
+
 void not_gen(Node* father, Node* exp) {
-    // TODO
-    if (exp->is_constant) {
-        if (exp->type.u.basic == T_INT) {
-            assert(exp->type.kind == BASIC);
-            set_int_const(father, exp->constant.i ? 0 : 1);
-        }
-        if (exp->type.u.basic == T_FLOAT) {
-            assert(exp->type.kind == BASIC);
-            set_int_const(father, exp->constant.f ? 0 : 1);
-        }
-        return;
+    assert(is_in_cond);
+    father->true_list = exp->false_list;
+    father->false_list = exp->true_list;
+}
+
+void and_gen(Node* father, Node* exp1, Node* M, Node* exp2) {
+    assert(is_in_cond);
+    backPatch(exp1->true_list, M);
+    father->true_list = exp2->true_list;
+    father->false_list = merge(exp1->false_list, exp2->false_list);
+}
+
+void or_gen(Node* father, Node* exp1, Node* M, Node* exp2) {
+    assert(is_in_cond);
+    backPatch(exp1->false_list, M);
+    father->true_list = merge(exp1->true_list, exp2->true_list);
+    father->false_list = exp2->false_list;
+}
+
+void relop_gen(Node* father, Node* exp1, Node* relop, Node* exp2) {
+    assert(is_in_cond);
+    char ir[max_single_ir_len];
+    char* relop_neg = relop_negative(relop->data.text);
+    if (!exp1->is_constant && !exp1->is_constant) {
+        sprintf(ir, "if %s %s %s GOTO", exp1->var_in_ir, relop_neg, exp2->var_in_ir);
+    } else if (exp1->is_constant && !exp2->is_constant) {
+        sprintf(ir, "if %d %s %s GOTO", exp1->constant.i, relop_neg, exp2->var_in_ir);
+    } else if (!exp1->is_constant && exp2->is_constant) {
+        sprintf(ir, "if %s %s %d GOTO", exp1->var_in_ir, relop_neg, exp2->constant.i);
+    } else {
+        sprintf(ir, "if %d %s %d GOTO", exp1->constant.i, relop_neg, exp2->constant.i);
     }
-    /*
-    else {
-        if (exp->type.u.basic == T_INT) {
-            strncpy(father->var_in_ir, get_temp_var(0), 10);
-        }
-        else {
-            strncpy(father->var_in_ir, get_temp_var(1), 10);
-        }
-    }
-    */
-}
-
-void and_gen(Node* father, Node* exp1, Node* exp2) {
-    // TODO
-}
-
-void or_gen(Node* father, Node* exp1, Node* exp2) {
-    // TODO
-}
-
-void relop_gen(Node* father, Node* exp1, Node* exp2) {
-    // TODO
+    add_last_ir(ir);
+    father->false_list = makeList(ir_list->prev);
 }
 
 void plus_gen(Node* father, Node* exp1, Node* exp2) {
@@ -254,12 +272,16 @@ void parentheses_reduce(Node* father, Node* exp) {
     if (exp->is_constant) {
         father->is_constant = true;
         father->constant.i = exp->constant.i;
-        return;
+    } else {
+        father->is_constant = false;
+        father->addr_offset = 0;
+        strncpy(father->var_in_ir, exp->var_in_ir, 10);
     }
 
-    father->is_constant = false;
-    father->addr_offset = 0;
-    strncpy(father->var_in_ir, exp->var_in_ir, 10);
+    if (is_in_cond) {
+        father->true_list = exp->true_list;
+        father->false_list = exp->false_list;
+    }
 }
 
 // void tilde_gen(Node* exp); // vm does not support tilde.
@@ -430,10 +452,24 @@ void id_gen(Node* father, Node* id) {
     father->is_constant = false;
     father->addr_offset = 0;
     strncpy(father->var_in_ir, ir_var, 10);
+    if (is_in_cond) {
+        char ir[max_single_ir_len];
+        sprintf(ir, "if %s == #0 GOTO", ir_var);
+        add_last_ir(ir);
+        father->false_list = makeList(ir_list->prev);
+        father->true_list = NULL;
+    }
 }
 
 void int_gen(Node* father, Node* int_literal) {
     set_int_const(father, int_literal->data.i);
+    if (is_in_cond) {
+        char ir[max_single_ir_len];
+        sprintf(ir, "if %d == #0 GOTO", int_literal->data.i);
+        add_last_ir(ir);
+        father->false_list = makeList(ir_list->prev);
+        father->true_list = NULL;
+    }
 }
 
 void float_gen(Node* father, Node* float_literal) {
