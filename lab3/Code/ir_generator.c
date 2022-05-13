@@ -603,5 +603,9 @@ void while_gen(Node* father, Node* M1, Node* cond_exp, Node* M2, Node* stmt) {
 }
 
 void exp_for_if_gen(Node* exp) {
+    if (strcmp("ID", exp->child->id)) {
 
+
+        
+    }
 }
