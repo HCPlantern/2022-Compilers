@@ -112,6 +112,16 @@ void add_first_ir(char* code) {
     ir_list->next = new_ir;
 }
 
+void add_next_ir(IR* ir_node, char* code) {
+    IR* new_ir = malloc(sizeof(IR));
+    new_ir->ir = malloc(sizeof(char) * max_single_ir_len);
+    strcpy(new_ir->ir, code);
+    new_ir->prev = ir_node;
+    new_ir->next = ir_node->next;
+    ir_node->next->prev = new_ir;
+    ir_node->next = new_ir;
+}
+
 void remove_first_ir() {
     IR* temp = ir_list->next;
     ir_list->next = ir_list->next->next;
