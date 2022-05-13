@@ -148,7 +148,9 @@ void print_ir() {
     if (has_syntax_error) return;
     IR* code = ir_list->next;
     while (code != ir_list) {
-        printf("%s\n", code->ir);
+        if (0 != strcmp(code->ir, "GOTO")) {
+            printf("%s\n", code->ir);
+        }
         code = code->next;
     }
 }
