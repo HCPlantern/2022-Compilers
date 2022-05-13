@@ -27,6 +27,8 @@ struct _IR {
     char* ir;
     IR* prev;
     IR* next;
+    char* label_next;
+    bool label_printed;
 };
 
 IR* ir_list;
