@@ -34,6 +34,7 @@ void assign_gen(Node* father, Node* lValue, Node* exp) {
     // for primitive type, check if the last ir's lValue is exp->var_in_ir
     // if true, just modify the last ir,
     // else gen a new ir.
+    // same optimization could be applied to READ
 
     char buf[max_single_ir_len];
     if (exp->type.kind == BASIC) {

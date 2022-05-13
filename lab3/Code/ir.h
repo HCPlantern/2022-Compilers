@@ -1,7 +1,7 @@
 #ifndef IR_H
 #define IR_H
 
-#include "stdbool.h"
+#include <stdbool.h>
 
 #define max_ir_var_len 10   // '*' and '&' are taken into account.
 #define max_label_len 10
