@@ -502,12 +502,23 @@ void param_dec_gen(Type arg_type) {
 
 void M_gen(Node* node) {
     node->label = new_label();
-    char ir[max_single_ir_len];
-    sprintf(ir, "LABEL %s :", node->label);
-    add_last_ir(ir);
+    node->prev_ir = ir_list->prev;
+    node->backPatched = false;
 }
 
 void N_gen(Node* node) {
     add_last_ir("GOTO");
     node->next_list = makeList(ir_list->prev);
+}
+
+void if_gen(Node* father, Node* cond_exp, Node* M, Node* stmt) {
+    // TODO
+}
+
+void if_else_gen(Node* father, Node* cond_exp, Node* M1, Node* true_stmt, Node* N, Node* M2, Node* false_stmt) {
+    // TODO
+}
+
+void while_gen(Node* father, Node* M1, Node* cond_exp, Node* M2, Node* stmt) {
+    // TODO
 }

@@ -125,34 +125,37 @@ CompSt : LC {
     } 
       DefList StmtList RC 
         {exit_scope();} 
-        {$$ = build_tree("CompSt", 4, $1, $3, $4, $5);}
+        {$$ = build_tree("CompSt", 4, $1, $3, $4, $5); $$->next_list = $4->next_list;}
     | error RC {print_errorB($$->lineno, "");}
     ;
 
-StmtList : StmtList M Stmt {$$ = build_tree("StmtList", 2, $1, $3);} 
-    | Stmt {$$ = build_tree("StmtList", 1, $1);}
+StmtList : StmtList M Stmt {$$ = build_tree("StmtList", 2, $1, $3); backPatch($1->next_list, $2); $$->next_list = $3->next_list;} 
+    | Stmt {$$ = build_tree("StmtList", 1, $1); $$->next_list = $1->next_list;}
     ;
 
 SLP : LP {$$ = build_tree("SLP", 1, $1); is_in_cond = true;}
 
 SRP : RP {$$ = build_tree("SRP", 1, $1); is_in_cond = false;}
 
-Stmt : Exp SEMI {$$ = build_tree("Stmt", 2, $1, $2);}
-    | CompSt {$$ = build_tree("Stmt", 1, $1);}
+Stmt : Exp SEMI {$$ = build_tree("Stmt", 2, $1, $2); $$->next_list = NULL;}
+    | CompSt {$$ = build_tree("Stmt", 1, $1); $$->next_list = $1->next_list;}
     | RETURN Exp SEMI {$$ = build_tree("Stmt", 3, $1, $2, $3); return_type_check($2); return_gen($2);}
     | IF SLP Exp SRP M Stmt %prec LOWER_THAN_ELSE 
         {
             $$ = build_tree("Stmt", 5, $1, $2, $3, $4, $6); 
             condition_type_check($3);
+            if_gen($$, $3, $5, $6);
         }
     | IF SLP Exp SRP M Stmt ELSE N M Stmt 
         {
             $$ = build_tree("Stmt", 7, $1, $2, $3, $4, $6, $7, $10); 
             condition_type_check($3);
+            if_else_gen($$, $3, $5, $6, $8, $9, $10);
         }
     | WHILE M LP {is_in_cond = true;} Exp RP {is_in_cond = false;} M Stmt {
             $$ = build_tree("Stmt", 5, $1, $3, $5, $6, $9);
             condition_type_check($5);
+            while_gen($$, $2, $5, $8, $9);
         }
     | error RP {print_errorB($$->lineno, "");}
     | error SEMI {print_errorB($$->lineno, "");}

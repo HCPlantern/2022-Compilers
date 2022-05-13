@@ -29,4 +29,10 @@ void return_gen(Node* exp);
 void var_dec_gen(Node* vardec);
 void func_dec_gen(Node* id);
 void param_dec_gen(Type arg_type);
+void M_gen(Node* node);
+void N_gen(Node* node);
+
+void if_gen(Node* father, Node* cond_exp, Node* M, Node* stmt);
+void if_else_gen(Node* father, Node* cond_exp, Node* M1, Node* true_stmt, Node* N, Node* M2, Node* false_stmt);
+void while_gen(Node* father, Node* M1, Node* cond_exp, Node* M2, Node* stmt);
 #endif

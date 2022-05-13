@@ -1,4 +1,5 @@
 #include "ir_linkedList.h"
+#include "node.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -48,9 +49,13 @@ void singleIRBackPatch(IR* ir, char* label) {
     }
 }
 
-void backPatch(IRLinkedList* list, char* label) {
+void backPatch(IRLinkedList* list, Node* M) {
+    if (M->backPatched == false) {
+        // M->prev_ir后面插入一条 "LABEL M->label :"
+        M->backPatched = true;
+    }
     while (list != NULL) {
-        singleIRBackPatch(list->ir, label);
+        singleIRBackPatch(list->ir, M->label);
         list = list->next;
     }
 }
