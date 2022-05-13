@@ -32,7 +32,9 @@ void write_file(FILE* f) {
     if (has_syntax_error) return;
     IR* code = ir_list->next;
     while (code != ir_list) {
-        fprintf(f, "%s\n", code->ir);
+        if (0 != strcmp(code->ir, "GOTO")) {
+            fprintf(f, "%s\n", code->ir);
+        }
         code = code->next;
     }
     fclose(f);
