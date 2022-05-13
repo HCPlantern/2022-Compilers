@@ -40,6 +40,7 @@ char* new_label();
 void new_temp_var_list();
 void new_ir_code_list();
 void add_last_ir(char* code);
+void add_next_ir(IR* ir_node, char* code);
 void print_ir();
 
 TempVar* get_temp_var(int type);
