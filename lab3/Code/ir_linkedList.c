@@ -50,6 +50,7 @@ void singleIRBackPatch(IR* ir, char* label) {
 }
 
 void backPatch(IRLinkedList* list, Node* M) {
+    if (list == NULL) return;
     if (M->prev_ir->label_printed == false) {
         char buf[max_single_ir_len];
         sprintf(buf, "LABEL %s :", M->prev_ir->label_next);
