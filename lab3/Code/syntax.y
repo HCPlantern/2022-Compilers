@@ -11,7 +11,8 @@
     extern Node* temp_ExtDef;
     extern bool is_in_compst;
     extern bool is_in_struct;
-    extern Type arg_type;
+    Type arg_type;
+    extern void param_dec_gen(Type arg_type);
     extern void add_args_into_table();
     void check_ExtDef(Node* node);
     void check_ExtDecList(Node* specifier, Node* node);
@@ -119,6 +120,7 @@ ParamDec : Specifier VarDec {
 CompSt : LC {
         new_scope();
         add_args_into_table();
+        param_dec_gen(arg_type);
     } 
       DefList StmtList RC 
         {exit_scope();} 
