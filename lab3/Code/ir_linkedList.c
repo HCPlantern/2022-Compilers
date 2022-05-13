@@ -19,9 +19,18 @@ static IRLinkedList* endOf(IRLinkedList* list) {
     return list;
 }
 
-void merge(IRLinkedList* a, IRLinkedList* b) {
-    IRLinkedList* end = endOf(a);
-    end->next = b;
+IRLinkedList* merge(IRLinkedList* a, IRLinkedList* b) {
+    if (a != NULL && b != NULL) {
+        IRLinkedList* end = endOf(a);
+        end->next = b;
+        return a;
+    }
+    if (a == NULL) {
+        return b;
+    }
+    if (b == NULL) {
+        return a;
+    }
 }
 
 static bool prefix(const char* pre, const char* str) {
