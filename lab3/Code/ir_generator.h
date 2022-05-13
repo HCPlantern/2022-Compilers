@@ -2,6 +2,7 @@
 #define IR_GENERATOR_H
 #include "node.h"
 
+bool is_in_cond;
 void assign_gen(Node* father, Node* lValue, Node* exp);
 void not_gen(Node* father, Node* exp);
 void and_gen(Node* father, Node* exp1, Node* exp2);

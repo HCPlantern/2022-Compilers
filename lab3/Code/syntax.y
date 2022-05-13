@@ -11,6 +11,7 @@
     extern Node* temp_ExtDef;
     extern bool is_in_compst;
     extern bool is_in_struct;
+    extern bool is_in_cond;
     Type arg_type;
     extern void param_dec_gen(Type arg_type);
     extern void add_args_into_table();
@@ -28,7 +29,7 @@
 %token <node> INT FLOAT ID SEMI COMMA ASSIGNOP RELOP PLUS MINUS STAR DIV AND OR DOT NOT TYPE LP RP LB RB LC RC STRUCT RETURN IF ELSE WHILE TILDE 
 
 /* declared non-terminals */
-%type <node> Program ExtDefList ExtDef ExtDecList Specifier StructSpecifier OptTag Tag VarDec FunDec VarList ParamDec CompSt StmtList Stmt DefList Def DecList Dec Exp Args LValue
+%type <node> Program ExtDefList ExtDef ExtDecList Specifier StructSpecifier OptTag Tag VarDec FunDec VarList ParamDec CompSt StmtList Stmt DefList Def DecList Dec Exp Args LValue M N SLP SRP
 
 %right ASSIGNOP
 %left OR
@@ -128,16 +129,31 @@ CompSt : LC {
     | error RC {print_errorB($$->lineno, "");}
     ;
 
-StmtList : Stmt StmtList {$$ = build_tree("StmtList", 2, $1, $2);} 
-    | /* empty */ {$$ = new_node("Epsilon");}
+StmtList : StmtList M Stmt {$$ = build_tree("StmtList", 2, $1, $3);} 
+    | Stmt {$$ = build_tree("StmtList", 1, $1);}
     ;
+
+SLP : LP {$$ = build_tree("SLP", 1, $1); is_in_cond = true;}
+
+SRP : RP {$$ = build_tree("SRP", 1, $1); is_in_cond = false;}
 
 Stmt : Exp SEMI {$$ = build_tree("Stmt", 2, $1, $2);}
     | CompSt {$$ = build_tree("Stmt", 1, $1);}
     | RETURN Exp SEMI {$$ = build_tree("Stmt", 3, $1, $2, $3); return_type_check($2); return_gen($2);}
-    | IF LP Exp RP Stmt %prec LOWER_THAN_ELSE {$$ = build_tree("Stmt", 5, $1, $2, $3, $4, $5); condition_type_check($3);}
-    | IF LP Exp RP Stmt ELSE Stmt {$$ = build_tree("Stmt", 7, $1, $2, $3, $4, $5, $6, $7); condition_type_check($3);}
-    | WHILE LP Exp RP Stmt {$$ = build_tree("Stmt", 5, $1, $2, $3, $4, $5); condition_type_check($3);}
+    | IF SLP Exp SRP M Stmt %prec LOWER_THAN_ELSE 
+        {
+            $$ = build_tree("Stmt", 5, $1, $2, $3, $4, $6); 
+            condition_type_check($3);
+        }
+    | IF SLP Exp SRP M Stmt ELSE N M Stmt 
+        {
+            $$ = build_tree("Stmt", 7, $1, $2, $3, $4, $6, $7, $10); 
+            condition_type_check($3);
+        }
+    | WHILE M LP {is_in_cond = true;} Exp RP {is_in_cond = false;} M Stmt {
+            $$ = build_tree("Stmt", 5, $1, $3, $5, $6, $9);
+            condition_type_check($5);
+        }
     | error RP {print_errorB($$->lineno, "");}
     | error SEMI {print_errorB($$->lineno, "");}
     ;
@@ -177,8 +193,14 @@ Exp : LValue ASSIGNOP Exp {
             assignment_check($$, $1, $3);
             assign_gen($$, $1, $3);
         }
-    | Exp AND Exp {$$ = build_tree("Exp", 3, $1, $2, $3); logical_check($$, $1, $3);}
-    | Exp OR Exp {$$ = build_tree("Exp", 3, $1, $2, $3); logical_check($$, $1, $3);}
+    | Exp AND M Exp {
+            $$ = build_tree("Exp", 3, $1, $2, $4); 
+            logical_check($$, $1, $4);
+        }
+    | Exp OR M Exp {
+            $$ = build_tree("Exp", 3, $1, $2, $4); 
+            logical_check($$, $1, $4);
+        }
     | Exp RELOP Exp {$$ = build_tree("Exp", 3, $1, $2, $3); relop_check($$, $1, $3);}
     | Exp PLUS Exp {
             $$ = build_tree("Exp", 3, $1, $2, $3); 
@@ -270,6 +292,10 @@ LValue : ID {
 Args : Exp COMMA Args {$$ = build_tree("Args", 3, $1, $2, $3);}
     | Exp {$$ = build_tree("Args", 1, $1);}
     ;
+
+M : {}
+
+N : {}
 
 %%
 
