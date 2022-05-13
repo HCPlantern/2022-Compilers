@@ -113,7 +113,7 @@ void and_gen(Node* father, Node* exp1, Node* M, Node* exp2) {
 
 void or_gen(Node* father, Node* exp1, Node* M, Node* exp2) {
     assert(is_in_cond);
-    backPatch(exp1->false_list, M,false);
+    backPatch(exp1->false_list, M, false);
     father->true_list = merge(exp1->true_list, exp2->true_list);
     father->false_list = exp2->false_list;
 }
@@ -528,6 +528,7 @@ void func_dec_gen(Node* id) {
 }
 
 void param_dec_gen(Type arg_type) {
+    if (arg_type == NULL) return;
     FieldList args = arg_type->u.function.args;
     for (int i = 0; i < arg_type->u.function.arg_len; i++) {
         char* ir_var = get_ir_var_by_field(args);
@@ -563,13 +564,13 @@ void N_gen(Node* node) {
 }
 
 void if_gen(Node* father, Node* cond_exp, Node* M, Node* stmt) {
-    backPatch(cond_exp->true_list, M,false);
+    backPatch(cond_exp->true_list, M, false);
     father->next_list = merge(cond_exp->false_list, stmt->next_list);
 }
 
 void if_else_gen(Node* father, Node* cond_exp, Node* M1, Node* true_stmt, Node* N, Node* M2, Node* false_stmt) {
-    backPatch(cond_exp->true_list, M1,false);
-    backPatch(cond_exp->false_list, M2,false);
+    backPatch(cond_exp->true_list, M1, false);
+    backPatch(cond_exp->false_list, M2, false);
     IRLinkedList* temp = merge(true_stmt->next_list, N->next_list);
     father->next_list = merge(temp, false_stmt->next_list);
 }
@@ -577,7 +578,7 @@ void if_else_gen(Node* father, Node* cond_exp, Node* M1, Node* true_stmt, Node* 
 void while_gen(Node* father, Node* M1, Node* cond_exp, Node* M2, Node* stmt) {
     // printf("%s\n", M1->prev_ir->ir);
     // printf("%s\n", M1->label);
-    // 
+    //
 
     // printf("%s\n", M1->prev_ir->ir);
     // printf("%d\n", M1->prev_ir->label_printed);

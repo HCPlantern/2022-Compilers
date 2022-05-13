@@ -12,11 +12,13 @@ extern void check_undefined_func();
 extern void init_read_write_func();
 extern bool has_syntax_error;
 extern bool is_in_cond;
+extern Type arg_type;
 extern Stack stack;
 
 void init() {
     // init stack and table;
     is_in_cond = false;
+    arg_type = NULL;
     stack = new_stack();
     Table table = new_table();
     push(table);
