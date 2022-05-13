@@ -106,14 +106,14 @@ void not_gen(Node* father, Node* exp) {
 
 void and_gen(Node* father, Node* exp1, Node* M, Node* exp2) {
     assert(is_in_cond);
-    backPatch(exp1->true_list, M);
+    backPatch(exp1->true_list, M, false);
     father->true_list = exp2->true_list;
     father->false_list = merge(exp1->false_list, exp2->false_list);
 }
 
 void or_gen(Node* father, Node* exp1, Node* M, Node* exp2) {
     assert(is_in_cond);
-    backPatch(exp1->false_list, M);
+    backPatch(exp1->false_list, M,false);
     father->true_list = merge(exp1->true_list, exp2->true_list);
     father->false_list = exp2->false_list;
 }
@@ -121,8 +121,9 @@ void or_gen(Node* father, Node* exp1, Node* M, Node* exp2) {
 void relop_gen(Node* father, Node* exp1, Node* relop, Node* exp2) {
     assert(is_in_cond);
     char ir[max_single_ir_len];
-    char* relop_neg = relop_negative(relop->data.text);
-    if (!exp1->is_constant && !exp1->is_constant) {
+    // char* relop_neg = relop_negative(relop->data.text);
+    char* relop_neg = relop->data.text;
+    if (!exp1->is_constant && !exp2->is_constant) {
         sprintf(ir, "IF %s %s %s GOTO", exp1->var_in_ir, relop_neg, exp2->var_in_ir);
     } else if (exp1->is_constant && !exp2->is_constant) {
         sprintf(ir, "IF #%d %s %s GOTO", exp1->constant.i, relop_neg, exp2->var_in_ir);
@@ -132,6 +133,8 @@ void relop_gen(Node* father, Node* exp1, Node* relop, Node* exp2) {
         sprintf(ir, "IF #%d %s #%d GOTO", exp1->constant.i, relop_neg, exp2->constant.i);
     }
     add_last_ir(ir);
+    father->true_list = makeList(ir_list->prev);
+    add_last_ir("GOTO");
     father->false_list = makeList(ir_list->prev);
 }
 
@@ -321,12 +324,16 @@ void func_call_gen(Node* father, Node* id, Node* args) {
         exps[arg_len - 1] = exp;
         for (int i = arg_len - 1; i >= 0; i--) {
             char ir[max_single_ir_len];
-            if (exps[i]->type.kind == BASIC) {
-                sprintf(ir, "ARG %s", exps[i]->var_in_ir);
+            if (!exps[i]->is_constant) {
+                if (exps[i]->type.kind == BASIC) {
+                    sprintf(ir, "ARG %s", exps[i]->var_in_ir);
+                } else {
+                    assert(exps[i]->type.kind == STRUCTURE || exps[i]->type.kind == ARRAY);
+                    assert(exps[i]->var_in_ir[0] == '&');
+                    sprintf(ir, "ARG %s", exps[i]->var_in_ir + 1);
+                }
             } else {
-                assert(exps[i]->type.kind == STRUCTURE || exps[i]->type.kind == ARRAY);
-                assert(exps[i]->var_in_ir[0] == '&');
-                sprintf(ir, "ARG %s", exps[i]->var_in_ir + 1);
+                sprintf(ir, "ARG #%d", exps[i]->constant.i);
             }
             add_last_ir(ir);
         }
@@ -452,24 +459,24 @@ void id_gen(Node* father, Node* id) {
     father->is_constant = false;
     father->addr_offset = 0;
     strncpy(father->var_in_ir, ir_var, 10);
-    if (is_in_cond) {
-        char ir[max_single_ir_len];
-        sprintf(ir, "IF %s == #0 GOTO", ir_var);
-        add_last_ir(ir);
-        father->false_list = makeList(ir_list->prev);
-        father->true_list = NULL;
-    }
+    // if (is_in_cond) {
+    //     char ir[max_single_ir_len];
+    //     sprintf(ir, "IF %s == #0 GOTO", ir_var);
+    //     add_last_ir(ir);
+    //     father->false_list = makeList(ir_list->prev);
+    //     father->true_list = NULL;
+    // }
 }
 
 void int_gen(Node* father, Node* int_literal) {
     set_int_const(father, int_literal->data.i);
-    if (is_in_cond) {
-        char ir[max_single_ir_len];
-        sprintf(ir, "IF #%d == #0 GOTO", int_literal->data.i);
-        add_last_ir(ir);
-        father->false_list = makeList(ir_list->prev);
-        father->true_list = NULL;
-    }
+    // if (is_in_cond) {
+    //     char ir[max_single_ir_len];
+    //     sprintf(ir, "IF #%d == #0 GOTO", int_literal->data.i);
+    //     add_last_ir(ir);
+    //     father->false_list = makeList(ir_list->prev);
+    //     father->true_list = NULL;
+    // }
 }
 
 void float_gen(Node* father, Node* float_literal) {
@@ -532,6 +539,7 @@ void param_dec_gen(Type arg_type) {
             sprintf(ir, "PARAM %s", ir_var);
         }
         add_last_ir(ir);
+        args = args->next;
     }
     arg_type = NULL;
 }
@@ -555,20 +563,30 @@ void N_gen(Node* node) {
 }
 
 void if_gen(Node* father, Node* cond_exp, Node* M, Node* stmt) {
-    backPatch(cond_exp->true_list, M);
+    backPatch(cond_exp->true_list, M,false);
     father->next_list = merge(cond_exp->false_list, stmt->next_list);
 }
 
 void if_else_gen(Node* father, Node* cond_exp, Node* M1, Node* true_stmt, Node* N, Node* M2, Node* false_stmt) {
-    backPatch(cond_exp->true_list, M1);
-    backPatch(cond_exp->false_list, M2);
+    backPatch(cond_exp->true_list, M1,false);
+    backPatch(cond_exp->false_list, M2,false);
     IRLinkedList* temp = merge(true_stmt->next_list, N->next_list);
     father->next_list = merge(temp, false_stmt->next_list);
 }
 
 void while_gen(Node* father, Node* M1, Node* cond_exp, Node* M2, Node* stmt) {
-    backPatch(stmt->next_list, M1);
-    backPatch(cond_exp->true_list, M2);
+    // printf("%s\n", M1->prev_ir->ir);
+    // printf("%s\n", M1->label);
+    // 
+
+    // printf("%s\n", M1->prev_ir->ir);
+    // printf("%d\n", M1->prev_ir->label_printed);
+    // printf("%s\n", M1->label);
+    backPatch(stmt->next_list, M1, true);
+    // printf("%d\n", M1->prev_ir->label_printed);
+
+    // backPatch(stmt->next_list, M1);
+    backPatch(cond_exp->true_list, M2, false);
     father->next_list = cond_exp->false_list;
     char buf[max_single_ir_len];
     sprintf(buf, "GOTO %s", M1->label);

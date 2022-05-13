@@ -13,6 +13,6 @@ struct _IRLinkedList {
 
 IRLinkedList* makeList(IR* ir);
 IRLinkedList* merge(IRLinkedList* a, IRLinkedList* b);
-void backPatch(IRLinkedList* linkedList, Node* M);
+void backPatch(IRLinkedList* linkedList, Node* M, bool is_while_M1);
 
 #endif

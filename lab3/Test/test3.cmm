@@ -1,0 +1,11 @@
+int add(int a, int b) {
+    return a + b;
+}
+
+int main() {
+    int a, c;
+    a = 1;
+    c = add(a, 100);
+    write(c);
+    return c;
+}

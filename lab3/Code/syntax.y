@@ -129,7 +129,7 @@ CompSt : LC {
     | error RC {print_errorB($$->lineno, "");}
     ;
 
-StmtList : StmtList M Stmt {$$ = build_tree("StmtList", 2, $1, $3); backPatch($1->next_list, $2); $$->next_list = $3->next_list;} 
+StmtList : StmtList M Stmt {$$ = build_tree("StmtList", 2, $1, $3); backPatch($1->next_list, $2,false); $$->next_list = $3->next_list;} 
     | Stmt {$$ = build_tree("StmtList", 1, $1); $$->next_list = $1->next_list;}
     ;
 
@@ -306,9 +306,9 @@ Args : Exp COMMA Args {$$ = build_tree("Args", 3, $1, $2, $3);}
     | Exp {$$ = build_tree("Args", 1, $1);}
     ;
 
-M : {M_gen($$);}
+M : {$$ = new_node("Epsilon");M_gen($$);}
 
-N : {N_gen($$);}
+N : {$$ = new_node("Epsilon");N_gen($$);}
 
 %%
 

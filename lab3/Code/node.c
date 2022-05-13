@@ -20,7 +20,7 @@ Node* new_node(char* id) {
 
     node->id = (char*) malloc((strlen(id) + 1) * sizeof(char));
     strcpy(node->id, id);
-    if (!strcmp(id, "ID") || !strcmp(id, "TYPE")) {
+    if (!strcmp(id, "ID") || !strcmp(id, "TYPE") || !strcmp(id, "RELOP")) {
         node->data.text = (char*) malloc((strlen(yytext) + 1) * sizeof(char));
         strcpy(node->data.text, yytext);
     }
