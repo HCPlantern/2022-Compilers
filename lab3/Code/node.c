@@ -13,6 +13,10 @@ int start_with_strtof(const char* yytext) {
 Node* new_node(char* id) {
     Node* node = (Node*)malloc(sizeof(Node));
     node->lineno = yylineno;
+    node->label = NULL;
+    node->true_list = NULL;
+    node->false_list = NULL;
+    node->next_list = NULL;
 
     node->id = (char*) malloc((strlen(id) + 1) * sizeof(char));
     strcpy(node->id, id);
@@ -50,6 +54,10 @@ Node* new_node(char* id) {
 /* build a tree for non-terminals and return this node as its value */
 Node* build_tree(char* id, int arg_len, ...) {
     Node* this = (Node*) malloc(sizeof(Node));
+    this->label = NULL;
+    this->true_list = NULL;
+    this->false_list = NULL;
+    this->next_list = NULL;
     this->id = (char*) malloc((strlen(id) + 1) * sizeof(char));
     strcpy(this->id, id);
 
