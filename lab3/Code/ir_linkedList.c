@@ -25,8 +25,15 @@ bool prefix(const char* pre, const char* str) {
     return strncmp(pre, str, strlen(pre)) == 0;
 }
 
+// assume that the "IR" is completed except that it has no label.
 void singleIRBackPatch(IR* ir, char* label) {
-
+    if (prefix("IF", ir->ir) || prefix("GOTO", ir->ir)) {
+        char buf[max_single_ir_len];
+        sprintf(buf, "%s %s", ir->ir, label);
+        sprintf(ir->ir, "%s", buf);
+    } else {
+        assert(0);
+    }
 }
 
 void backPatch(IRLinkedList* list, char* label) {
