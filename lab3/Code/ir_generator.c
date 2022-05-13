@@ -32,7 +32,6 @@ size_t indexOfAssignOp(char* ir) {
 }
 
 void assign_gen(Node* father, Node* lValue, Node* exp) {
-    // TODO
     // for primitive type, check if the last ir's lValue is exp->var_in_ir
     // if true, just modify the last ir,
     // else gen a new ir.
@@ -198,13 +197,25 @@ void star_gen(Node* father, Node* exp1, Node* exp2) {
     add_last_ir(ir);
 }
 
+static int py_div(int a, int b) {
+  if (a < 0)
+    if (b < 0)
+      return -a / -b;
+    else
+      return -(-a / b) - (-a % b != 0 ? 1 : 0);
+  else if (b < 0)
+      return -(a / -b) - (a % -b != 0 ? 1 : 0);
+    else
+      return a / b;
+}
+
 void div_gen(Node* father, Node* exp1, Node* exp2) {
     if (exp1->is_constant && exp2->is_constant) {
         father->is_constant = true;
         if (exp1->type.u.basic == T_INT) {
-            father->constant.i = exp1->constant.i / exp2->constant.i;
+            father->constant.i = py_div(exp1->constant.i, exp2->constant.i);
         } else {
-            father->constant.f = exp1->constant.f / exp2->constant.f;
+            father->constant.f = py_div(exp1->constant.f, exp2->constant.f);
         }
         return;
     }
@@ -226,7 +237,6 @@ void div_gen(Node* father, Node* exp1, Node* exp2) {
 }
 
 void negative_gen(Node* father, Node* exp) {
-    // TODO
     if (exp->is_constant) {
         set_int_const(father, -(exp->constant.i));
     } else {
@@ -255,7 +265,6 @@ void parentheses_reduce(Node* father, Node* exp) {
 
 // special process for read() and write(x)
 void func_call_gen(Node* father, Node* id, Node* args) {
-    // TODO
     FieldList fieldlist = find_any_in_stack(id->data.text);
     Type type = fieldlist->type;
     // handle function "write"
@@ -314,8 +323,7 @@ void array_store_gen(Node* father, Node* array, Node* index) {
     // TODO
 }
 
-void array_load_gen(Node* father, Node* array, Node* index) {
-    // TODO
+void array_access_gen(Node* father, Node* array, Node* index) {
     size_t element_size = get_type_size(&(father->type));
 
     char buf[max_single_ir_len];
@@ -366,7 +374,7 @@ void array_load_gen(Node* father, Node* array, Node* index) {
     }
 }
 
-void field_store_gen(Node* father, Node* base, Node* field) {
+void field_access_gen(Node* father, Node* base, Node* field) {
     // below is the implementation without optimization.
     /*
     char* field_addr_var = get_temp_var(0)->name;
