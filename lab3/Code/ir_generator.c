@@ -122,7 +122,7 @@ void relop_gen(Node* father, Node* exp1, Node* relop, Node* exp2) {
     assert(is_in_cond);
     char ir[max_single_ir_len];
     char* relop_neg = relop_negative(relop->data.text);
-    if (!exp1->is_constant && !exp1->is_constant) {
+    if (!exp1->is_constant && !exp2->is_constant) {
         sprintf(ir, "IF %s %s %s GOTO", exp1->var_in_ir, relop_neg, exp2->var_in_ir);
     } else if (exp1->is_constant && !exp2->is_constant) {
         sprintf(ir, "IF #%d %s %s GOTO", exp1->constant.i, relop_neg, exp2->var_in_ir);
