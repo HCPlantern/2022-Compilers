@@ -10,6 +10,7 @@
 // #define YYDEBUG 1
 
 #include "type.h"
+#include "ir_linkedList.h"
 
 extern int yylineno;
 extern char* yytext;
@@ -44,6 +45,11 @@ typedef struct tree_node {
     } constant;
 
     char var_in_ir[15]; // valid if !is_constant. could be true ir var or temp var.
+    char* label;
+
+    IRLinkedList* true_list;
+    IRLinkedList* false_list;
+    IRLinkedList* next_list;
 } Node;
 
 Node* new_node(char* id);

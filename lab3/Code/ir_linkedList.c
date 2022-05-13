@@ -1,5 +1,8 @@
 #include "ir_linkedList.h"
+#include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <assert.h>
 
 IRLinkedList* makeList(IR* ir) {
     IRLinkedList* list = malloc(sizeof(IRLinkedList));
@@ -16,12 +19,12 @@ static IRLinkedList* endOf(IRLinkedList* list) {
     return list;
 }
 
-void merge(IRLinkedList* a, const IRLinkedList* b) {
+void merge(IRLinkedList* a, IRLinkedList* b) {
     IRLinkedList* end = endOf(a);
     end->next = b;
 }
 
-bool prefix(const char* pre, const char* str) {
+static bool prefix(const char* pre, const char* str) {
     return strncmp(pre, str, strlen(pre)) == 0;
 }
 

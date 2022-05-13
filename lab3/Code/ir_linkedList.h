@@ -11,7 +11,7 @@ struct _IRLinkedList {
 };
 
 IRLinkedList* makeList(IR* ir);
-void merge(IRLinkedList* a, const IRLinkedList* b);
+void merge(IRLinkedList* a, IRLinkedList* b);
 void backPatch(IRLinkedList* linkedList, char* label);
 
 #endif
