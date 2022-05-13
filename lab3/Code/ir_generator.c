@@ -575,6 +575,16 @@ void if_else_gen(Node* father, Node* cond_exp, Node* M1, Node* true_stmt, Node* 
 }
 
 void while_gen(Node* father, Node* M1, Node* cond_exp, Node* M2, Node* stmt) {
+    // printf("%s\n", M1->prev_ir->ir);
+    // printf("%s\n", M1->label);
+    // 
+
+    // printf("%s\n", M1->prev_ir->ir);
+    // printf("%d\n", M1->prev_ir->label_printed);
+    // printf("%s\n", M1->label);
+    // backPatch(stmt->next_list, M1);
+    // printf("%d\n", M1->prev_ir->label_printed);
+
     backPatch(stmt->next_list, M1);
     backPatch(cond_exp->true_list, M2);
     father->next_list = cond_exp->false_list;
