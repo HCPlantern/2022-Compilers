@@ -4,6 +4,7 @@
 #include "ir.h"
 
 typedef struct _IRLinkedList IRLinkedList;
+typedef struct tree_node Node;
 
 struct _IRLinkedList {
     IR* ir;
