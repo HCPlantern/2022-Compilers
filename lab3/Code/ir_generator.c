@@ -121,7 +121,8 @@ void or_gen(Node* father, Node* exp1, Node* M, Node* exp2) {
 void relop_gen(Node* father, Node* exp1, Node* relop, Node* exp2) {
     assert(is_in_cond);
     char ir[max_single_ir_len];
-    char* relop_neg = relop_negative(relop->data.text);
+    // char* relop_neg = relop_negative(relop->data.text);
+    char* relop_neg = relop->data.text;
     if (!exp1->is_constant && !exp2->is_constant) {
         sprintf(ir, "IF %s %s %s GOTO", exp1->var_in_ir, relop_neg, exp2->var_in_ir);
     } else if (exp1->is_constant && !exp2->is_constant) {
@@ -132,6 +133,8 @@ void relop_gen(Node* father, Node* exp1, Node* relop, Node* exp2) {
         sprintf(ir, "IF #%d %s #%d GOTO", exp1->constant.i, relop_neg, exp2->constant.i);
     }
     add_last_ir(ir);
+    father->true_list = makeList(ir_list->prev);
+    add_last_ir("GOTO");
     father->false_list = makeList(ir_list->prev);
 }
 
@@ -321,12 +324,16 @@ void func_call_gen(Node* father, Node* id, Node* args) {
         exps[arg_len - 1] = exp;
         for (int i = arg_len - 1; i >= 0; i--) {
             char ir[max_single_ir_len];
-            if (exps[i]->type.kind == BASIC) {
-                sprintf(ir, "ARG %s", exps[i]->var_in_ir);
+            if (!exps[i]->is_constant) {
+                if (exps[i]->type.kind == BASIC) {
+                    sprintf(ir, "ARG %s", exps[i]->var_in_ir);
+                } else {
+                    assert(exps[i]->type.kind == STRUCTURE || exps[i]->type.kind == ARRAY);
+                    assert(exps[i]->var_in_ir[0] == '&');
+                    sprintf(ir, "ARG %s", exps[i]->var_in_ir + 1);
+                }
             } else {
-                assert(exps[i]->type.kind == STRUCTURE || exps[i]->type.kind == ARRAY);
-                assert(exps[i]->var_in_ir[0] == '&');
-                sprintf(ir, "ARG %s", exps[i]->var_in_ir + 1);
+                sprintf(ir, "ARG #%d", exps[i]->constant.i);
             }
             add_last_ir(ir);
         }
@@ -452,24 +459,24 @@ void id_gen(Node* father, Node* id) {
     father->is_constant = false;
     father->addr_offset = 0;
     strncpy(father->var_in_ir, ir_var, 10);
-    if (is_in_cond) {
-        char ir[max_single_ir_len];
-        sprintf(ir, "IF %s == #0 GOTO", ir_var);
-        add_last_ir(ir);
-        father->false_list = makeList(ir_list->prev);
-        father->true_list = NULL;
-    }
+    // if (is_in_cond) {
+    //     char ir[max_single_ir_len];
+    //     sprintf(ir, "IF %s == #0 GOTO", ir_var);
+    //     add_last_ir(ir);
+    //     father->false_list = makeList(ir_list->prev);
+    //     father->true_list = NULL;
+    // }
 }
 
 void int_gen(Node* father, Node* int_literal) {
     set_int_const(father, int_literal->data.i);
-    if (is_in_cond) {
-        char ir[max_single_ir_len];
-        sprintf(ir, "IF #%d == #0 GOTO", int_literal->data.i);
-        add_last_ir(ir);
-        father->false_list = makeList(ir_list->prev);
-        father->true_list = NULL;
-    }
+    // if (is_in_cond) {
+    //     char ir[max_single_ir_len];
+    //     sprintf(ir, "IF #%d == #0 GOTO", int_literal->data.i);
+    //     add_last_ir(ir);
+    //     father->false_list = makeList(ir_list->prev);
+    //     father->true_list = NULL;
+    // }
 }
 
 void float_gen(Node* father, Node* float_literal) {
@@ -532,6 +539,7 @@ void param_dec_gen(Type arg_type) {
             sprintf(ir, "PARAM %s", ir_var);
         }
         add_last_ir(ir);
+        args = args->next;
     }
     arg_type = NULL;
 }
