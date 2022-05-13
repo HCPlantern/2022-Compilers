@@ -293,9 +293,9 @@ Args : Exp COMMA Args {$$ = build_tree("Args", 3, $1, $2, $3);}
     | Exp {$$ = build_tree("Args", 1, $1);}
     ;
 
-M : {}
+M : {M_gen($$);}
 
-N : {}
+N : {N_gen($$);}
 
 %%
 

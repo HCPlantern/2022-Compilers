@@ -199,15 +199,15 @@ void star_gen(Node* father, Node* exp1, Node* exp2) {
 }
 
 static int py_div(int a, int b) {
-  if (a < 0)
-    if (b < 0)
-      return -a / -b;
+    if (a < 0)
+        if (b < 0)
+            return -a / -b;
+        else
+            return -(-a / b) - (-a % b != 0 ? 1 : 0);
+    else if (b < 0)
+        return -(a / -b) - (a % -b != 0 ? 1 : 0);
     else
-      return -(-a / b) - (-a % b != 0 ? 1 : 0);
-  else if (b < 0)
-      return -(a / -b) - (a % -b != 0 ? 1 : 0);
-    else
-      return a / b;
+        return a / b;
 }
 
 void div_gen(Node* father, Node* exp1, Node* exp2) {
@@ -498,4 +498,16 @@ void param_dec_gen(Type arg_type) {
         add_last_ir(ir);
     }
     arg_type = NULL;
+}
+
+void M_gen(Node* node) {
+    node->label = new_label();
+    char ir[max_single_ir_len];
+    sprintf(ir, "LABEL %s :", node->label);
+    add_last_ir(ir);
+}
+
+void N_gen(Node* node) {
+    add_last_ir("GOTO");
+    node->next_list = makeList(ir_list->prev);
 }
