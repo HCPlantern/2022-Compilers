@@ -46,7 +46,6 @@ typedef struct tree_node {
 
     char var_in_ir[15]; // valid if !is_constant. could be true ir var or temp var.
     char* label;
-    bool backPatched;
     IR* prev_ir;
 
     IRLinkedList* true_list;

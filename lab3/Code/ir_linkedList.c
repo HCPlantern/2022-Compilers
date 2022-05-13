@@ -50,9 +50,9 @@ void singleIRBackPatch(IR* ir, char* label) {
 }
 
 void backPatch(IRLinkedList* list, Node* M) {
-    if (M->backPatched == false) {
-        // M->prev_ir后面插入一条 "LABEL M->label :"
-        M->backPatched = true;
+    if (M->prev_ir->label_printed == false) {
+        // TODO: M->prev_ir后面插入一条 "LABEL M->prev_ir->label_next :"
+        M->prev_ir->label_printed = true;
     }
     while (list != NULL) {
         singleIRBackPatch(list->ir, M->label);

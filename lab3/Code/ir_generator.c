@@ -537,9 +537,16 @@ void param_dec_gen(Type arg_type) {
 }
 
 void M_gen(Node* node) {
+    /*
     node->label = new_label();
     node->prev_ir = ir_list->prev;
     node->backPatched = false;
+    */
+    node->prev_ir = ir_list->prev;
+    if (node->prev_ir->label_next == NULL) {
+        node->prev_ir->label_next = new_label();
+    }
+    node->label = node->prev_ir->label_next;
 }
 
 void N_gen(Node* node) {
@@ -548,13 +555,22 @@ void N_gen(Node* node) {
 }
 
 void if_gen(Node* father, Node* cond_exp, Node* M, Node* stmt) {
-    // TODO
+    backPatch(cond_exp->true_list, M);
+    father->next_list = merge(cond_exp->false_list, stmt->next_list);
 }
 
 void if_else_gen(Node* father, Node* cond_exp, Node* M1, Node* true_stmt, Node* N, Node* M2, Node* false_stmt) {
-    // TODO
+    backPatch(cond_exp->true_list, M1);
+    backPatch(cond_exp->false_list, M2);
+    IRLinkedList* temp = merge(true_stmt->next_list, N->next_list);
+    father->next_list = merge(temp, false_stmt->next_list);
 }
 
 void while_gen(Node* father, Node* M1, Node* cond_exp, Node* M2, Node* stmt) {
-    // TODO
+    backPatch(stmt->next_list, M1);
+    backPatch(cond_exp->true_list, M2);
+    father->next_list = cond_exp->false_list;
+    char buf[max_single_ir_len];
+    sprintf(buf, "GOTO %s", M1->label);
+    add_last_ir(buf);
 }
