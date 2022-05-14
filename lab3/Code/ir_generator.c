@@ -601,3 +601,15 @@ void while_gen(Node* father, Node* M1, Node* cond_exp, Node* M2, Node* stmt) {
     sprintf(buf, "GOTO %s", M1->label);
     add_last_ir(buf);
 }
+
+void exp_for_if_gen(Node* exp) {
+    if (exp->child->sibling != NULL && 0 != strcmp(">", exp->child->sibling->id) && 0 != strcmp("<", exp->child->sibling->id) && 0 != strcmp("!=", exp->child->sibling->id) && 0 != strcmp("<=", exp->child->sibling->id) && 0 != strcmp(">=", exp->child->sibling->id) && 0 != strcmp("==", exp->child->sibling->id) && 0 == strcmp("ID", exp->child->id)) {
+        char ir[max_single_ir_len];
+        sprintf(ir, "IF %s != #0 GOTO", exp->var_in_ir);
+        add_last_ir(ir);
+        exp->true_list = makeList(ir_list->prev);
+        add_last_ir("GOTO");
+        exp->false_list = makeList(ir_list->prev);
+        
+    }
+}
