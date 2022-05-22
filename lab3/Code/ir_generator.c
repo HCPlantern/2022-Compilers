@@ -81,23 +81,23 @@ void assign_gen(Node* father, Node* lValue, Node* exp) {
     }
 }
 
-char* relop_negative(char* relop) {
-    char* res = malloc(sizeof(char) * 3);
-    if (!strcmp(relop, "==")) {
-        strcpy(res, "!=");
-    } else if (!strcmp(relop, "!=")) {
-        strcpy(res, "==");
-    } else if (!strcmp(relop, ">")) {
-        strcpy(res, "<=");
-    } else if (!strcmp(relop, "<")) {
-        strcpy(res, ">=");
-    } else if (!strcmp(relop, ">=")) {
-        strcpy(res, "<");
-    } else if (!strcmp(relop, "<=")) {
-        strcpy(res, ">");
-    }
-    return res;
-}
+// char* relop_negative(char* relop) {
+//     char* res = malloc(sizeof(char) * 3);
+//     if (!strcmp(relop, "==")) {
+//         strcpy(res, "!=");
+//     } else if (!strcmp(relop, "!=")) {
+//         strcpy(res, "==");
+//     } else if (!strcmp(relop, ">")) {
+//         strcpy(res, "<=");
+//     } else if (!strcmp(relop, "<")) {
+//         strcpy(res, ">=");
+//     } else if (!strcmp(relop, ">=")) {
+//         strcpy(res, "<");
+//     } else if (!strcmp(relop, "<=")) {
+//         strcpy(res, ">");
+//     }
+//     return res;
+// }
 
 void not_gen(Node* father, Node* exp) {
     // assert(is_in_cond);
@@ -628,14 +628,43 @@ void exp_for_if_gen(Node* exp) {
         exp->true_list = makeList(ir_list->prev);
         add_last_ir("GOTO");
         exp->false_list = makeList(ir_list->prev);
-        
     }
 }
 
 void trans_bool_to_value_gen(Node* exp) {
+    if (!exp->is_bool) {
+        return;
+    }
+    exp->is_bool = false;
+    char* temp_var = get_temp_var(0)->name;
+    strncpy(exp->var_in_ir, temp_var, 10);
 
+    Node* M_true = new_node("Epsilon");
+    M_gen(M_true);
+    backPatch(exp->true_list, M_true, false);
+    char ir_true[max_single_ir_len];
+    sprintf(ir_true, "%s := #1", temp_var);
+
+    Node* M_false = new_node("Epsilon");
+    M_gen(M_false);
+    backPatch(exp->false_list, M_false, false);
+    char ir_false[max_single_ir_len];
+    sprintf(ir_false, "%s := #0", temp_var);
 }
 
 void trans_value_to_bool_gen(Node* exp) {
-
+    if (exp->is_bool) {
+        return;
+    }
+    exp->is_bool = true;
+    char ir[max_single_ir_len];
+    if (exp->is_constant) {
+        sprintf(ir, "IF #%d != #0 GOTO", exp->constant.i);
+    } else if (!exp->is_constant) {
+        sprintf(ir, "IF %s != #0 GOTO", exp->data.text);
+    }
+    add_last_ir(ir);
+    exp->true_list = makeList(ir_list->prev);
+    add_last_ir("GOTO");
+    exp->false_list = makeList(ir_list->prev);
 }
