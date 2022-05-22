@@ -302,6 +302,7 @@ void parentheses_reduce(Node* father, Node* exp) {
 
 // special process for read() and write(x)
 void func_call_gen(Node* father, Node* id, Node* args) {
+    father->is_bool = false;
     FieldList fieldlist = find_any_in_stack(id->data.text);
     Type type = fieldlist->type;
     // handle function "write"
