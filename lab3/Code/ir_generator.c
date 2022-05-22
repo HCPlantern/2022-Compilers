@@ -292,7 +292,7 @@ void parentheses_reduce(Node* father, Node* exp) {
         strncpy(father->var_in_ir, exp->var_in_ir, 10);
     }
 
-    if (is_in_cond) {
+    if (exp->is_bool) {
         father->true_list = exp->true_list;
         father->false_list = exp->false_list;
     }
