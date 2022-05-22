@@ -210,47 +210,54 @@ Exp : LValue ASSIGNOP Exp {
             assignment_check($$, $1, $3);
             assign_gen($$, $1, $3);
         }
-    | Exp AND {trans_bool_to_value_gen($1);} M Exp {
+    | Exp AND {trans_value_to_bool_gen($1);} M Exp {
+            trans_value_to_bool_gen($5);
             current_exp = $$;
             $$ = build_tree("Exp", 3, $1, $2, $5); 
             logical_check($$, $1, $5);
             and_gen($$, $1, $4, $5);
         }
-    | Exp OR M Exp {
+    | Exp OR {trans_value_to_bool_gen($1);} M Exp {
+            trans_value_to_bool_gen($5);
+            current_exp = $$;
+            $$ = build_tree("Exp", 3, $1, $2, $5); 
+            logical_check($$, $1, $5);
+            or_gen($$, $1, $4, $5);
+        }
+    | Exp RELOP {trans_bool_to_value_gen($1);} Exp {
+            trans_bool_to_value_gen($4);
             current_exp = $$;
             $$ = build_tree("Exp", 3, $1, $2, $4); 
-            logical_check($$, $1, $4);
-            or_gen($$, $1, $3, $4);
+            relop_check($$, $1, $4);
+            relop_gen($$, $1, $2, $4);
         }
-    | Exp RELOP Exp {
+    | Exp PLUS {trans_bool_to_value_gen($1);} Exp {
+            trans_bool_to_value_gen($4);
             current_exp = $$;
-            $$ = build_tree("Exp", 3, $1, $2, $3); 
-            relop_check($$, $1, $3);
-            relop_gen($$, $1, $2, $3);
+            $$ = build_tree("Exp", 3, $1, $2, $4); 
+            binary_cal_check($$, $1, $4);
+            plus_gen($$, $1, $4); 
         }
-    | Exp PLUS Exp {
+    | Exp MINUS {trans_bool_to_value_gen($1);} Exp {
+            trans_bool_to_value_gen($4);
             current_exp = $$;
-            $$ = build_tree("Exp", 3, $1, $2, $3); 
-            binary_cal_check($$, $1, $3);
-            plus_gen($$, $1, $3); 
+            $$ = build_tree("Exp", 3, $1, $2, $4);
+            binary_cal_check($$, $1, $4);
+            minus_gen($$, $1, $4);
         }
-    | Exp MINUS Exp {
+    | Exp STAR {trans_bool_to_value_gen($1);} Exp {
+            trans_bool_to_value_gen($4);
             current_exp = $$;
-            $$ = build_tree("Exp", 3, $1, $2, $3);
-            binary_cal_check($$, $1, $3);
-            minus_gen($$, $1, $3);
+            $$ = build_tree("Exp", 3, $1, $2, $4);
+            binary_cal_check($$, $1, $4);
+            star_gen($$, $1, $4);
         }
-    | Exp STAR Exp {
+    | Exp DIV {trans_bool_to_value_gen($1);} Exp {
+            trans_bool_to_value_gen($4);
             current_exp = $$;
-            $$ = build_tree("Exp", 3, $1, $2, $3);
-            binary_cal_check($$, $1, $3);
-            star_gen($$, $1, $3);
-        }
-    | Exp DIV Exp {
-            current_exp = $$;
-            $$ = build_tree("Exp", 3, $1, $2, $3);
-            binary_cal_check($$, $1, $3);
-            div_gen($$, $1, $3);
+            $$ = build_tree("Exp", 3, $1, $2, $4);
+            binary_cal_check($$, $1, $4);
+            div_gen($$, $1, $4);
         }
     | LP Exp RP {
             current_exp = $$;
@@ -259,12 +266,14 @@ Exp : LValue ASSIGNOP Exp {
             parentheses_reduce($$, $2);
         }
     | MINUS Exp {
+            trans_bool_to_value_gen($2);
             current_exp = $$;
             $$ = build_tree("Exp", 2, $1, $2);
             minus_check($$, $2);
             negative_gen($$, $2);
         }
     | NOT Exp {
+            trans_value_to_bool_gen($2);
             current_exp = $$;
             $$ = build_tree("Exp", 2, $1, $2); 
             not_check($$, $2);
@@ -286,6 +295,7 @@ Exp : LValue ASSIGNOP Exp {
             func_call_gen($$, $1, NULL);
         }
     | LValue LB Exp RB {
+            trans_bool_to_value_gen($3);
             current_exp = $$;
             $$ = build_tree("Exp", 4, $1, $2, $3, $4);
             array_check($$, $1, $3);
@@ -324,6 +334,7 @@ LValue : ID {
         id_gen($$, $1);
         }
     | LValue LB Exp RB {
+            trans_bool_to_value_gen($3);
             current_exp = $$;
             $$ = build_tree("Exp", 4, $1, $2, $3, $4);
             array_check($$, $1, $3);
@@ -338,8 +349,8 @@ LValue : ID {
     | error {print_errorB($$->lineno, ", the left-hand side of an assignment must be a variable.");}
     ;
 
-Args : Exp COMMA Args {$$ = build_tree("Args", 3, $1, $2, $3);}
-    | Exp {$$ = build_tree("Args", 1, $1);}
+Args : Exp COMMA {trans_bool_to_value_gen($1);} Args {$$ = build_tree("Args", 3, $1, $2, $4);}
+    | Exp {trans_bool_to_value_gen($1); $$ = build_tree("Args", 1, $1);}
     ;
 
 M : {$$ = new_node("Epsilon");M_gen($$);}
