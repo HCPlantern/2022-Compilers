@@ -37,6 +37,7 @@ void assign_gen(Node* father, Node* lValue, Node* exp) {
     // else gen a new ir.
     // same optimization could be applied to READ
 
+    father->is_bool = false;
     char buf[max_single_ir_len];
     if (exp->type.kind == BASIC) {
         if (exp->is_constant) {
@@ -99,27 +100,31 @@ char* relop_negative(char* relop) {
 }
 
 void not_gen(Node* father, Node* exp) {
-    assert(is_in_cond);
+    // assert(is_in_cond);
+    father->is_bool = true;
     father->true_list = exp->false_list;
     father->false_list = exp->true_list;
 }
 
 void and_gen(Node* father, Node* exp1, Node* M, Node* exp2) {
-    assert(is_in_cond);
+    // assert(is_in_cond);
+    father->is_bool = true;
     backPatch(exp1->true_list, M, false);
     father->true_list = exp2->true_list;
     father->false_list = merge(exp1->false_list, exp2->false_list);
 }
 
 void or_gen(Node* father, Node* exp1, Node* M, Node* exp2) {
-    assert(is_in_cond);
+    // assert(is_in_cond);
+    father->is_bool = true;
     backPatch(exp1->false_list, M, false);
     father->true_list = merge(exp1->true_list, exp2->true_list);
     father->false_list = exp2->false_list;
 }
 
 void relop_gen(Node* father, Node* exp1, Node* relop, Node* exp2) {
-    assert(is_in_cond);
+    // assert(is_in_cond);
+    father->is_bool = true;
     char ir[max_single_ir_len];
     // char* relop_neg = relop_negative(relop->data.text);
     char* relop_neg = relop->data.text;
@@ -139,6 +144,7 @@ void relop_gen(Node* father, Node* exp1, Node* relop, Node* exp2) {
 }
 
 void plus_gen(Node* father, Node* exp1, Node* exp2) {
+    father->is_bool = false;
     if (exp1->is_constant && exp2->is_constant) {
         father->is_constant = true;
         if (exp1->type.u.basic == T_INT) {
@@ -166,6 +172,7 @@ void plus_gen(Node* father, Node* exp1, Node* exp2) {
 }
 
 void minus_gen(Node* father, Node* exp1, Node* exp2) {
+    father->is_bool = false;
     if (exp1->is_constant && exp2->is_constant) {
         father->is_constant = true;
         if (exp1->type.u.basic == T_INT) {
@@ -193,6 +200,7 @@ void minus_gen(Node* father, Node* exp1, Node* exp2) {
 }
 
 void star_gen(Node* father, Node* exp1, Node* exp2) {
+    father->is_bool = false;
     if (exp1->is_constant && exp2->is_constant) {
         father->is_constant = true;
         if (exp1->type.u.basic == T_INT) {
@@ -232,6 +240,7 @@ static int py_div(int a, int b) {
 }
 
 void div_gen(Node* father, Node* exp1, Node* exp2) {
+    father->is_bool = false;
     if (exp1->is_constant && exp2->is_constant) {
         father->is_constant = true;
         if (exp1->type.u.basic == T_INT) {
@@ -259,6 +268,7 @@ void div_gen(Node* father, Node* exp1, Node* exp2) {
 }
 
 void negative_gen(Node* father, Node* exp) {
+    father->is_bool = false;
     if (exp->is_constant) {
         set_int_const(father, -(exp->constant.i));
     } else {
@@ -272,6 +282,7 @@ void negative_gen(Node* father, Node* exp) {
 }
 
 void parentheses_reduce(Node* father, Node* exp) {
+    father->is_bool = exp->is_bool;
     if (exp->is_constant) {
         father->is_constant = true;
         father->constant.i = exp->constant.i;
@@ -354,6 +365,7 @@ void array_store_gen(Node* father, Node* array, Node* index) {
 }
 
 void array_access_gen(Node* father, Node* array, Node* index) {
+    father->is_bool = false;
     size_t element_size = get_type_size(&(father->type));
 
     char buf[max_single_ir_len];
@@ -425,6 +437,7 @@ void field_access_gen(Node* father, Node* base, Node* field) {
 
     // below is the implementation with optimization.
     ///*
+    father->is_bool = false;
     int offset = get_struct_field_offset(&(base->type), field->data.text);
 
     // printf("%d\n", offset); // offset is always -1.
@@ -455,6 +468,7 @@ void field_load_gen(Node* father, Node* base, Node* field) {
 }
 
 void id_gen(Node* father, Node* id) {
+    father->is_bool = false;
     char* ir_var = get_ir_var_by_name(id->data.text);
     father->is_constant = false;
     father->addr_offset = 0;
@@ -469,6 +483,7 @@ void id_gen(Node* father, Node* id) {
 }
 
 void int_gen(Node* father, Node* int_literal) {
+    father->is_bool = false;
     set_int_const(father, int_literal->data.i);
     // if (is_in_cond) {
     //     char ir[max_single_ir_len];
@@ -480,6 +495,7 @@ void int_gen(Node* father, Node* int_literal) {
 }
 
 void float_gen(Node* father, Node* float_literal) {
+    father->is_bool = false;
     set_float_const(father, float_literal->data.f);
 }
 
@@ -603,6 +619,7 @@ void while_gen(Node* father, Node* M1, Node* cond_exp, Node* M2, Node* stmt) {
 }
 
 void exp_for_if_gen(Node* exp) {
+    // TODO
     if (exp->child->sibling != NULL && 0 != strcmp(">", exp->child->sibling->id) && 0 != strcmp("<", exp->child->sibling->id) && 0 != strcmp("!=", exp->child->sibling->id) && 0 != strcmp("<=", exp->child->sibling->id) && 0 != strcmp(">=", exp->child->sibling->id) && 0 != strcmp("==", exp->child->sibling->id) && 0 == strcmp("ID", exp->child->id)) {
         char ir[max_single_ir_len];
         sprintf(ir, "IF %s != #0 GOTO", exp->var_in_ir);
