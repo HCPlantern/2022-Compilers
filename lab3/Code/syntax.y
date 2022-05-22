@@ -11,7 +11,6 @@
     extern Node* temp_ExtDef;
     extern bool is_in_compst;
     extern bool is_in_struct;
-    extern bool is_in_cond;
     Type arg_type;
     extern void param_dec_gen(Type arg_type);
     extern void add_args_into_table();
@@ -132,9 +131,9 @@ StmtList : StmtList M Stmt {$$ = build_tree("StmtList", 2, $1, $3); backPatch($1
     | Stmt {$$ = build_tree("StmtList", 1, $1); $$->next_list = $1->next_list;}
     ;
 
-SLP : LP {$$ = build_tree("SLP", 1, $1); is_in_cond = true;}
+SLP : LP {$$ = build_tree("SLP", 1, $1);}
 
-SRP : RP {$$ = build_tree("SRP", 1, $1); is_in_cond = false;print_tree(current_exp, 0); trans_value_to_bool_gen(current_exp);}
+SRP : RP {$$ = build_tree("SRP", 1, $1);trans_value_to_bool_gen(current_exp);}
 
 Stmt : Exp SEMI {
     trans_bool_to_value_gen($1);
