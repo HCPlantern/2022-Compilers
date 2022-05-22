@@ -45,14 +45,14 @@ void assign_gen(Node* father, Node* lValue, Node* exp) {
             sprintf(buf, "%s := #%d", lValue->var_in_ir, exp->constant.i);
             add_last_ir(buf);
             return;
-        } else if (prefix(exp->var_in_ir, ir_list->prev->ir) && lValue->var_in_ir[0] != '*') {
-            father->is_constant = false;
-            strncpy(father->var_in_ir, lValue->var_in_ir, 10);
-            size_t colon_index = indexOfAssignOp(ir_list->prev->ir);
-            assert(colon_index > 0);
-            sprintf(buf, "%s %s", lValue->var_in_ir, ir_list->prev->ir + colon_index);  // WARNING: make sure that lValue has a var_in_ir.
-            strncpy(ir_list->prev->ir, buf, max_single_ir_len);
-            return;
+        // } else if (prefix(exp->var_in_ir, ir_list->prev->ir) && lValue->var_in_ir[0] != '*') {
+        //     father->is_constant = false;
+        //     strncpy(father->var_in_ir, lValue->var_in_ir, 10);
+        //     size_t colon_index = indexOfAssignOp(ir_list->prev->ir);
+        //     assert(colon_index > 0);
+        //     sprintf(buf, "%s %s", lValue->var_in_ir, ir_list->prev->ir + colon_index);  // WARNING: make sure that lValue has a var_in_ir.
+        //     strncpy(ir_list->prev->ir, buf, max_single_ir_len);
+        //     return;
         } else {
             father->is_constant = false;
             strncpy(father->var_in_ir, lValue->var_in_ir, 10);
@@ -644,12 +644,14 @@ void trans_bool_to_value_gen(Node* exp) {
     backPatch(exp->true_list, M_true, false);
     char ir_true[max_single_ir_len];
     sprintf(ir_true, "%s := #1", temp_var);
+    add_last_ir(ir_true);
 
     Node* M_false = new_node("Epsilon");
     M_gen(M_false);
     backPatch(exp->false_list, M_false, false);
     char ir_false[max_single_ir_len];
     sprintf(ir_false, "%s := #0", temp_var);
+    add_last_ir(ir_false);
 }
 
 void trans_value_to_bool_gen(Node* exp) {
@@ -661,7 +663,7 @@ void trans_value_to_bool_gen(Node* exp) {
     if (exp->is_constant) {
         sprintf(ir, "IF #%d != #0 GOTO", exp->constant.i);
     } else if (!exp->is_constant) {
-        sprintf(ir, "IF %s != #0 GOTO", exp->data.text);
+        sprintf(ir, "IF %s != #0 GOTO", exp->var_in_ir);
     }
     add_last_ir(ir);
     exp->true_list = makeList(ir_list->prev);
