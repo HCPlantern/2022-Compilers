@@ -17,6 +17,7 @@ Node* new_node(char* id) {
     node->true_list = NULL;
     node->false_list = NULL;
     node->next_list = NULL;
+    node->is_bool = false;
 
     node->id = (char*) malloc((strlen(id) + 1) * sizeof(char));
     strcpy(node->id, id);
@@ -58,6 +59,7 @@ Node* build_tree(char* id, int arg_len, ...) {
     this->true_list = NULL;
     this->false_list = NULL;
     this->next_list = NULL;
+    this->is_bool = false;
     this->id = (char*) malloc((strlen(id) + 1) * sizeof(char));
     strcpy(this->id, id);
 
