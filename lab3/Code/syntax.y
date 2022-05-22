@@ -134,11 +134,23 @@ StmtList : StmtList M Stmt {$$ = build_tree("StmtList", 2, $1, $3); backPatch($1
 
 SLP : LP {$$ = build_tree("SLP", 1, $1); is_in_cond = true;}
 
-SRP : RP {$$ = build_tree("SRP", 1, $1); is_in_cond = false; exp_for_if_gen(current_exp);}
+SRP : RP {$$ = build_tree("SRP", 1, $1); is_in_cond = false; trans_value_to_bool_gen(current_exp);}
 
-Stmt : Exp SEMI {$$ = build_tree("Stmt", 2, $1, $2); $$->next_list = NULL;}
-    | CompSt {$$ = build_tree("Stmt", 1, $1); $$->next_list = $1->next_list;}
-    | RETURN Exp SEMI {$$ = build_tree("Stmt", 3, $1, $2, $3); return_type_check($2); return_gen($2);}
+Stmt : Exp SEMI {
+    trans_bool_to_value_gen($1);
+    $$ = build_tree("Stmt", 2, $1, $2);
+    $$->next_list = NULL;
+    }
+    | CompSt {
+        $$ = build_tree("Stmt", 1, $1);
+        $$->next_list = $1->next_list;
+        }
+    | RETURN Exp SEMI {
+        trans_bool_to_value_gen($2);
+        $$ = build_tree("Stmt", 3, $1, $2, $3);
+        return_type_check($2);
+        return_gen($2);
+        }
     | IF SLP Exp SRP M Stmt %prec LOWER_THAN_ELSE 
         {
             $$ = build_tree("Stmt", 5, $1, $2, $3, $4, $6); 
@@ -183,6 +195,7 @@ Dec : VarDec {
             var_dec_gen($1);
         } 
       ASSIGNOP Exp {
+            trans_bool_to_value_gen($4);
             $$ = build_tree("Dec", 3, $1, $3, $4); 
             dec_assign_check($$, $1, $4);
             assign_gen($$, $1, $4);
@@ -192,15 +205,16 @@ Dec : VarDec {
 /* Expressions */
 Exp : LValue ASSIGNOP Exp {
             current_exp = $$;
+            trans_bool_to_value_gen($3);
             $$ = build_tree("Exp", 3, $1, $2, $3);
             assignment_check($$, $1, $3);
             assign_gen($$, $1, $3);
         }
-    | Exp AND M Exp {
+    | Exp AND {trans_bool_to_value_gen($1);} M Exp {
             current_exp = $$;
-            $$ = build_tree("Exp", 3, $1, $2, $4); 
-            logical_check($$, $1, $4);
-            and_gen($$, $1, $3, $4);
+            $$ = build_tree("Exp", 3, $1, $2, $5); 
+            logical_check($$, $1, $5);
+            and_gen($$, $1, $4, $5);
         }
     | Exp OR M Exp {
             current_exp = $$;

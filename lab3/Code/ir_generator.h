@@ -37,4 +37,6 @@ void if_gen(Node* father, Node* cond_exp, Node* M, Node* stmt);
 void if_else_gen(Node* father, Node* cond_exp, Node* M1, Node* true_stmt, Node* N, Node* M2, Node* false_stmt);
 void while_gen(Node* father, Node* M1, Node* cond_exp, Node* M2, Node* stmt);
 void exp_for_if_gen(Node* exp);
+void trans_bool_to_value_gen(Node* exp);
+void trans_value_to_bool_gen(Node* exp);
 #endif

@@ -631,3 +631,11 @@ void exp_for_if_gen(Node* exp) {
         
     }
 }
+
+void trans_bool_to_value_gen(Node* exp) {
+
+}
+
+void trans_value_to_bool_gen(Node* exp) {
+
+}
