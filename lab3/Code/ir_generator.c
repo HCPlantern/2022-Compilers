@@ -645,12 +645,17 @@ void trans_bool_to_value_gen(Node* exp) {
     char ir_true[max_single_ir_len];
     sprintf(ir_true, "%s := #1", temp_var);
     add_last_ir(ir_true);
+    char* label_exit = new_label();
+    sprintf(ir_true, "GOTO %s", label_exit);
+    add_last_ir(ir_true);
 
     Node* M_false = new_node("Epsilon");
     M_gen(M_false);
     backPatch(exp->false_list, M_false, false);
     char ir_false[max_single_ir_len];
     sprintf(ir_false, "%s := #0", temp_var);
+    add_last_ir(ir_false);
+    sprintf(ir_false, "LABEL %s :", label_exit);
     add_last_ir(ir_false);
 }
 
