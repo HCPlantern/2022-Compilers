@@ -45,7 +45,7 @@ void assign_gen(Node* father, Node* lValue, Node* exp) {
             sprintf(buf, "%s := #%d", lValue->var_in_ir, exp->constant.i);
             add_last_ir(buf);
             return;
-        } else if (!exp->is_bool && prefix(exp->var_in_ir, ir_list->prev->ir) && lValue->var_in_ir[0] != '*') {
+        } else if (!exp->is_bool && exp->var_in_ir[2] == 't' && prefix(exp->var_in_ir, ir_list->prev->ir) && lValue->var_in_ir[0] != '*') {
             father->is_constant = false;
             strncpy(father->var_in_ir, lValue->var_in_ir, 10);
             size_t colon_index = indexOfAssignOp(ir_list->prev->ir);
