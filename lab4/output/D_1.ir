@@ -1,0 +1,175 @@
+FUNCTION process :
+PARAM iv0
+iv1 := #4
+it0 := iv0 + #12
+iv2 := it0
+it1 := iv0 + #12
+iv2 := it1
+iv1 := iv1
+it2 := iv1 + #0
+it3 := it2 - #0
+iv1 := it3
+it4 := iv1 * #1
+it5 := it4 / #1
+iv1 := it5
+it6 := iv1 + #32
+it7 := it6 - #2
+iv1 := it7
+it8 := iv0 * iv1
+it9 := iv0 * iv1
+it10 := it8 + it9
+it11 := iv1 * iv0
+it12 := it10 - it11
+it13 := it12 - iv0
+it14 := iv1 * iv0
+it15 := it13 + it14
+it16 := iv1 * iv1
+it17 := it15 + it16
+it18 := iv0 / iv0
+it19 := it17 + it18
+it20 := it19 - #12
+it21 := it20 + #29
+iv1 := it21
+it22 := iv1 * #3
+it23 := it22 + #336
+it24 := iv0 * #12
+it25 := it24 / #4
+it26 := it23 - it25
+it27 := it26 + #20
+it28 := it27 - #20
+it29 := it28 - #0
+iv1 := it29
+RETURN iv1
+FUNCTION mod :
+PARAM iv3
+PARAM iv4
+it30 := iv3 / iv4
+it31 := it30 * iv4
+it32 := iv3 - it31
+RETURN it32
+FUNCTION main :
+iv5 := #5
+iv6 := #7
+iv7 := #11
+it33 := iv5 + iv6
+iv8 := it33
+it34 := iv5 + iv6
+it35 := iv7 / #1
+it36 := it34 + it35
+iv9 := it36
+it37 := iv5 * iv6
+it38 := it37 - iv7
+iv10 := it38
+iv11 := #42
+iv12 := #4
+iv13 := #0
+iv14 := #0
+DEC v15 16
+it39 := iv5 + iv6
+it40 := it39 + iv7
+it41 := it40 + #1500
+it42 := it41 - iv10
+iv10 := it42
+LABEL label8 :
+IF iv13 >= #4 GOTO label12
+it43 := #15 * iv13
+iv14 := it43
+it44 := iv13 * #4
+it45 := #0 + it44
+it46 := &v15 + it45
+*it46 := iv14
+it47 := iv13 + #1
+iv13 := it47
+GOTO label8
+LABEL label12 :
+IF iv13 >= iv10 GOTO label27
+it48 := iv12 * iv12
+iv18 := it48
+it49 := iv11 + iv18
+it50 := iv13 * #12
+it51 := it49 + it50
+it52 := #4 * iv12
+it53 := it51 - it52
+it54 := it53 + #5
+it55 := it54 + #2
+iv11 := it55
+ARG iv10
+it56 := CALL process
+it57 := #2 * iv5
+it58 := it56 + it57
+it59 := it58 - iv10
+it60 := iv7 * iv8
+it61 := it59 + it60
+iv16 := it61
+ARG #2
+ARG iv10
+it62 := CALL mod
+IF it62 <= #0 GOTO label21
+it63 := iv13 + #3
+iv17 := it63
+it64 := iv17 - #1
+iv17 := it64
+it65 := iv17 + #3
+iv17 := it65
+it66 := iv17 - #6
+iv17 := it66
+LABEL label21 :
+ARG iv5
+it67 := CALL process
+it68 := iv5 + #3
+it69 := it68 - #2
+it70 := it69 - #1
+ARG it70
+it71 := CALL process
+IF it67 != it71 GOTO label24
+it72 := iv10 - #2
+it73 := it72 + #1
+iv10 := it73
+ARG #4
+ARG iv10
+it74 := CALL mod
+it75 := it74 * #4
+it76 := #0 + it75
+it77 := &v15 + it76
+ARG #4
+ARG iv10
+it78 := CALL mod
+it79 := it78 * #4
+it80 := #0 + it79
+it81 := &v15 + it80
+it82 := *it81 + iv17
+it83 := it82 + iv16
+it84 := it83 - iv9
+*it77 := it84
+LABEL label24 :
+it85 := iv5 + #2
+it86 := it85 + #1
+iv5 := it86
+it87 := iv13 + #1
+iv13 := it87
+it88 := iv13 + #1
+iv13 := it88
+GOTO label12
+LABEL label27 :
+it89 := iv5 + iv6
+iv5 := it89
+it90 := iv5 + iv6
+iv6 := it90
+it91 := iv5 + iv6
+iv7 := it91
+it92 := iv5 + iv6
+iv10 := it92
+it93 := iv5 + iv6
+iv16 := it93
+it94 := iv7 + iv10
+it95 := it94 + iv16
+WRITE it95
+it96 := &v15
+WRITE *it96
+it97 := &v15 + #4
+WRITE *it97
+it98 := &v15 + #8
+WRITE *it98
+it99 := &v15 + #12
+WRITE *it99
+RETURN #0

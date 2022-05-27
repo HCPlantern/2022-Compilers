@@ -1,0 +1,29 @@
+FUNCTION main :
+iv1 := #1
+iv2 := #1
+READ it0
+iv4 := it0
+IF iv4 >= #1 GOTO label4
+WRITE #0
+GOTO label15
+LABEL label4 :
+IF iv4 != #1 GOTO label7
+IF iv4 != #2 GOTO label7
+WRITE #1
+GOTO label15
+LABEL label7 :
+IF iv4 <= #2 GOTO label15
+iv0 := #3
+LABEL label9 :
+IF iv0 > iv4 GOTO label14
+it1 := iv1 + iv2
+iv3 := it1
+iv1 := iv2
+iv2 := iv3
+it2 := iv0 + #1
+iv0 := it2
+GOTO label9
+LABEL label14 :
+WRITE iv3
+LABEL label15 :
+RETURN #0

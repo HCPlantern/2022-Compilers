@@ -3,11 +3,11 @@
 
 #include "stack.h"
 #include "stdbool.h"
+#include "stddef.h"
 #include "stdio.h"
 #include "stdlib.h"
 #include "string.h"
 #include "type.h"
-#include "stddef.h"
 
 extern Stack stack;
 extern bool has_syntax_error;
@@ -197,50 +197,122 @@ char* relop_negative(char* relop) {
     return res;
 }
 
-void ir_optimization() {
+void remove_adjacent_goto_label() {
     IR* curr_ir = ir_list->next;
+    IR* prev_ir;
     IR* next_ir;
     while (curr_ir != ir_list) {
-        if (prefix("IF", curr_ir->ir)) { // optimize goto
-            // change label name
-            size_t blank1 = get_blank_index(curr_ir->ir, 1);
-            size_t blank2 = get_blank_index(curr_ir->ir, 2);
-            size_t blank3 = get_blank_index(curr_ir->ir, 3);
-            size_t blank4 = get_blank_index(curr_ir->ir, 4);
-            size_t blank5 = get_blank_index(curr_ir->ir, 5);
-
-            char var1[max_temp_var_len];
-            char var2[max_temp_var_len];
-            memset(var1, 0, max_temp_var_len);
-            memset(var2, 0, max_temp_var_len);
-            strncpy(var1, curr_ir->ir + blank1, blank2 - blank1 - 1);
-            strncpy(var2, curr_ir->ir + blank3, blank4 - blank3 - 1);
-
-            // get label name
-            next_ir = curr_ir->next;
-            size_t next_ir_label = get_blank_index(next_ir->ir, 1);
-            char label[max_label_len] = {0};
-            strncpy(label, next_ir->ir + next_ir_label, max_label_len);
-
-            // change relop
-            size_t relop_len = blank3 - blank2 - 1;
-            // get relop
-            char* relop = malloc(sizeof(3));
-            memset(relop, 0, 3);
-            strncpy(relop, curr_ir->ir + blank2, relop_len);
-            char* relop_neg = relop_negative(relop);
-            free(relop);
-            
-            char* ir = malloc(sizeof(max_single_ir_len));
-            sprintf(ir, "IF %s %s %s GOTO %s", var1, relop_neg, var2, label);
-            free(curr_ir->ir);
-            curr_ir->ir = ir;
-
-            remove_next_ir(curr_ir);
-            remove_next_ir(curr_ir);
+        next_ir = curr_ir->next;
+        prev_ir = curr_ir->prev;
+        if (prefix("GOTO", curr_ir->ir) && prefix("LABEL", next_ir->ir)) {
+            size_t index1 = get_blank_index(curr_ir->ir, 1);
+            size_t index2 = get_blank_index(next_ir->ir, 1);
+            if (prefix(curr_ir->ir + index1, next_ir->ir + index2)) {
+                remove_next_ir(prev_ir);
+                remove_next_ir(prev_ir);
+                curr_ir = prev_ir->next;
+                continue;
+            }
         }
         curr_ir = curr_ir->next;
     }
+}
+
+void change_if_op_and_label(IR* curr_ir, char* new_label) {
+    size_t blank1 = get_blank_index(curr_ir->ir, 1);
+    size_t blank2 = get_blank_index(curr_ir->ir, 2);
+    size_t blank3 = get_blank_index(curr_ir->ir, 3);
+    size_t blank4 = get_blank_index(curr_ir->ir, 4);
+    size_t blank5 = get_blank_index(curr_ir->ir, 5);
+
+    char var1[max_temp_var_len];
+    char var2[max_temp_var_len];
+    memset(var1, 0, max_temp_var_len);
+    memset(var2, 0, max_temp_var_len);
+    strncpy(var1, curr_ir->ir + blank1, blank2 - blank1 - 1);
+    strncpy(var2, curr_ir->ir + blank3, blank4 - blank3 - 1);
+    size_t relop_len = blank3 - blank2 - 1;  // get relop
+    char* relop = malloc(sizeof(3));
+    memset(relop, 0, 3);
+    strncpy(relop, curr_ir->ir + blank2, relop_len);
+    char* relop_neg = relop_negative(relop);
+    free(relop);
+
+    char* ir = malloc(sizeof(max_single_ir_len));
+    sprintf(ir, "IF %s %s %s GOTO %s", var1, relop_neg, var2, new_label);
+    free(curr_ir->ir);
+    curr_ir->ir = ir;
+}
+
+bool is_used_in_prev_if(IR* curr_ir, char* label) {
+    while (curr_ir != ir_list) {
+        if (prefix("IF", curr_ir->ir)) {
+            size_t blank5 = get_blank_index(curr_ir->ir, 5);
+            char prev_label[max_label_len] = {0};
+            strcpy(prev_label, curr_ir->ir + blank5);
+            if (!strcmp(label, prev_label)) {
+                return true;
+            }
+        }
+        curr_ir = curr_ir->prev;
+    }
+    return false;
+}
+
+void remove_if_goto() {
+    IR* curr_ir = ir_list->next;
+    IR* next_ir;
+    while (curr_ir != ir_list) {
+        if (prefix("IF", curr_ir->ir)) {  // optimize goto
+
+            size_t blank5 = get_blank_index(curr_ir->ir, 5);
+            // get label name
+            char label1[max_label_len] = {0};
+            strcpy(label1, curr_ir->ir + blank5);
+
+            next_ir = curr_ir->next;
+            size_t next_ir_label = get_blank_index(next_ir->ir, 1);
+            char label2[max_label_len] = {0};
+            strncpy(label2, next_ir->ir + next_ir_label, max_label_len);
+
+            if (!prefix(label1, next_ir->next->ir + get_blank_index(next_ir->next->ir, 1))) {
+                curr_ir = curr_ir->next;
+                continue;
+            }
+
+            if (!is_used_in_prev_if(curr_ir, label1)) {
+                change_if_op_and_label(curr_ir, label2);
+                remove_next_ir(curr_ir);
+                remove_next_ir(curr_ir);
+            }
+        }
+        curr_ir = curr_ir->next;
+    }
+}
+
+// void check_adjacent_if() {
+//     IR* curr_ir = ir_list->prev;
+//     IR* prev_ir;
+//     while (curr_ir != ir_list) {
+//         prev_ir = curr_ir->prev;
+//         if (prefix("IF", curr_ir->ir) && prefix("IF", prev_ir->ir)) {
+//             size_t curr_blank = get_blank_index(curr_ir->ir, 5);
+//             size_t prev_blank = get_blank_index(prev_ir->ir, 5);
+//             if (!prefix(curr_ir->ir + curr_blank, prev_ir->ir + prev_blank)) {
+//                 // change prev ir
+//                 char new_label[max_label_len] = {0};
+//                 strncpy(new_label, curr_ir->ir + curr_blank, max_label_len);
+//                 change_if_op_and_label(prev_ir, new_label);
+//             }
+//         }
+//         curr_ir = curr_ir->prev;
+//     }
+// }
+
+void ir_optimization() {
+    remove_adjacent_goto_label();
+    remove_if_goto();
+    // check_adjacent_if();
 }
 
 // code list methods end;
