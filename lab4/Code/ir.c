@@ -7,9 +7,11 @@
 #include "stdlib.h"
 #include "string.h"
 #include "type.h"
+#include "stddef.h"
 
 extern Stack stack;
 extern bool has_syntax_error;
+extern bool prefix(const char* pre, const char* str);
 
 #define curr_table (stack->tables[stack->top - 1])
 
@@ -144,6 +146,13 @@ void remove_last_ir() {
     free(temp);
 }
 
+void remove_next_ir(IR* ir_node) {
+    IR* next_ir = ir_node->next;
+    ir_node->next = next_ir->next;
+    next_ir->next->prev = ir_node;
+    free(next_ir);
+}
+
 void print_ir() {
     if (has_syntax_error) return;
     IR* code = ir_list->next;
@@ -154,6 +163,86 @@ void print_ir() {
         code = code->next;
     }
 }
+
+// return blank index + 1 of a str
+// blank_num starts from 1
+size_t get_blank_index(char* str, size_t blank_num) {
+    size_t blank_count = 0;
+    size_t index = 0;
+    while (blank_count < blank_num) {
+        if (*str == ' ') {
+            blank_count++;
+        }
+        str++;
+        index++;
+    }
+    return index;
+}
+
+char* relop_negative(char* relop) {
+    char* res = malloc(sizeof(char) * 3);
+    if (!strcmp(relop, "==")) {
+        strcpy(res, "!=");
+    } else if (!strcmp(relop, "!=")) {
+        strcpy(res, "==");
+    } else if (!strcmp(relop, ">")) {
+        strcpy(res, "<=");
+    } else if (!strcmp(relop, "<")) {
+        strcpy(res, ">=");
+    } else if (!strcmp(relop, ">=")) {
+        strcpy(res, "<");
+    } else if (!strcmp(relop, "<=")) {
+        strcpy(res, ">");
+    }
+    return res;
+}
+
+void ir_optimization() {
+    IR* curr_ir = ir_list->next;
+    IR* next_ir;
+    while (curr_ir != ir_list) {
+        if (prefix("IF", curr_ir->ir)) { // optimize goto
+            // change label name
+            size_t blank1 = get_blank_index(curr_ir->ir, 1);
+            size_t blank2 = get_blank_index(curr_ir->ir, 2);
+            size_t blank3 = get_blank_index(curr_ir->ir, 3);
+            size_t blank4 = get_blank_index(curr_ir->ir, 4);
+            size_t blank5 = get_blank_index(curr_ir->ir, 5);
+
+            char var1[max_temp_var_len];
+            char var2[max_temp_var_len];
+            memset(var1, 0, max_temp_var_len);
+            memset(var2, 0, max_temp_var_len);
+            strncpy(var1, curr_ir->ir + blank1, blank2 - blank1 - 1);
+            strncpy(var2, curr_ir->ir + blank3, blank4 - blank3 - 1);
+
+            // get label name
+            next_ir = curr_ir->next;
+            size_t next_ir_label = get_blank_index(next_ir->ir, 1);
+            char label[max_label_len] = {0};
+            strncpy(label, next_ir->ir + next_ir_label, max_label_len);
+
+            // change relop
+            size_t relop_len = blank3 - blank2 - 1;
+            // get relop
+            char* relop = malloc(sizeof(3));
+            memset(relop, 0, 3);
+            strncpy(relop, curr_ir->ir + blank2, relop_len);
+            char* relop_neg = relop_negative(relop);
+            free(relop);
+            
+            char* ir = malloc(sizeof(max_single_ir_len));
+            sprintf(ir, "IF %s %s %s GOTO %s", var1, relop_neg, var2, label);
+            free(curr_ir->ir);
+            curr_ir->ir = ir;
+
+            remove_next_ir(curr_ir);
+            remove_next_ir(curr_ir);
+        }
+        curr_ir = curr_ir->next;
+    }
+}
+
 // code list methods end;
 
 // call this when creating non-const temp var

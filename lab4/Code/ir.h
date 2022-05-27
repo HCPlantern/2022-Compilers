@@ -2,6 +2,7 @@
 #define IR_H
 
 #include <stdbool.h>
+#include <stddef.h>
 
 #define max_ir_var_len 10   // '*' and '&' are taken into account.
 #define max_label_len 10
@@ -42,6 +43,9 @@ void new_ir_code_list();
 void add_last_ir(char* code);
 void add_next_ir(IR* ir_node, char* code);
 void print_ir();
+size_t get_blank_index(char* str, size_t blank_num);
+char* relop_negative(char* relop);
+void ir_optimization();
 
 TempVar* get_temp_var(int type);
 // TempVar* find_int_val(int i);

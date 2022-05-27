@@ -1,0 +1,54 @@
+FUNCTION main :
+READ it0
+iv0 := it0
+READ it1
+iv1 := it1
+READ it2
+iv2 := it2
+it3 := iv0 + iv1
+IF it3 <= iv2 GOTO label20
+it4 := iv1 + iv2
+IF it4 <= iv0 GOTO label20
+it5 := iv0 + iv2
+IF it5 <= iv1 GOTO label20
+it6 := iv0 + iv1
+it7 := it6 + iv2
+iv3 := it7
+IF iv0 != iv1 GOTO label9
+IF iv0 != iv2 GOTO label9
+iv4 := #1
+GOTO label18
+LABEL label9 :
+IF iv0 != iv1 GOTO label10
+IF iv0 != iv2 GOTO label11
+IF iv1 != iv2 GOTO label13
+iv4 := #2
+GOTO label18
+LABEL label13 :
+it8 := iv0 * iv0
+it9 := iv1 * iv1
+it10 := it8 + it9
+it11 := iv2 * iv2
+IF it10 != it11 GOTO label14
+it12 := iv0 * iv0
+it13 := iv2 * iv2
+it14 := it12 + it13
+it15 := iv1 * iv1
+IF it14 != it15 GOTO label15
+it16 := iv1 * iv1
+it17 := iv2 * iv2
+it18 := it16 + it17
+it19 := iv0 * iv0
+IF it18 != it19 GOTO label17
+iv4 := #3
+GOTO label18
+LABEL label17 :
+iv4 := #0
+LABEL label18 :
+WRITE iv4
+WRITE iv3
+GOTO label21
+LABEL label20 :
+WRITE #-1
+LABEL label21 :
+RETURN #0

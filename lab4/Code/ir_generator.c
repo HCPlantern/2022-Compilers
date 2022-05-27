@@ -81,23 +81,7 @@ void assign_gen(Node* father, Node* lValue, Node* exp) {
     }
 }
 
-// char* relop_negative(char* relop) {
-//     char* res = malloc(sizeof(char) * 3);
-//     if (!strcmp(relop, "==")) {
-//         strcpy(res, "!=");
-//     } else if (!strcmp(relop, "!=")) {
-//         strcpy(res, "==");
-//     } else if (!strcmp(relop, ">")) {
-//         strcpy(res, "<=");
-//     } else if (!strcmp(relop, "<")) {
-//         strcpy(res, ">=");
-//     } else if (!strcmp(relop, ">=")) {
-//         strcpy(res, "<");
-//     } else if (!strcmp(relop, "<=")) {
-//         strcpy(res, ">");
-//     }
-//     return res;
-// }
+
 
 void not_gen(Node* father, Node* exp) {
     // assert(is_in_cond);

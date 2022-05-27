@@ -1,0 +1,20 @@
+FUNCTION main :
+iv0 := #0
+iv1 := #1
+iv2 := #0
+READ it0
+iv3 := it0
+it1 := iv0 * #7
+iv3 := it1
+LABEL label1 :
+IF iv2 >= iv3 GOTO label6
+it2 := iv0 + iv1
+iv4 := it2
+WRITE iv1
+iv0 := iv1
+iv1 := iv4
+it3 := iv2 + #1
+iv2 := it3
+GOTO label1
+LABEL label6 :
+RETURN #0
