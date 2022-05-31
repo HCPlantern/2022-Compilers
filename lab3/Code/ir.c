@@ -13,7 +13,7 @@ extern bool has_syntax_error;
 
 #define curr_table (stack->tables[stack->top - 1])
 
-size_t ir_count = 0;
+size_t ir_var_count = 0;
 size_t temp_var_count = 0;
 size_t label_count = 0;
 
@@ -57,15 +57,15 @@ char* get_ir_var_by_field(FieldList fieldlist) {
     char* ir_var = malloc(sizeof(char) * (max_ir_var_len));
     if (type->kind == BASIC) {
         if (type->u.basic == T_INT) {
-            sprintf(ir_var, "%s%lu", "iv", ir_count);
+            sprintf(ir_var, "%s%lu", "iv", ir_var_count);
         } else if (type->u.basic == T_FLOAT) {
-            sprintf(ir_var, "%s%lu", "fv", ir_count);
+            sprintf(ir_var, "%s%lu", "fv", ir_var_count);
         }
     } else {
-        sprintf(ir_var, "%s%lu", "&v", ir_count);
+        sprintf(ir_var, "%s%lu", "&v", ir_var_count);
     }
     fieldlist->ir_var = ir_var;
-    ir_count++;
+    ir_var_count++;
     return ir_var;
 }
 

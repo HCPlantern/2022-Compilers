@@ -25,7 +25,9 @@ struct _TempVar {
 };
 
 struct _IR {
+    size_t ir_no;
     char* ir;
+    bool is_block_begin;
     IR* prev;
     IR* next;
     char* label_next;

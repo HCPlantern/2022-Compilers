@@ -15,9 +15,11 @@ extern bool prefix(const char* pre, const char* str);
 
 #define curr_table (stack->tables[stack->top - 1])
 
-size_t ir_count = 0;
+size_t ir_var_count = 0;
 size_t temp_var_count = 0;
 size_t label_count = 0;
+// ir code count
+size_t ir_count = 0;
 
 TempVar* temp_var_list;
 
@@ -59,15 +61,15 @@ char* get_ir_var_by_field(FieldList fieldlist) {
     char* ir_var = malloc(sizeof(char) * (max_ir_var_len));
     if (type->kind == BASIC) {
         if (type->u.basic == T_INT) {
-            sprintf(ir_var, "%s%lu", "iv", ir_count);
+            sprintf(ir_var, "%s%lu", "iv", ir_var_count);
         } else if (type->u.basic == T_FLOAT) {
-            sprintf(ir_var, "%s%lu", "fv", ir_count);
+            sprintf(ir_var, "%s%lu", "fv", ir_var_count);
         }
     } else {
-        sprintf(ir_var, "%s%lu", "&v", ir_count);
+        sprintf(ir_var, "%s%lu", "&v", ir_var_count);
     }
     fieldlist->ir_var = ir_var;
-    ir_count++;
+    ir_var_count++;
     return ir_var;
 }
 
@@ -89,7 +91,9 @@ void new_temp_var_list() {
 
 void new_ir_code_list() {
     ir_list = malloc(sizeof(IR));
+    ir_list->ir_no = -1;
     ir_list->ir = NULL;
+    ir_list->is_block_begin = false;
     ir_list->next = ir_list;
     ir_list->prev = ir_list;
     ir_list->label_next = NULL;
@@ -98,6 +102,8 @@ void new_ir_code_list() {
 
 void add_last_ir(char* code) {
     IR* new_ir = malloc(sizeof(IR));
+    ir_list->ir_no = -1;
+    ir_list->is_block_begin = false;
     new_ir->label_next = NULL;
     new_ir->label_printed = false;
     new_ir->ir = malloc(sizeof(char) * max_single_ir_len);
@@ -106,10 +112,13 @@ void add_last_ir(char* code) {
     new_ir->next = ir_list;
     ir_list->prev->next = new_ir;
     ir_list->prev = new_ir;
+    ir_count++;
 }
 
 void add_first_ir(char* code) {
     IR* new_ir = malloc(sizeof(IR));
+    ir_list->ir_no = -1;
+    ir_list->is_block_begin = false;
     new_ir->label_next = NULL;
     new_ir->label_printed = false;
     new_ir->ir = malloc(sizeof(char) * max_single_ir_len);
@@ -118,10 +127,13 @@ void add_first_ir(char* code) {
     new_ir->next = ir_list->next;
     ir_list->next->prev = new_ir;
     ir_list->next = new_ir;
+    ir_count++;
 }
 
 void add_next_ir(IR* ir_node, char* code) {
     IR* new_ir = malloc(sizeof(IR));
+    ir_list->ir_no = -1;
+    ir_list->is_block_begin = false;
     new_ir->label_next = NULL;
     new_ir->label_printed = false;
     new_ir->ir = malloc(sizeof(char) * max_single_ir_len);
@@ -130,6 +142,7 @@ void add_next_ir(IR* ir_node, char* code) {
     new_ir->next = ir_node->next;
     ir_node->next->prev = new_ir;
     ir_node->next = new_ir;
+    ir_count++;
 }
 
 void remove_first_ir() {
@@ -137,6 +150,7 @@ void remove_first_ir() {
     ir_list->next = ir_list->next->next;
     ir_list->next->prev = ir_list;
     free(temp);
+    ir_count--;
 }
 
 void remove_last_ir() {
@@ -144,6 +158,7 @@ void remove_last_ir() {
     ir_list->prev = ir_list->prev->prev;
     ir_list->prev->next = ir_list;
     free(temp);
+    ir_count--;
 }
 
 void remove_next_ir(IR* ir_node) {
@@ -151,6 +166,7 @@ void remove_next_ir(IR* ir_node) {
     ir_node->next = next_ir->next;
     next_ir->next->prev = ir_node;
     free(next_ir);
+    ir_count--;
 }
 
 void print_ir() {
