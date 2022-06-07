@@ -191,7 +191,11 @@ void print_ir() {
 size_t get_blank_index(char* str, size_t blank_num) {
     size_t blank_count = 0;
     size_t index = 0;
+    size_t str_len = strlen(str);
     while (blank_count < blank_num) {
+        if (index >= str_len) {
+            break;
+        }
         if (*str == ' ') {
             blank_count++;
         }
@@ -360,6 +364,7 @@ void add_last_temp_var(TempVar* temp) {
     temp->next = temp_var_list;
     temp_var_list->prev->next = temp;
     temp_var_list->prev = temp;
+    temp->var_no = var_count;
     var_count++;
 }
 

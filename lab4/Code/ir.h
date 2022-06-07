@@ -13,8 +13,11 @@ typedef struct _TempVar TempVar;
 typedef struct _IR IR;
 typedef struct _FieldList* FieldList;
 
+typedef struct _LiveAnalysisUnit LiveAnalysisUnit;
+
 struct _TempVar {
     char* name;
+    size_t var_no;
     bool is_const;
     // bool is_int;
     // union {
@@ -23,6 +26,9 @@ struct _TempVar {
     // }u;
     TempVar* next;
     TempVar* prev;
+
+    // live varaibe analysis
+    LiveAnalysisUnit** live_analysis;
 };
 
 struct _IR {
