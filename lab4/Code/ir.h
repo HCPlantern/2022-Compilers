@@ -22,6 +22,7 @@ struct _TempVar {
     //     float float_val;
     // }u;
     TempVar* next;
+    TempVar* prev;
 };
 
 struct _IR {
@@ -50,6 +51,7 @@ char* relop_negative(char* relop);
 void ir_optimization();
 
 TempVar* get_temp_var(int type);
+void add_last_temp_var(TempVar* temp);
 // TempVar* find_int_val(int i);
 // TempVar* find_float_val(float f);
 

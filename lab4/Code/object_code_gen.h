@@ -7,7 +7,7 @@ struct _ObjectCode {
     ObjectCode* next;
 };
 
-void init_ir_arr();
+void init_ir_and_var_arr();
 
 void set_block_by_label(char* label);
 

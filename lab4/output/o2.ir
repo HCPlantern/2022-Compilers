@@ -1,23 +1,27 @@
 FUNCTION fact :
 PARAM iv0
-IF iv0 != #1 GOTO label1
+IF iv0 == #1 GOTO label0
+GOTO label1
+LABEL label0 :
 RETURN iv0
 LABEL label1 :
-it0 := iv0 - #1
-ARG it0
-it1 := CALL fact
-it2 := iv0 * it1
-RETURN it2
+it1 := iv0 - #1
+ARG it1
+it2 := CALL fact
+it3 := iv0 * it2
+RETURN it3
 FUNCTION main :
-READ it3
-iv1 := it3
-IF iv1 <= #1 GOTO label4
-ARG iv1
-it4 := CALL fact
-iv2 := it4
+READ it6
+iv4 := it6
+IF iv4 > #1 GOTO label3
+GOTO label4
+LABEL label3 :
+ARG iv4
+it7 := CALL fact
+iv5 := it7
 GOTO label5
 LABEL label4 :
-iv2 := #1
+iv5 := #1
 LABEL label5 :
-WRITE iv2
+WRITE iv5
 RETURN #0

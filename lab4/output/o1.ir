@@ -2,19 +2,19 @@ FUNCTION main :
 iv0 := #0
 iv1 := #1
 iv2 := #0
-READ it0
-iv3 := it0
+READ it4
+iv3 := it4
 LABEL label0 :
 IF iv2 < iv3 GOTO label1
 GOTO label5
 LABEL label1 :
-it1 := iv0 + iv1
-iv4 := it1
+it6 := iv0 + iv1
+iv5 := it6
 WRITE iv1
 iv0 := iv1
-iv1 := iv4
-it2 := iv2 + #1
-iv2 := it2
+iv1 := iv5
+it7 := iv2 + #1
+iv2 := it7
 GOTO label0
 LABEL label5 :
 RETURN #0

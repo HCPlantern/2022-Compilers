@@ -15,8 +15,7 @@ extern bool prefix(const char* pre, const char* str);
 
 #define curr_table (stack->tables[stack->top - 1])
 
-size_t ir_var_count = 0;
-size_t temp_var_count = 0;
+size_t var_count = 0;
 size_t label_count = 0;
 // ir code count
 size_t ir_count = 0;
@@ -58,19 +57,25 @@ char* get_ir_var_by_field(FieldList fieldlist) {
     }
 
     Type type = fieldlist->type;
-    char* ir_var = malloc(sizeof(char) * (max_ir_var_len));
+    char* ir_var_name = malloc(sizeof(char) * (max_ir_var_len));
     if (type->kind == BASIC) {
         if (type->u.basic == T_INT) {
-            sprintf(ir_var, "%s%lu", "iv", ir_var_count);
+            sprintf(ir_var_name, "%s%lu", "iv", var_count);
         } else if (type->u.basic == T_FLOAT) {
-            sprintf(ir_var, "%s%lu", "fv", ir_var_count);
+            sprintf(ir_var_name, "%s%lu", "fv", var_count);
         }
     } else {
-        sprintf(ir_var, "%s%lu", "&v", ir_var_count);
+        sprintf(ir_var_name, "%s%lu", "&v", var_count);
     }
-    fieldlist->ir_var = ir_var;
-    ir_var_count++;
-    return ir_var;
+
+    TempVar* new_var = malloc(sizeof(TempVar));
+    new_var->name = ir_var_name;
+    new_var->is_const = false;
+
+    fieldlist->ir_var = ir_var_name;
+    add_last_temp_var(new_var);
+
+    return ir_var_name;
 }
 
 char* new_label() {
@@ -84,7 +89,8 @@ char* new_label() {
 void new_temp_var_list() {
     temp_var_list = malloc(sizeof(TempVar));
     temp_var_list->is_const = false;
-    temp_var_list->next = NULL;
+    temp_var_list->next = temp_var_list;
+    temp_var_list->prev = temp_var_list;
 }
 
 // code list methods begin
@@ -338,18 +344,23 @@ TempVar* get_temp_var(int type) {
     TempVar* res = malloc(sizeof(TempVar));
     char* name = malloc(sizeof(char) * (max_temp_var_len));
     if (type == 0) {
-        sprintf(name, "%s%lu", "it", temp_var_count);
+        sprintf(name, "%s%lu", "it", var_count);
     } else if (type == 1) {
-        sprintf(name, "%s%lu", "ft", temp_var_count);
+        sprintf(name, "%s%lu", "ft", var_count);
     }
-    temp_var_count++;
     res->name = name;
     res->is_const = false;
 
-    res->next = temp_var_list->next;
-    temp_var_list->next = res;
-
+    add_last_temp_var(res);
     return res;
+}
+
+void add_last_temp_var(TempVar* temp) {
+    temp->prev = temp_var_list->prev;
+    temp->next = temp_var_list;
+    temp_var_list->prev->next = temp;
+    temp_var_list->prev = temp;
+    var_count++;
 }
 
 // // call this when creating or finding const int temp var

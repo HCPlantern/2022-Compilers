@@ -5,22 +5,33 @@
 #include "ir.h"
 #include "stdlib.h"
 #include "string.h"
+#include "ir.h"
 #define max_object_code_len 50
 extern size_t ir_count;
+extern TempVar* temp_var_list;
+extern size_t var_count;
 extern bool prefix(const char* pre, const char* str);
 
 IR** ir_arr;
+TempVar** var_arr;
 ObjectCode* object_code;
 size_t object_code_len;
 
 // Put all IRs into an array
-void init_ir_arr() {
+void init_ir_and_var_arr() {
     ir_arr = malloc(sizeof(IR) * ir_count);
     IR* ir = ir_list->next;
     for (size_t i = 0; i < ir_count; i++) {
         ir_arr[i] = ir;
         ir->ir_no = i;
         ir = ir->next;
+    }
+
+    var_arr = malloc(sizeof(TempVar) * var_count);
+    TempVar* var = temp_var_list->next;
+    for (size_t i = 0; i < var_count; i++) {
+        var_arr[i] = var;
+        var = var->next;
     }
 }
 
@@ -83,14 +94,8 @@ void add_last_object_code(char* code) {
 }
 
 void object_code_gen_go() {
-    init_ir_arr();
+    init_ir_and_var_arr();
     divide_block();
     init_object_code();
-    // check block division
-    // printf("\n");
-    // for (int i = 0; i < ir_count; i++) {
-    //     if (ir_arr[i]->is_block_begin) {
-    //         printf("%s\n", ir_arr[i]->ir);
-    //     }
-    // }
+
 }
