@@ -10,6 +10,7 @@ extern Node* syntax_tree_root;
 extern void del_tree(Node* root);
 extern void check_undefined_func();
 extern void init_read_write_func();
+extern void object_code_gen_go();
 extern bool has_syntax_error;
 extern Type arg_type;
 extern Stack stack;
@@ -56,6 +57,8 @@ int main(int argc, char** argv) {
     // del_tree(syntax_tree_root);
     ir_optimization();
     print_ir();
+
+    object_code_gen_go();
 
     // write to file
     FILE* w = fopen(argv[2], "w+");
