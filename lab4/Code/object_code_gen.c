@@ -317,6 +317,7 @@ void set_var_offset(char* var, size_t offset) {
     var_arr[var_no]->fp_offset = offset;
 }
 
+// calculate function framesize and save varaible offset
 void cal_framesize() {
     func_list = malloc(sizeof(Function));
     func_list->frame_size = 0;
@@ -329,7 +330,7 @@ void cal_framesize() {
         char* token = strtok(curr_ir, " ");
         // function begin
         if (!strcmp("FUNCTION", token)) {
-            size_t frame_size = 8;
+            size_t frame_size = 4 * (1 + 1 + 8);
             token = strtok(NULL, " ");
 
             Function* new_func = malloc(sizeof(Function));
@@ -380,7 +381,7 @@ void spill(Register* reg) {
     assert(var != NULL);
     char code[max_object_code_len];
     // spill reg value into memory
-    sprintf(code, "sw, $%s, -%lu(fp)", reg->name, var->fp_offset);
+    sprintf(code, "sw, $%s, -%lu($fp)", reg->name, var->fp_offset);
     add_last_object_code(code);
     var->reg = NULL;
     reg->var = NULL;    
@@ -416,7 +417,7 @@ Register* ensure_var(char* var_name, size_t ir_no) {
         res = allocate(curr_var, ir_no);
         char code[max_object_code_len];
         // load var value into register
-        sprintf(code, "lw $%s, -%lu(fp)", res->name, curr_var->fp_offset);
+        sprintf(code, "lw $%s, -%lu($fp)", res->name, curr_var->fp_offset);
         add_last_object_code(code);
     }
     return res;
@@ -465,12 +466,18 @@ void gen_object_code() {
             // spill all registers
         }
         curr_ir_code = curr_ir->ir;
-        if (prefix("FUNCTION", curr_ir_code)) {
-            gen_func_code(curr_ir_code + 9);
-        } else if (prefix("LABEL", curr_ir_code)) {
-            gen_label_code(curr_ir_code + 6);
-        } else if (prefix("GOTO", curr_ir_code)) {
-            gen_goto_code(curr_ir_code + 5);
+        char temp_ir[max_single_ir_len];
+        strncpy(temp_ir, curr_ir_code, max_single_ir_len);
+        char* token = strtok(temp_ir, " ");
+        if (!strcmp("FUNCTION", token)) {
+            token = strtok(NULL, " ");
+            gen_func_code(token);
+        } else if (!strcmp("LABEL", token)) {
+            token = strtok(NULL, " ");
+            gen_label_code(token);
+        } else if (!strcmp("GOTO", token)) {
+            token = strtok(NULL, " ");
+            gen_goto_code(token);
         } else if (prefix("RETURN", curr_ir_code)) {
             //
         } else if (prefix("READ", curr_ir_code)) {
@@ -521,9 +528,9 @@ void object_code_gen_go() {
     // }
 
     // print all func frame size
-    Function* curr = func_list->next;
-    while (curr != NULL) {
-        printf("%s %lu\n", curr->name, curr->frame_size);
-        curr = curr->next;
-    }
+    // Function* curr = func_list->next;
+    // while (curr != NULL) {
+    //     printf("%s %lu\n", curr->name, curr->frame_size);
+    //     curr = curr->next;
+    // }
 }
