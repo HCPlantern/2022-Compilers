@@ -70,6 +70,8 @@ char* get_ir_var_by_field(FieldList fieldlist) {
 
     TempVar* new_var = malloc(sizeof(TempVar));
     new_var->name = ir_var_name;
+    new_var->reg = NULL;
+    new_var->fp_offset = 0;
     new_var->is_const = false;
 
     fieldlist->ir_var = ir_var_name;
@@ -88,6 +90,8 @@ char* new_label() {
 // init the list
 void new_temp_var_list() {
     temp_var_list = malloc(sizeof(TempVar));
+    temp_var_list->reg = NULL;
+    temp_var_list->fp_offset = 0;
     temp_var_list->is_const = false;
     temp_var_list->next = temp_var_list;
     temp_var_list->prev = temp_var_list;
@@ -353,6 +357,8 @@ TempVar* get_temp_var(int type) {
         sprintf(name, "%s%lu", "ft", var_count);
     }
     res->name = name;
+    res->reg = NULL;
+    res->fp_offset = 0;
     res->is_const = false;
 
     add_last_temp_var(res);

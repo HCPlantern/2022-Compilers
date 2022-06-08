@@ -12,12 +12,14 @@
 typedef struct _TempVar TempVar;
 typedef struct _IR IR;
 typedef struct _FieldList* FieldList;
-
 typedef struct _LiveAnalysisUnit LiveAnalysisUnit;
+typedef struct _Register Register;
 
 struct _TempVar {
     char* name;
     size_t var_no;
+    Register* reg;
+    size_t fp_offset;
     bool is_const;
     // bool is_int;
     // union {
@@ -40,6 +42,8 @@ struct _IR {
     char* label_next;
     bool label_printed;
 };
+
+
 
 IR* ir_list;
 

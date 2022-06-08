@@ -1,8 +1,8 @@
 #ifndef IR_LINKEDLIST_H
 #define IR_LINKEDLIST_H
+#include <stdbool.h>
 
 #include "ir.h"
-
 typedef struct _IRLinkedList IRLinkedList;
 typedef struct tree_node Node;
 
