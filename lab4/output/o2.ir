@@ -4,7 +4,6 @@ IF iv0 == #1 GOTO label0
 GOTO label1
 LABEL label0 :
 RETURN iv0
-LABEL label1 :
 it1 := iv0 - #1
 ARG it1
 it2 := CALL fact

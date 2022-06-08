@@ -323,9 +323,9 @@ void cal_framesize() {
     func_list->name = NULL;
     func_list->next = NULL;
     for (int i = 0; i < ir_count; i++) {
-        char curr_ir[max_ir_var_len];
+        char curr_ir[max_single_ir_len];
         // copy ir for strtok use
-        strncpy(curr_ir, ir_arr[i]->ir, max_ir_var_len);
+        strncpy(curr_ir, ir_arr[i]->ir, max_single_ir_len);
         char* token = strtok(curr_ir, " ");
         // function begin
         if (!strcmp("FUNCTION", token)) {
@@ -343,8 +343,8 @@ void cal_framesize() {
                     break;
                 }
                 // copy ir for strtok use
-                char temp_ir[max_ir_var_len];
-                strncpy(temp_ir, ir_arr[j]->ir, max_ir_var_len);
+                char temp_ir[max_single_ir_len];
+                strncpy(temp_ir, ir_arr[j]->ir, max_single_ir_len);
                 token = strtok(temp_ir, " ");
                 // PARAM iv0
                 if (!strcmp("PARAM", token)) {
@@ -521,9 +521,9 @@ void object_code_gen_go() {
     // }
 
     // print all func frame size
-    // Function* curr = func_list->next;
-    // while (curr != NULL) {
-    //     printf("%s %lu\n", curr->name, curr->frame_size);
-    //     curr = curr->next;
-    // }
+    Function* curr = func_list->next;
+    while (curr != NULL) {
+        printf("%s %lu\n", curr->name, curr->frame_size);
+        curr = curr->next;
+    }
 }
