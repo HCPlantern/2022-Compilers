@@ -10,6 +10,7 @@
 extern size_t ir_count;
 extern TempVar* temp_var_list;
 extern size_t var_count;
+extern IR* ir_list;
 extern bool prefix(const char* pre, const char* str);
 
 IR** ir_arr;
@@ -550,7 +551,18 @@ void gen_write_code(char* var, size_t ir_no) {
 void gen_call_code() {
 }
 
-void gen_if_code() {
+void gen_if_code(int ir_no) {
+    char* tokens[6];
+    char* ir = ir_arr[ir_no]->ir;
+    char* token = strtok(ir, " ");
+    int i = 0;
+    while (token) {
+        tokens[i] = token;
+        i++;
+        token = strtok(NULL, " ");
+    }
+
+
 }
 
 void gen_assign_code(size_t ir_no) {

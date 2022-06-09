@@ -11,6 +11,7 @@
     extern Node* temp_ExtDef;
     extern bool is_in_compst;
     extern bool is_in_struct;
+    extern Node* current_exp;
     Type arg_type;
     extern void param_dec_gen(Type arg_type);
     extern void add_args_into_table();
