@@ -298,7 +298,8 @@ size_t next_use(char* var_name, size_t ir_no) {
 }
 
 bool no_next_use(char* var_name, size_t ir_no) {
-    return get_var(var_name)->live_analysis[ir_no]->next_use == __UINTMAX_MAX__;
+    if (ir_no + 1 >= ir_count) return false;
+    return get_var(var_name)->live_analysis[ir_no + 1]->next_use == __UINTMAX_MAX__;
 }
 // return frame size of a function
 size_t get_func_framesize(char* name) {
@@ -447,12 +448,16 @@ Register* ensure_var(char* var_name, size_t ir_no) {
 }
 
 void gen_func_code(char* func_name) {
+    char ret[2] = "";
+    add_last_object_code(ret);
     char code[max_object_code_len] = {0};
     strcpy(code, func_name);
     add_last_object_code(code);
 }
 
 void gen_label_code(char* label_name) {
+    char ret[2] = "";
+    add_last_object_code(ret);
     char code[max_object_code_len] = {0};
     strcpy(code, label_name);
     add_last_object_code(code);
@@ -590,6 +595,9 @@ void gen_assign_code(size_t ir_no) {
                 // x := y
                 reg1 = allocate_by_name(var1, ir_no);
                 reg2 = ensure_var(var2, ir_no);
+                if (no_next_use(var2, ir_no)) {
+                    free_reg(reg2);
+                }
                 char code[max_object_code_len];
                 sprintf(code, "move $%s, $%s", reg1->name, reg2->name);
                 add_last_object_code(code);
@@ -623,7 +631,7 @@ void gen_object_code() {
         } else if (prefix("RETURN", curr_ir_code)) {
             //
             token = strtok(NULL, " ");
-            // gen_return_code(token, ir_no);
+            gen_return_code(token, ir_no);
         } else if (prefix("READ", curr_ir_code)) {
             token = strtok(NULL, " ");
             gen_read_code(token, ir_no);
