@@ -5,6 +5,8 @@
 #include <string.h>
 #include <assert.h>
 
+extern IR* ir_list;
+
 IRLinkedList* makeList(IR* ir) {
     IRLinkedList* list = malloc(sizeof(IRLinkedList));
     list->ir = ir;

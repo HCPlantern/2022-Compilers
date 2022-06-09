@@ -6,6 +6,7 @@
 extern bool is_in_compst;
 extern bool is_in_struct;
 extern Type arg_type;
+extern IR* ir_list;
 
 static inline void set_int_const(Node* node, int i) {
     node->is_constant = true;
@@ -601,18 +602,6 @@ void while_gen(Node* father, Node* M1, Node* cond_exp, Node* M2, Node* stmt) {
     char buf[max_single_ir_len];
     sprintf(buf, "GOTO %s", M1->label);
     add_last_ir(buf);
-}
-
-void exp_for_if_gen(Node* exp) {
-    // TODO
-    if (exp->child->sibling != NULL && 0 != strcmp(">", exp->child->sibling->id) && 0 != strcmp("<", exp->child->sibling->id) && 0 != strcmp("!=", exp->child->sibling->id) && 0 != strcmp("<=", exp->child->sibling->id) && 0 != strcmp(">=", exp->child->sibling->id) && 0 != strcmp("==", exp->child->sibling->id) && 0 == strcmp("ID", exp->child->id)) {
-        char ir[max_single_ir_len];
-        sprintf(ir, "IF %s != #0 GOTO", exp->var_in_ir);
-        add_last_ir(ir);
-        exp->true_list = makeList(ir_list->prev);
-        add_last_ir("GOTO");
-        exp->false_list = makeList(ir_list->prev);
-    }
 }
 
 void trans_bool_to_value_gen(Node* exp) {

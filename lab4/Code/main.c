@@ -14,6 +14,7 @@ extern void object_code_gen_go();
 extern bool has_syntax_error;
 extern Type arg_type;
 extern Stack stack;
+extern IR* ir_list;
 
 void init() {
     // init stack and table;

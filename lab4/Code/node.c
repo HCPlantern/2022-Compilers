@@ -4,6 +4,7 @@
 Node* syntax_tree_root;
 bool has_syntax_error = false;
 int prev_error_line = 0;
+Node* current_exp;
 
 int start_with_strtof(const char* yytext) {
     return (strlen(yytext) >= 13 && yytext[0] == 's');

@@ -13,6 +13,8 @@ extern Stack stack;
 extern bool has_syntax_error;
 extern bool prefix(const char* pre, const char* str);
 
+IR* ir_list;
+
 #define curr_table (stack->tables[stack->top - 1])
 
 size_t var_count = 0;

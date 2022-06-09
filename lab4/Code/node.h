@@ -55,8 +55,6 @@ typedef struct tree_node {
     IRLinkedList* next_list;
 } Node;
 
-Node* current_exp;
-
 Node* new_node(char* id);
 Node* build_tree(char* id, int arg_len, ...);
 int start_with_strtof(const char* yytext);

@@ -45,8 +45,6 @@ struct _IR {
 
 
 
-IR* ir_list;
-
 char* get_ir_var_by_name(char* name);
 char* get_ir_var_by_field(FieldList fieldlist);
 
