@@ -387,7 +387,7 @@ void cal_framesize() {
                     }
                 } else {
                     // iv0 := ...
-                    if (token[0] != 'i') {
+                    if (token[0] == 'i') {
                         TempVar* var = get_var(token);
                         // first time
                         if (var->fp_offset == 0) {
