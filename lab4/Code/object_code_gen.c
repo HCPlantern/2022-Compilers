@@ -371,20 +371,20 @@ void cal_framesize() {
                 // PARAM iv0
                 if (!strcmp("PARAM", token)) {
                     token = strtok(NULL, " ");
-                    set_var_offset(token, frame_size + 4);
+                    set_var_offset(token, frame_size);
                     frame_size += 4;
                 } else if (!strcmp("DEC", token)) {
                     // DEC iv0 [size]
                     token = strtok(NULL, " ");
                     size_t size = atoi(token + 2);
-                    set_var_offset(token, frame_size + 4);
+                    set_var_offset(token, frame_size);
                     frame_size += size;
                 } else if (!strcmp("READ", token)) {
                     token = strtok(NULL, " ");
                     TempVar* var = get_var(token);
                     // first time
                     if (var->fp_offset == 0) {
-                        set_var_offset(token, frame_size + 4);
+                        set_var_offset(token, frame_size);
                         frame_size += 4;
                     }
                 } else {
@@ -393,7 +393,7 @@ void cal_framesize() {
                         TempVar* var = get_var(token);
                         // first time
                         if (var->fp_offset == 0) {
-                            set_var_offset(token, frame_size + 4);
+                            set_var_offset(token, frame_size);
                             frame_size += 4;
                         }
                     }
@@ -516,9 +516,9 @@ void gen_read_code(char* var, size_t ir_no) {
     sprintf(code, "addi $sp, $sp, -4");
     sprintf(code2, "sw $ra, 0($sp)");
     sprintf(code3, "jal read");
-    sprintf(code4, "addi $sp, $sp, 4");
+    sprintf(code4, "lw $ra, 0($sp)");
+    sprintf(code5, "addi $sp, $sp, 4");
     Register* reg = ensure_var(var, ir_no);
-    sprintf(code5, "lw $ra, 0($sp)");
     sprintf(code6, "move $%s, $v0", reg->name);
     add_last_object_code(code);
     add_last_object_code(code2);
@@ -542,6 +542,7 @@ void gen_write_code(char* var, size_t ir_no) {
     sprintf(code4, "jal write");
     sprintf(code5, "lw $ra, 0($sp)");
     sprintf(code6, "addi $sp, $sp, 4");
+    add_last_object_code(code);
     add_last_object_code(code2);
     add_last_object_code(code3);
     add_last_object_code(code4);
