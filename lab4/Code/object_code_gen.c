@@ -697,3 +697,17 @@ void object_code_gen_go() {
     //     curr = curr->next;
     // }
 }
+
+enum IrType getIrType(char* ir) {
+    if      (prefix("LABEL", ir)) return LABEL;
+    else if (prefix("FUNCTION", ir)) return FUNCTION;
+    else if (prefix("GOTO", ir)) return GOTO;
+    else if (prefix("IF", ir)) return IF;
+    else if (prefix("RETURN", ir)) return RETURN;
+    else if (prefix("DEC", ir)) return DEC;
+    else if (prefix("ARG", ir)) return ARG;
+    else if (prefix("PARAM", ir)) return PARAM;
+    else if (prefix("READ", ir)) return READ;
+    else if (prefix("WRITE", ir)) return WRITE;
+    else return ASSIGN;
+}

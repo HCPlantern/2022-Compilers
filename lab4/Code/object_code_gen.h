@@ -35,7 +35,9 @@ struct _Function {
     char* name;
     size_t frame_size;
     Function* next;
-}; 
+};
+
+enum IrType {LABEL, FUNCTION, GOTO, IF, RETURN, DEC, ARG, PARAM, READ, WRITE, ASSIGN};
 
 void init_ir_and_var_arr();
 
@@ -44,5 +46,7 @@ void set_block_by_label(char* label);
 void divide_block();
 
 void add_last_object_code(char* code);
+
+enum IrType getIrType(char* ir);
 
 #endif
