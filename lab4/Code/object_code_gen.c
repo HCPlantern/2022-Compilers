@@ -532,19 +532,32 @@ void gen_write_code(char* var, size_t ir_no) {
     char code4[max_object_code_len] = {0};
     char code5[max_object_code_len] = {0};
     char code6[max_object_code_len] = {0};
-    Register* reg = ensure_var(var, ir_no);
-    sprintf(code, "move $a0, $%s", reg->name);
+    char code7[max_object_code_len] = {0};
+    if (*var == '*') {
+        // save value to memory
+        sprintf(code, "move $a0, $t8");
+        add_last_object_code(code);
+    } else {
+        Register* reg = ensure_var(var, ir_no);
+        sprintf(code, "move $a0, $%s", reg->name);
+    }
+
     sprintf(code2, "addi $sp, $sp, -4");
     sprintf(code3, "sw $ra, 0($sp)");
     sprintf(code4, "jal write");
     sprintf(code5, "lw $ra, 0($sp)");
     sprintf(code6, "addi $sp, $sp, 4");
-    add_last_object_code(code);
     add_last_object_code(code2);
     add_last_object_code(code3);
     add_last_object_code(code4);
     add_last_object_code(code5);
     add_last_object_code(code6);
+
+    if (*var = '*') {
+        TempVar* temp_var = get_var(var + 1);
+        sprintf(code7, "sw $t8, -%lu($fp)", temp_var->fp_offset);
+        add_last_object_code(code7);
+    }
 }
 
 void gen_call_code() {
@@ -708,9 +721,11 @@ void object_code_gen_go() {
     //     printf("%s %lu\n", curr->name, curr->frame_size);
     //     curr = curr->next;
     // }
-    for (int i = 0; i < ir_count; i++) {
-        if (ir_arr[i]->is_block_begin) {
-            printf("%s\n", ir_arr[i]->ir);
-        }
-    }
+
+    // print all basic block begin
+    // for (int i = 0; i < ir_count; i++) {
+    //     if (ir_arr[i]->is_block_begin) {
+    //         printf("%s\n", ir_arr[i]->ir);
+    //     }
+    // }
 }
