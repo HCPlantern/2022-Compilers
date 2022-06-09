@@ -447,6 +447,14 @@ Register* ensure_var(char* var_name, size_t ir_no) {
     return res;
 }
 
+void spill_all_regs() {
+    for (int i = 8; i <= 23; i++) {
+        if (reg_arr[i]->var != NULL) {
+            spill(reg_arr[i]);
+        }
+    }
+}
+
 void gen_func_code(char* func_name) {
     char ret[2] = "";
     add_last_object_code(ret);
@@ -613,7 +621,7 @@ void gen_object_code() {
     for (size_t ir_no = 0; ir_no < ir_count; ir_no++) {
         curr_ir = ir_arr[ir_no];
         if (curr_ir->is_block_begin) {
-            // spill all registers
+            spill_all_regs();
         }
         curr_ir_code = curr_ir->ir;
         char temp_ir[max_single_ir_len];
