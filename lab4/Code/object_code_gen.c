@@ -69,6 +69,11 @@ void set_block_by_label(char* label) {
     }
 }
 
+bool contain_CALL(char* ir) {
+    if (prefix("CALL", ir)) return true;
+    if (prefix("CALL", ir + get_blank_index(ir, 2))) return true;
+}
+
 void divide_block() {
     IR* ir;
     // first ir is basic block begin
@@ -77,8 +82,15 @@ void divide_block() {
         ir = ir_arr[i];
         if (ir->is_block_begin) {
             continue;
-        }
-        if (prefix("GOTO", ir->ir)) {
+        } else if (prefix("ARG", ir->ir)) {
+            ir->is_block_begin = true;
+            while (prefix("ARG", ir_arr[i]->ir)) {
+                i++;
+            }
+            if (contain_CALL(ir_arr[i]->ir) && i + 1 < ir_count) {
+                ir_arr[i + 1]->is_block_begin = true;
+            }
+        } else if (prefix("GOTO", ir->ir)) {
             set_block_by_label(ir->ir + get_blank_index(ir->ir, 1));
             if (i + 1 < ir_count) {
                 ir_arr[i + 1]->is_block_begin = true;
@@ -88,7 +100,7 @@ void divide_block() {
             if (i + 1 < ir_count) {
                 ir_arr[i + 1]->is_block_begin = true;
             }
-        } else if (prefix("CALL", ir->ir + get_blank_index(ir->ir, 2))) {
+        } else if (contain_CALL(ir->ir)) {
             ir_arr[i]->is_block_begin = true;
         }
     }
@@ -696,4 +708,9 @@ void object_code_gen_go() {
     //     printf("%s %lu\n", curr->name, curr->frame_size);
     //     curr = curr->next;
     // }
+    for (int i = 0; i < ir_count; i++) {
+        if (ir_arr[i]->is_block_begin) {
+            printf("%s\n", ir_arr[i]->ir);
+        }
+    }
 }
