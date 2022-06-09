@@ -1,0 +1,18 @@
+FUNCTION main :
+DEC v0 8
+DEC v1 8
+it2 := &v0
+*it2 := #1
+it3 := &v0 + #4
+*it3 := #70
+it4 := &v1
+*it4 := #2
+it5 := &v1 + #4
+*it5 := #90
+it6 := &v1
+it7 := &v0 + #4
+it8 := *it6
+it9 := *it7
+it10 := it8 * it9
+WRITE it10
+RETURN #0

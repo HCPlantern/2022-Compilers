@@ -1,0 +1,79 @@
+FUNCTION main :
+iv0 := #0
+DEC v2 900
+READ it4
+iv3 := it4
+LABEL label0 :
+IF iv0 < iv3 GOTO label1
+GOTO label8
+LABEL label1 :
+it5 := iv0 * #60
+it6 := #0 + it5
+it7 := &v2 + it6
+it8 := it7
+*it8 := #1
+iv1 := #1
+LABEL label3 :
+IF iv1 < iv0 GOTO label4
+GOTO label6
+LABEL label4 :
+it9 := iv0 * #60
+it10 := #0 + it9
+it11 := &v2 + it10
+it12 := iv1 * #4
+it13 := #0 + it12
+it14 := it11 + it13
+it15 := iv0 - #1
+it16 := it15 * #60
+it17 := #0 + it16
+it18 := &v2 + it17
+it19 := iv1 - #1
+it20 := it19 * #4
+it21 := #0 + it20
+it22 := it18 + it21
+it23 := iv0 - #1
+it24 := it23 * #60
+it25 := #0 + it24
+it26 := &v2 + it25
+it27 := iv1 * #4
+it28 := #0 + it27
+it29 := it26 + it28
+it30 := *it22
+it31 := *it29
+it32 := it30 + it31
+*it14 := it32
+it33 := iv1 + #1
+iv1 := it33
+GOTO label3
+LABEL label6 :
+it34 := iv0 * #60
+it35 := #0 + it34
+it36 := &v2 + it35
+it37 := iv1 * #4
+it38 := #0 + it37
+it39 := it36 + it38
+*it39 := #1
+it40 := iv0 + #1
+iv0 := it40
+GOTO label0
+LABEL label8 :
+iv1 := #0
+LABEL label9 :
+it41 := iv3 - #1
+IF iv1 <= it41 GOTO label10
+GOTO label12
+LABEL label10 :
+it42 := iv3 - #1
+it43 := it42 * #60
+it44 := #0 + it43
+it45 := &v2 + it44
+it46 := iv1 * #4
+it47 := #0 + it46
+it48 := it45 + it47
+it49 := *it48
+WRITE it49
+it50 := iv1 + #1
+iv1 := it50
+GOTO label9
+LABEL label12 :
+RETURN #0

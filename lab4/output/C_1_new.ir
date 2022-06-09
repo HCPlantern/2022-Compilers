@@ -1,0 +1,113 @@
+FUNCTION mod :
+PARAM iv0
+PARAM iv1
+it2 := iv0 / iv1
+it3 := it2 * iv1
+it4 := iv0 - it3
+RETURN it4
+FUNCTION gcd :
+PARAM iv5
+PARAM iv6
+IF iv5 == #0 GOTO label0
+GOTO label1
+LABEL label0 :
+RETURN iv6
+LABEL label1 :
+ARG iv5
+ARG iv6
+it7 := CALL mod
+ARG iv5
+ARG it7
+it8 := CALL gcd
+RETURN it8
+FUNCTION lcm :
+PARAM iv9
+PARAM iv10
+it11 := iv9 * iv10
+ARG iv10
+ARG iv9
+it12 := CALL gcd
+it13 := it11 / it12
+RETURN it13
+FUNCTION main :
+iv18 := #0
+DEC v19 200
+DEC v20 200
+READ it21
+iv14 := it21
+iv15 := #0
+LABEL label3 :
+IF iv15 < iv14 GOTO label4
+GOTO label7
+LABEL label4 :
+it22 := iv15 * #4
+it23 := #0 + it22
+it24 := &v19 + it23
+READ it25
+*it24 := it25
+it26 := iv15 * #4
+it27 := #0 + it26
+it28 := &v20 + it27
+READ it29
+*it28 := it29
+it30 := iv15 + #1
+iv15 := it30
+GOTO label3
+LABEL label7 :
+it31 := &v20
+iv17 := *it31
+iv15 := #1
+LABEL label9 :
+IF iv15 < iv14 GOTO label10
+GOTO label12
+LABEL label10 :
+it32 := iv15 * #4
+it33 := #0 + it32
+it34 := &v20 + it33
+ARG *it34
+ARG iv17
+it35 := CALL lcm
+iv17 := it35
+it36 := iv15 + #1
+iv15 := it36
+GOTO label9
+LABEL label12 :
+iv15 := #0
+LABEL label13 :
+IF iv15 < iv14 GOTO label14
+GOTO label16
+LABEL label14 :
+it37 := iv15 * #4
+it38 := #0 + it37
+it39 := &v19 + it38
+it40 := iv15 * #4
+it41 := #0 + it40
+it42 := &v20 + it41
+it43 := *it42
+it44 := iv17 / it43
+it45 := *it39
+it46 := it45 * it44
+it47 := iv18 + it46
+iv18 := it47
+it48 := iv15 + #1
+iv15 := it48
+GOTO label13
+LABEL label16 :
+ARG iv17
+ARG iv18
+it49 := CALL gcd
+iv16 := it49
+it50 := iv18 / iv16
+iv18 := it50
+it51 := iv17 / iv16
+iv17 := it51
+IF iv17 == #1 GOTO label20
+GOTO label21
+LABEL label20 :
+WRITE iv18
+GOTO label23
+LABEL label21 :
+WRITE iv18
+WRITE iv17
+LABEL label23 :
+RETURN #0

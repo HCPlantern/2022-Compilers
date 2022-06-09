@@ -1,0 +1,86 @@
+FUNCTION binary_search :
+PARAM iv0
+PARAM v1
+PARAM iv2
+iv3 := #0
+it5 := iv2 - #1
+iv4 := it5
+iv7 := #0
+iv8 := #0
+LABEL label0 :
+IF iv3 <= iv4 GOTO label1
+GOTO label12
+LABEL label1 :
+IF iv8 == #0 GOTO label2
+GOTO label12
+LABEL label2 :
+it9 := iv7 + #1
+iv7 := it9
+it10 := iv3 + iv4
+it11 := it10 / #2
+iv6 := it11
+it12 := iv6 * #4
+it13 := #0 + it12
+it14 := v1 + it13
+it15 := *it14
+IF iv0 < it15 GOTO label5
+GOTO label6
+LABEL label5 :
+it16 := iv6 - #1
+iv4 := it16
+GOTO label0
+LABEL label6 :
+it17 := iv6 * #4
+it18 := #0 + it17
+it19 := v1 + it18
+it20 := *it19
+IF iv0 > it20 GOTO label7
+GOTO label8
+LABEL label7 :
+it21 := iv6 + #1
+iv3 := it21
+GOTO label0
+LABEL label8 :
+it22 := iv6 * #4
+it23 := #0 + it22
+it24 := v1 + it23
+it25 := *it24
+IF iv0 == it25 GOTO label9
+GOTO label0
+LABEL label9 :
+it26 := iv6 + #1
+WRITE it26
+WRITE iv7
+iv8 := #1
+GOTO label0
+LABEL label12 :
+IF iv8 == #0 GOTO label13
+GOTO label14
+LABEL label13 :
+WRITE #-1
+LABEL label14 :
+RETURN #0
+FUNCTION main :
+iv27 := #0
+DEC v29 28
+iv30 := #7
+LABEL label15 :
+IF iv27 < iv30 GOTO label16
+GOTO label18
+LABEL label16 :
+it31 := iv27 * #4
+it32 := #0 + it31
+it33 := &v29 + it32
+READ it34
+*it33 := it34
+it35 := iv27 + #1
+iv27 := it35
+GOTO label15
+LABEL label18 :
+READ it36
+iv28 := it36
+ARG iv30
+ARG &v29
+ARG iv28
+it37 := CALL binary_search
+RETURN #0

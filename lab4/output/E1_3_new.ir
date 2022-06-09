@@ -1,0 +1,84 @@
+FUNCTION calculate_avg :
+PARAM v0
+iv1 := #0
+iv2 := #0
+LABEL label0 :
+IF iv2 < #10 GOTO label1
+GOTO label3
+LABEL label1 :
+it3 := iv2 * #12
+it4 := #4 + it3
+it5 := v0 + it4
+it6 := it5 + #4
+it7 := *it6
+it8 := iv1 + it7
+iv1 := it8
+it9 := iv2 + #1
+iv2 := it9
+GOTO label0
+LABEL label3 :
+it10 := v0 + #124
+it11 := iv1 / #10
+*it10 := it11
+it12 := v0 + #124
+it13 := *it12
+RETURN it13
+FUNCTION main :
+DEC v14 640
+iv15 := #0
+iv17 := #0
+LABEL label5 :
+IF iv15 < #5 GOTO label6
+GOTO label14
+LABEL label6 :
+iv16 := #0
+it18 := iv15 * #128
+it19 := #0 + it18
+it20 := &v14 + it19
+it21 := it20
+*it21 := iv15
+LABEL label8 :
+IF iv16 < #10 GOTO label9
+GOTO label11
+LABEL label9 :
+it22 := iv15 * #128
+it23 := #0 + it22
+it24 := &v14 + it23
+it25 := iv16 * #12
+it26 := #4 + it25
+it27 := it24 + it26
+it28 := it27 + #4
+it29 := iv15 * #100
+it30 := #3000 + it29
+it31 := iv16 * #150
+it32 := it30 + it31
+*it28 := it32
+it33 := iv16 + #1
+iv16 := it33
+GOTO label8
+LABEL label11 :
+it34 := iv15 * #128
+it35 := #0 + it34
+it36 := &v14 + it35
+it37 := it36 + #124
+it38 := iv15 * #128
+it39 := #0 + it38
+it40 := &v14 + it39
+ARG it40
+it41 := CALL calculate_avg
+*it37 := it41
+it42 := iv15 * #128
+it43 := #0 + it42
+it44 := &v14 + it43
+it45 := it44 + #124
+it46 := *it45
+it47 := iv17 + it46
+iv17 := it47
+it48 := iv15 + #1
+iv15 := it48
+GOTO label5
+LABEL label14 :
+it49 := iv17 / #5
+iv17 := it49
+WRITE iv17
+RETURN #0

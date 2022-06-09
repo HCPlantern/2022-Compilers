@@ -56,10 +56,10 @@ int main(int argc, char** argv) {
     check_undefined_func();
 
     // del_tree(syntax_tree_root);
-    ir_optimization();
+    // ir_optimization();
     print_ir();
 
-    object_code_gen_go();
+    // object_code_gen_go();
 
     // write to file
     FILE* w = fopen(argv[2], "w+");
