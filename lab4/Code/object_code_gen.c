@@ -574,8 +574,110 @@ void gen_if_code(int ir_no) {
         i++;
         token = strtok(NULL, " ");
     }
+}
 
+void two_blanks_assign_code(char* var1, char* var2, size_t ir_no) {
+    Register* reg1;
+    Register* reg2;
+    // x := y
+    // x := #1
+    // x := *y
+    // *x = y
+    if (var1[0] == '*') {
+        reg1 = allocate_by_name(var1 + 1, ir_no);
+        reg2 = ensure_var(var2, ir_no);
+        // generate code
+        char code[max_object_code_len];
+        sprintf(code, "sw $%s, 0($%s)", reg1->name, reg2->name);
+        add_last_object_code(code);
+    } else {
+        if (*var2 == '#') {
+            // x := #1
+            reg1 = allocate_by_name(var1, ir_no);
+            char code[max_object_code_len];
+            sprintf(code, "li $%s, %s", reg1->name, var2 + 1);
+            add_last_object_code(code);
+        } else if (*var2 == '*') {
+            // x := *y
+            reg1 = allocate_by_name(var1, ir_no);
+            reg2 = ensure_var(var2 + 1, ir_no);
+            // generate code
+            char code[max_object_code_len];
+            sprintf(code, "lw $%s, 0($%s)", reg1->name, reg2->name);
+            add_last_object_code(code);
+        } else if (*var2 == '&') {
+            // TODO : x := &y
+        } else {
+            // x := y
+            reg1 = allocate_by_name(var1, ir_no);
+            reg2 = ensure_var(var2, ir_no);
+            if (no_next_use(var2, ir_no)) {
+                free_reg(reg2);
+            }
+            char code[max_object_code_len];
+            sprintf(code, "move $%s, $%s", reg1->name, reg2->name);
+            add_last_object_code(code);
+        }
+    }
+}
 
+void three_blanks_assign_code() {
+}
+
+void four_blanks_assign_code(char* var1, char* var2, char* var3, char* op, size_t ir_no) {
+    // TODO
+    Register* reg1;
+    Register* reg2;
+    Register* reg3;
+    // var1
+    reg1 = allocate_by_name(var1, ir_no);
+
+    // var2
+    if (*var2 == '#') {
+        reg2 = reg_arr[24];  // t8
+        char code[max_object_code_len];
+        sprintf(code, "li $%s, %s", reg2->name, var2 + 1);
+        add_last_object_code(code);
+    } else if (*var2 == '*') {
+        //
+    } else if (*var2 == '&') {
+        //
+    } else {
+        reg2 = ensure_var(var2, ir_no);
+    }
+
+    // var3
+    if (*var3 == '#') {
+        reg3 = reg_arr[25];  // t9
+        char code[max_object_code_len];
+        sprintf(code, "li $%s, %s", reg3->name, var3 + 1);
+        add_last_object_code(code);
+    } else if (*var2 == '*') {
+        //
+    } else if (*var2 == '&') {
+        //
+    } else {
+        reg3 = ensure_var(var3, ir_no);
+    }
+
+    // all regs have been found or allocated
+    char code[max_object_code_len];
+    char code2[max_object_code_len];
+    if (*op == '+') {
+        sprintf(code, "add $%s, $%s, $%s", reg1->name, reg2->name, reg3->name);
+        add_last_object_code(code);
+    } else if (*op == '-') {
+        sprintf(code, "sub $%s, $%s, $%s", reg1->name, reg2->name, reg3->name);
+        add_last_object_code(code);
+    } else if (*op == '*') {
+        sprintf(code, "mul $%s, $%s, $%s", reg1->name, reg2->name, reg3->name);
+        add_last_object_code(code);
+    } else if (*op == '/') {
+        sprintf(code, "div $%s, $%s", reg2->name, reg3->name);
+        add_last_object_code(code);
+        sprintf(code2, "mflo $%s", reg1->name);
+        add_last_object_code(code2);
+    }
 }
 
 void gen_assign_code(size_t ir_no) {
@@ -584,9 +686,6 @@ void gen_assign_code(size_t ir_no) {
     char* var2 = malloc(sizeof(char) * max_ir_var_len);
     char* var3 = malloc(sizeof(char) * max_ir_var_len);
     char* op = malloc(sizeof(char) * 5);
-    Register* reg1;
-    Register* reg2;
-    Register* reg3;
 
     // get var names
     strncpy(ir, ir_arr[ir_no]->ir, max_single_ir_len);
@@ -608,46 +707,12 @@ void gen_assign_code(size_t ir_no) {
     }
 
     if (blank_num == 2) {
-        // x := y
-        // x := #1
-        // x := *y
-        // *x = y
-        if (var1[0] == '*') {
-            reg1 = allocate_by_name(var1 + 1, ir_no);
-            reg2 = ensure_var(var2, ir_no);
-            // generate code
-            char code[max_object_code_len];
-            sprintf(code, "sw $%s, 0($%s)", reg1->name, reg2->name);
-            add_last_object_code(code);
-        } else {
-            if (*var2 == '#') {
-                // x := #1
-                reg1 = allocate_by_name(var1, ir_no);
-                char code[max_object_code_len];
-                sprintf(code, "li $%s, %s", reg1->name, token + 1);
-                add_last_object_code(code);
-            } else if (*var2 == '*') {
-                // x := *y
-                reg1 = allocate_by_name(var1, ir_no);
-                reg2 = ensure_var(var2 + 1, ir_no);
-                // generate code
-                char code[max_object_code_len];
-                sprintf(code, "lw $%s, 0($%s)", reg1->name, reg2->name);
-                add_last_object_code(code);
-            } else if (*var2 == '&') {
-                // TODO : x := &y
-            } else {
-                // x := y
-                reg1 = allocate_by_name(var1, ir_no);
-                reg2 = ensure_var(var2, ir_no);
-                if (no_next_use(var2, ir_no)) {
-                    free_reg(reg2);
-                }
-                char code[max_object_code_len];
-                sprintf(code, "move $%s, $%s", reg1->name, reg2->name);
-                add_last_object_code(code);
-            }
-        }
+        two_blanks_assign_code(var1, var2, ir_no);
+    } else if (blank_num == 3) {
+        // TODO: x := CALL f
+
+    } else if (blank_num == 4) {
+        four_blanks_assign_code(var1, var2, var3, op, ir_no);
     }
 }
 
@@ -743,15 +808,26 @@ void object_code_gen_go() {
 }
 
 enum IrType getIrType(char* ir) {
-    if      (prefix("LABEL", ir)) return LABEL;
-    else if (prefix("FUNCTION", ir)) return FUNCTION;
-    else if (prefix("GOTO", ir)) return GOTO;
-    else if (prefix("IF", ir)) return IF;
-    else if (prefix("RETURN", ir)) return RETURN;
-    else if (prefix("DEC", ir)) return DEC;
-    else if (prefix("ARG", ir)) return ARG;
-    else if (prefix("PARAM", ir)) return PARAM;
-    else if (prefix("READ", ir)) return READ;
-    else if (prefix("WRITE", ir)) return WRITE;
-    else return ASSIGN;
+    if (prefix("LABEL", ir))
+        return LABEL;
+    else if (prefix("FUNCTION", ir))
+        return FUNCTION;
+    else if (prefix("GOTO", ir))
+        return GOTO;
+    else if (prefix("IF", ir))
+        return IF;
+    else if (prefix("RETURN", ir))
+        return RETURN;
+    else if (prefix("DEC", ir))
+        return DEC;
+    else if (prefix("ARG", ir))
+        return ARG;
+    else if (prefix("PARAM", ir))
+        return PARAM;
+    else if (prefix("READ", ir))
+        return READ;
+    else if (prefix("WRITE", ir))
+        return WRITE;
+    else
+        return ASSIGN;
 }
