@@ -1,0 +1,133 @@
+FUNCTION Swap :
+PARAM v0
+PARAM iv1
+PARAM iv2
+it4 := iv1 * #4
+it5 := #0 + it4
+it6 := v0 + it5
+iv3 := *it6
+it7 := iv1 * #4
+it8 := #0 + it7
+it9 := v0 + it8
+it10 := iv2 * #4
+it11 := #0 + it10
+it12 := v0 + it11
+*it9 := *it12
+it13 := iv2 * #4
+it14 := #0 + it13
+it15 := v0 + it14
+*it15 := iv3
+RETURN #0
+FUNCTION Partition :
+PARAM v16
+PARAM iv17
+PARAM iv18
+it20 := iv17 * #4
+it21 := #0 + it20
+it22 := v16 + it21
+iv19 := *it22
+LABEL label3 :
+IF iv17 < iv18 GOTO label4
+GOTO label12
+LABEL label4 :
+IF iv17 < iv18 GOTO label5
+GOTO label7
+LABEL label5 :
+it23 := iv18 * #4
+it24 := #0 + it23
+it25 := v16 + it24
+it26 := *it25
+IF it26 >= iv19 GOTO label6
+GOTO label7
+LABEL label6 :
+it27 := iv18 - #1
+iv18 := it27
+GOTO label4
+LABEL label7 :
+ARG iv18
+ARG iv17
+ARG v16
+it28 := CALL Swap
+LABEL label8 :
+IF iv17 < iv18 GOTO label9
+GOTO label11
+LABEL label9 :
+it29 := iv17 * #4
+it30 := #0 + it29
+it31 := v16 + it30
+it32 := *it31
+IF it32 <= iv19 GOTO label10
+GOTO label11
+LABEL label10 :
+it33 := iv17 + #1
+iv17 := it33
+GOTO label8
+LABEL label11 :
+ARG iv18
+ARG iv17
+ARG v16
+it34 := CALL Swap
+GOTO label3
+LABEL label12 :
+RETURN iv17
+FUNCTION QuickSort :
+PARAM v35
+PARAM iv36
+PARAM iv37
+IF iv36 < iv37 GOTO label13
+GOTO label15
+LABEL label13 :
+ARG iv37
+ARG iv36
+ARG v35
+it39 := CALL Partition
+iv38 := it39
+it40 := iv38 - #1
+ARG it40
+ARG iv36
+ARG v35
+it41 := CALL QuickSort
+it42 := iv38 + #1
+ARG iv37
+ARG it42
+ARG v35
+it43 := CALL QuickSort
+LABEL label15 :
+RETURN #0
+FUNCTION main :
+iv44 := #8
+DEC v45 32
+iv46 := #0
+LABEL label16 :
+IF iv46 < iv44 GOTO label17
+GOTO label19
+LABEL label17 :
+it47 := iv46 * #4
+it48 := #0 + it47
+it49 := &v45 + it48
+READ it50
+*it49 := it50
+it51 := iv46 + #1
+iv46 := it51
+GOTO label16
+LABEL label19 :
+it52 := iv44 - #1
+ARG it52
+ARG #0
+ARG &v45
+it53 := CALL QuickSort
+iv46 := #0
+LABEL label21 :
+IF iv46 < iv44 GOTO label22
+GOTO label24
+LABEL label22 :
+it54 := iv46 * #4
+it55 := #0 + it54
+it56 := &v45 + it55
+it57 := *it56
+WRITE it57
+it58 := iv46 + #1
+iv46 := it58
+GOTO label21
+LABEL label24 :
+RETURN #0

@@ -5,6 +5,7 @@
 #include "hash_table.h"
 #include "stack.h"
 #include "ir.h"
+#include "object_code_gen.h"
 
 extern Node* syntax_tree_root;
 extern void del_tree(Node* root);
@@ -15,6 +16,7 @@ extern bool has_syntax_error;
 extern Type arg_type;
 extern Stack stack;
 extern IR* ir_list;
+extern ObjectCode* object_code;
 
 void init() {
     // init stack and table;
@@ -29,15 +31,30 @@ void init() {
 }
 
 void write_file(FILE* f) {
+    // write ir code
+    // if (has_syntax_error) return;
+    // IR* code = ir_list->next;
+    // while (code != ir_list) {
+    //     if (0 != strcmp(code->ir, "GOTO")) {
+    //         fprintf(f, "%s\n", code->ir);
+    //     }
+    //     code = code->next;
+    // }
+    // fclose(f);
+    FILE* init = fopen("object_code_init", "r");
+    if (!init) {
+        perror("object_code_init");
+    }
+    char buf[255];
+    while (fgets(buf, 255, init)) {
+        fprintf(f, "%s", buf);
+    }
     if (has_syntax_error) return;
-    IR* code = ir_list->next;
-    while (code != ir_list) {
-        if (0 != strcmp(code->ir, "GOTO")) {
-            fprintf(f, "%s\n", code->ir);
-        }
+    ObjectCode* code = object_code->next;
+    while (code != object_code) {
+        fprintf(f, "%s\n", code->code);
         code = code->next;
     }
-    fclose(f);
 }
 
 int main(int argc, char** argv) {
@@ -56,7 +73,7 @@ int main(int argc, char** argv) {
     check_undefined_func();
 
     // del_tree(syntax_tree_root);
-    ir_optimization();
+    // ir_optimization();
     print_ir();
 
     object_code_gen_go();

@@ -1,0 +1,99 @@
+FUNCTION mod :
+PARAM iv0
+PARAM iv1
+it2 := iv0 / iv1
+it3 := it2 * iv1
+it4 := iv0 - it3
+RETURN it4
+FUNCTION IsLeap :
+PARAM iv5
+ARG #400
+ARG iv5
+it6 := CALL mod
+IF it6 == #0 GOTO label2
+GOTO label0
+LABEL label0 :
+ARG #4
+ARG iv5
+it7 := CALL mod
+IF it7 == #0 GOTO label1
+GOTO label3
+LABEL label1 :
+ARG #100
+ARG iv5
+it8 := CALL mod
+IF it8 != #0 GOTO label2
+GOTO label3
+LABEL label2 :
+RETURN #1
+LABEL label3 :
+RETURN #0
+FUNCTION main :
+iv13 := #0
+iv14 := #0
+DEC v15 20
+it16 := &v15
+*it16 := #0
+it17 := &v15 + #4
+*it17 := #31
+it18 := &v15 + #8
+*it18 := #28
+it19 := &v15 + #12
+*it19 := #31
+it20 := &v15 + #16
+*it20 := #30
+READ it21
+iv9 := it21
+iv10 := #1900
+LABEL label10 :
+IF iv10 < iv9 GOTO label11
+GOTO label15
+LABEL label11 :
+ARG iv10
+it22 := CALL IsLeap
+IF it22 != #0 GOTO label12
+GOTO label13
+LABEL label12 :
+it23 := iv13 + #366
+iv13 := it23
+GOTO label14
+LABEL label13 :
+it24 := iv13 + #365
+iv13 := it24
+LABEL label14 :
+it25 := iv10 + #1
+iv10 := it25
+GOTO label10
+LABEL label15 :
+ARG iv9
+it26 := CALL IsLeap
+IF it26 != #0 GOTO label16
+GOTO label17
+LABEL label16 :
+it27 := &v15 + #8
+*it27 := #29
+LABEL label17 :
+iv10 := #1
+LABEL label18 :
+IF iv10 < #5 GOTO label19
+GOTO label21
+LABEL label19 :
+it28 := iv10 * #4
+it29 := #0 + it28
+it30 := &v15 + it29
+it31 := *it30
+it32 := iv13 + it31
+iv13 := it32
+it33 := iv10 + #1
+iv10 := it33
+GOTO label18
+LABEL label21 :
+ARG #7
+ARG iv13
+it34 := CALL mod
+iv11 := it34
+it35 := #14 - iv11
+iv12 := it35
+WRITE #5
+WRITE iv12
+RETURN #0

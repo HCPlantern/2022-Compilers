@@ -1,0 +1,68 @@
+FUNCTION main :
+DEC v0 96
+iv1 := #0
+iv2 := #0
+iv3 := #0
+LABEL label0 :
+IF iv1 < #8 GOTO label1
+GOTO label5
+LABEL label1 :
+it5 := iv1 * #12
+it6 := #0 + it5
+it7 := &v0 + it6
+it8 := it7
+*it8 := iv1
+it9 := iv1 * #12
+it10 := #0 + it9
+it11 := &v0 + it10
+it12 := it11 + #4
+it13 := #2012 + iv1
+*it12 := it13
+it14 := iv1 * #12
+it15 := #0 + it14
+it16 := &v0 + it15
+it17 := it16 + #8
+it18 := iv1 * #2
+it19 := #30 + it18
+*it17 := it19
+it20 := iv1 + #1
+iv1 := it20
+GOTO label0
+LABEL label5 :
+IF iv2 < #8 GOTO label6
+GOTO label11
+LABEL label6 :
+it21 := iv2 * #12
+it22 := #0 + it21
+it23 := &v0 + it22
+it24 := it23
+it25 := *it24
+IF it25 < #4 GOTO label7
+GOTO label8
+LABEL label7 :
+iv4 := #1
+GOTO label9
+LABEL label8 :
+iv4 := #2
+LABEL label9 :
+it26 := iv2 * #12
+it27 := #0 + it26
+it28 := &v0 + it27
+it29 := it28 + #8
+it30 := *it29
+it31 := it30 * iv4
+it32 := iv2 * #12
+it33 := #0 + it32
+it34 := &v0 + it33
+it35 := it34 + #4
+it36 := *it35
+it37 := #2020 - it36
+it38 := it31 * it37
+it39 := iv3 + it38
+iv3 := it39
+it40 := iv2 + #1
+iv2 := it40
+GOTO label5
+LABEL label11 :
+WRITE iv3
+RETURN #0
