@@ -2,9 +2,9 @@
 
 #include <stdio.h>
 
+#include "assert.h"
 #include "ir.h"
 #include "stdlib.h"
-#include "assert.h"
 #include "string.h"
 #define max_object_code_len 50
 extern size_t ir_count;
@@ -249,11 +249,12 @@ void init_regs() {
     reg_arr = malloc(sizeof(Register*) * 32);
     Register* curr_reg;
     for (int i = 0; i < 32; i++) {
+        reg_arr[i] = malloc(sizeof(Register));
+        reg_arr[i]->reg_no = i;
+        reg_arr[i]->name = malloc(sizeof(char) * 5);
+        reg_arr[i]->var = NULL;
+        reg_arr[i]->is_free = true;
         curr_reg = reg_arr[i];
-        curr_reg = malloc(sizeof(Register));
-        curr_reg->reg_no = i;
-        curr_reg->name = malloc(sizeof(char) * 5);
-        curr_reg->var = NULL;
         if (i == 0) {
             sprintf(curr_reg->name, "%s", "zero");
         } else if (i == 1) {
@@ -296,7 +297,11 @@ size_t next_use(char* var_name, size_t ir_no) {
     return get_var(var_name)->live_analysis[ir_no]->next_use;
 }
 
-size_t get_func_offset(char* name) {
+bool no_next_use(char* var_name, size_t ir_no) {
+    return get_var(var_name)->live_analysis[ir_no]->next_use == __UINTMAX_MAX__;
+}
+// return frame size of a function
+size_t get_func_framesize(char* name) {
     Function* curr = func_list->next;
     if (!strcmp(curr->name, name)) {
         return curr->frame_size;
@@ -355,19 +360,26 @@ void cal_framesize() {
                 } else if (!strcmp("DEC", token)) {
                     // DEC iv0 [size]
                     token = strtok(NULL, " ");
-                    size_t size = atoi(token);
+                    size_t size = atoi(token + 2);
                     set_var_offset(token, frame_size + 4);
                     frame_size += size;
-                } else {
-                    // iv0 := ...
-                    if (token[0] != 'i') {
-                        continue;
-                    }
+                } else if (!strcmp("READ", token)) {
+                    token = strtok(NULL, " ");
                     TempVar* var = get_var(token);
                     // first time
                     if (var->fp_offset == 0) {
                         set_var_offset(token, frame_size + 4);
                         frame_size += 4;
+                    }
+                } else {
+                    // iv0 := ...
+                    if (token[0] != 'i') {
+                        TempVar* var = get_var(token);
+                        // first time
+                        if (var->fp_offset == 0) {
+                            set_var_offset(token, frame_size + 4);
+                            frame_size += 4;
+                        }
                     }
                 }
             }
@@ -384,14 +396,20 @@ void spill(Register* reg) {
     sprintf(code, "sw, $%s, -%lu($fp)", reg->name, var->fp_offset);
     add_last_object_code(code);
     var->reg = NULL;
-    reg->var = NULL;    
+    reg->var = NULL;
+    reg->is_free = true;
+}
+
+void free_reg(Register* reg) {
+    reg->is_free = true;
 }
 
 Register* allocate(TempVar* var, size_t ir_no) {
-    Register* res;
+    Register* res = NULL;
     for (int i = 8; i <= 23; i++) {
         Register* curr = reg_arr[i];
-        if (curr->var == NULL) {
+        if (curr->is_free) {
+            curr->is_free = false;
             curr->var = var;
             var->reg = curr;
             return curr;
@@ -402,9 +420,14 @@ Register* allocate(TempVar* var, size_t ir_no) {
         }
     }
     spill(res);
+    res->is_free = false;
     res->var = var;
     var->reg = res;
     return res;
+}
+
+Register* allocate_by_name(char* var, size_t ir_no) {
+    return allocate(get_var(var), ir_no);
 }
 
 Register* ensure_var(char* var_name, size_t ir_no) {
@@ -441,19 +464,138 @@ void gen_goto_code(char* label_name) {
     add_last_object_code(code);
 }
 
-void gen_return_code() {
+void gen_return_code(char* var, size_t ir_no) {
+    char code[max_object_code_len] = {0};
+    char code2[max_object_code_len] = {0};
+    if (*var == '#') {
+        sprintf(code, "li $v0, %s", var + 1);
+    } else {
+        Register* reg = ensure_var(var, ir_no);
+        sprintf(code, "move $v0, $%s", reg->name);
+    }
+    add_last_object_code(code);
+    sprintf(code2, "jr $ra");
+    add_last_object_code(code2);
 }
 
-void gen_read_code() {
+void gen_read_code(char* var, size_t ir_no) {
+    char code[max_object_code_len] = {0};
+    char code2[max_object_code_len] = {0};
+    char code3[max_object_code_len] = {0};
+    char code4[max_object_code_len] = {0};
+    char code5[max_object_code_len] = {0};
+    char code6[max_object_code_len] = {0};
+    sprintf(code, "addi $sp, $sp, -4");
+    sprintf(code2, "sw $ra, 0($sp)");
+    sprintf(code3, "jal read");
+    sprintf(code4, "addi $sp, $sp, 4");
+    Register* reg = ensure_var(var, ir_no);
+    sprintf(code5, "lw $ra, 0($sp)");
+    sprintf(code6, "move $%s, $v0", reg->name);
+    add_last_object_code(code);
+    add_last_object_code(code2);
+    add_last_object_code(code3);
+    add_last_object_code(code4);
+    add_last_object_code(code5);
+    add_last_object_code(code6);
 }
 
-void gen_write_code() {
+void gen_write_code(char* var, size_t ir_no) {
+    char code[max_object_code_len] = {0};
+    char code2[max_object_code_len] = {0};
+    char code3[max_object_code_len] = {0};
+    char code4[max_object_code_len] = {0};
+    char code5[max_object_code_len] = {0};
+    char code6[max_object_code_len] = {0};
+    Register* reg = ensure_var(var, ir_no);
+    sprintf(code, "move $a0, $%s", reg->name);
+    sprintf(code2, "addi $sp, $sp, -4");
+    sprintf(code3, "sw $ra, 0($sp)");
+    sprintf(code4, "jal write");
+    sprintf(code5, "lw $ra, 0($sp)");
+    sprintf(code6, "addi $sp, $sp, 4");
+    add_last_object_code(code);
+    add_last_object_code(code2);
+    add_last_object_code(code3);
+    add_last_object_code(code4);
+    add_last_object_code(code5);
+    add_last_object_code(code6);
 }
 
 void gen_call_code() {
 }
 
 void gen_if_code() {
+}
+
+void gen_assign_code(size_t ir_no) {
+    char ir[max_single_ir_len];
+    char* var1 = malloc(sizeof(char) * max_ir_var_len);
+    char* var2 = malloc(sizeof(char) * max_ir_var_len);
+    char* var3 = malloc(sizeof(char) * max_ir_var_len);
+    char* op = malloc(sizeof(char) * 5);
+    Register* reg1;
+    Register* reg2;
+    Register* reg3;
+
+    // get var names
+    strncpy(ir, ir_arr[ir_no]->ir, max_single_ir_len);
+    size_t blank_num = count_blanks(ir);
+    char* token = strtok(ir, " ");
+    strncpy(var1, token, max_ir_var_len);
+    if (blank_num == 2) {
+        token = strtok(NULL, " ");
+        token = strtok(NULL, " ");
+        strncpy(var2, token, max_ir_var_len);
+    } else if (blank_num == 4) {
+        token = strtok(NULL, " ");
+        token = strtok(NULL, " ");
+        strncpy(var2, token, max_ir_var_len);
+        token = strtok(NULL, " ");
+        strncpy(op, token, 5);
+        token = strtok(NULL, " ");
+        strncpy(var3, token, max_ir_var_len);
+    }
+
+    if (blank_num == 2) {
+        // x := y
+        // x := #1
+        // x := *y
+        // *x = y
+        if (var1[0] == '*') {
+            reg1 = allocate_by_name(var1 + 1, ir_no);
+            reg2 = ensure_var(var2, ir_no);
+            // generate code
+            char code[max_object_code_len];
+            sprintf(code, "sw $%s, 0($%s)", reg1->name, reg2->name);
+            add_last_object_code(code);
+        } else {
+            if (*var2 == '#') {
+                // x := #1
+                reg1 = allocate_by_name(var1, ir_no);
+                char code[max_object_code_len];
+                sprintf(code, "li $%s, %s", reg1->name, token + 1);
+                add_last_object_code(code);
+            } else if (*var2 == '*') {
+                // x := *y
+                reg1 = allocate_by_name(var1, ir_no);
+                reg2 = ensure_var(var2 + 1, ir_no);
+                // generate code
+                char code[max_object_code_len];
+                sprintf(code, "lw $%s, 0($%s)", reg1->name, reg2->name);
+                add_last_object_code(code);
+            } else if (*var2 == '&') {
+                // TODO : x := &y
+            } else {
+                // x := y
+                reg1 = allocate_by_name(var1, ir_no);
+                reg2 = ensure_var(var2, ir_no);
+                char code[max_object_code_len];
+                sprintf(code, "move $%s, $%s", reg1->name, reg2->name);
+                add_last_object_code(code);
+            }
+        }
+    }
 }
 
 // generate object code
@@ -470,26 +612,31 @@ void gen_object_code() {
         strncpy(temp_ir, curr_ir_code, max_single_ir_len);
         char* token = strtok(temp_ir, " ");
         if (!strcmp("FUNCTION", token)) {
-            token = strtok(NULL, " ");
+            token = strtok(NULL, "");
             gen_func_code(token);
         } else if (!strcmp("LABEL", token)) {
-            token = strtok(NULL, " ");
+            token = strtok(NULL, "");
             gen_label_code(token);
         } else if (!strcmp("GOTO", token)) {
             token = strtok(NULL, " ");
             gen_goto_code(token);
         } else if (prefix("RETURN", curr_ir_code)) {
             //
+            token = strtok(NULL, " ");
+            // gen_return_code(token, ir_no);
         } else if (prefix("READ", curr_ir_code)) {
-            gen_read_code();
+            token = strtok(NULL, " ");
+            gen_read_code(token, ir_no);
         } else if (prefix("WRITE", curr_ir_code)) {
-            //
+            token = strtok(NULL, " ");
+            gen_write_code(token, ir_no);
         } else if (prefix("CALL", curr_ir_code)) {
             //
         } else if (prefix("IF", curr_ir_code)) {
             //
         } else {
             // assign statement
+            gen_assign_code(ir_no);
         }
     }
 }
@@ -520,12 +667,12 @@ void object_code_gen_go() {
     // }
 
     // print all object codes
-    // ObjectCode* curr = object_code->next;
-    // printf("\n");
-    // while (curr != object_code) {
-    //     printf("%s\n", curr->code);
-    //     curr = curr->next;
-    // }
+    ObjectCode* curr = object_code->next;
+    printf("\n");
+    while (curr != object_code) {
+        printf("%s\n", curr->code);
+        curr = curr->next;
+    }
 
     // print all func frame size
     // Function* curr = func_list->next;

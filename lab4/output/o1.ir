@@ -17,4 +17,4 @@ it7 := iv2 + #1
 iv2 := it7
 GOTO label0
 LABEL label5 :
-RETURN #0
+RETURN iv0

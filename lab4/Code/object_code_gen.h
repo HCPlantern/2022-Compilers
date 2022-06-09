@@ -28,6 +28,7 @@ struct _Register {
     size_t reg_no;
     char* name;
     TempVar* var;
+    bool is_free;
 };
 
 struct _Function {
