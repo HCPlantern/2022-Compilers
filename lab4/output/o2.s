@@ -4,20 +4,20 @@ _ret: .asciiz "\n"
 .globl main
 .text
 read:
-    li      $v0,    4
-    la      $a0,    _prompt
-    syscall 
-    li      $v0,    5
-    syscall 
-    jr      $ra
+li $v0, 4
+la $a0, _prompt
+syscall
+li $v0, 5
+syscall
+jr $ra
 write:
-    li      $v0,    1
-    syscall 
-    li      $v0,    4
-    la      $a0,    _ret
-    syscall 
-    move    $v0,    $0
-    jr      $ra
+li $v0, 1
+syscall
+li $v0, 4
+la $a0, _ret
+syscall
+move $v0, $0
+jr $ra
 
 fact:
 subu $sp, $sp, 56
@@ -47,7 +47,6 @@ sw, $t1, -48($fp)
 lw $t0, -48($fp)
 move $a0, $t0
 jal fact
-sw, $t0, -48($fp)
 lw $t0, -44($fp)
 mul $t1, $t0, $v0
 move $v0, $t1
@@ -81,7 +80,6 @@ label3:
 lw $t0, -48($fp)
 move $a0, $t0
 jal fact
-sw, $t0, -48($fp)
 j label5
 
 label4:

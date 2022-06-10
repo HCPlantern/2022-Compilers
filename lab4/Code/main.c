@@ -1,11 +1,11 @@
 #include <stdio.h>
 
-#include "semantic.h"
-#include "semantic_check.h"
 #include "hash_table.h"
-#include "stack.h"
 #include "ir.h"
 #include "object_code_gen.h"
+#include "semantic.h"
+#include "semantic_check.h"
+#include "stack.h"
 
 extern Node* syntax_tree_root;
 extern void del_tree(Node* root);
@@ -41,14 +41,34 @@ void write_file(FILE* f) {
     //     code = code->next;
     // }
     // fclose(f);
-    FILE* init = fopen("object_code_init", "r");
-    if (!init) {
-        perror("object_code_init");
-    }
-    char buf[255];
-    while (fgets(buf, 255, init)) {
-        fprintf(f, "%s", buf);
-    }
+    // FILE* init = fopen("object_code_init", "r");
+    // if (!init) {
+    //     perror("object_code_init");
+    // }
+    // char buf[255];
+    // while (fgets(buf, 255, init)) {
+    //     fprintf(f, "%s", buf);
+    // }
+    fprintf(f, ".data\n");
+    fprintf(f, "_prompt: .asciiz \"Enter an integer:\"\n");
+    fprintf(f, "_ret: .asciiz \"\\n\"\n");
+    fprintf(f, ".globl main\n");
+    fprintf(f, ".text\n");
+    fprintf(f, "read:\n");
+    fprintf(f, "li $v0, 4\n");
+    fprintf(f, "la $a0, _prompt\n");
+    fprintf(f, "syscall\n");
+    fprintf(f, "li $v0, 5\n");
+    fprintf(f, "syscall\n");
+    fprintf(f, "jr $ra\n");
+    fprintf(f, "write:\n");
+    fprintf(f, "li $v0, 1\n");
+    fprintf(f, "syscall\n");
+    fprintf(f, "li $v0, 4\n");
+    fprintf(f, "la $a0, _ret\n");
+    fprintf(f, "syscall\n");
+    fprintf(f, "move $v0, $0\n");
+    fprintf(f, "jr $ra\n");
     if (has_syntax_error) return;
     ObjectCode* code = object_code->next;
     while (code != object_code) {
@@ -74,7 +94,7 @@ int main(int argc, char** argv) {
 
     // del_tree(syntax_tree_root);
     // ir_optimization();
-    print_ir();
+    // print_ir();
 
     object_code_gen_go();
 
