@@ -20,10 +20,10 @@ write:
     jr      $ra
 
 mod:
-subu $sp, $sp, 60
-sw $ra, 56($sp)
-sw $fp, 52($sp)
-addi $fp, $sp, 60
+subu $sp, $sp, 100
+sw $ra, 96($sp)
+sw $fp, 92($sp)
+addi $fp, $sp, 100
 sw $a0, -44($fp)
 sw $a1, -48($fp)
 lw $t0, -44($fp)
@@ -35,16 +35,16 @@ mul $t1, $t2, $t1
 sw, $t1, -56($fp)
 sub $t1, $t0, $t1
 move $v0, $t1
-lw $ra, 56($sp)
-lw $fp, 52($sp)
-addi $sp, $sp, 60
+lw $ra, 96($sp)
+lw $fp, 92($sp)
+addi $sp, $sp, 100
 jr $ra
 
 main:
-subu $sp, $sp, 64
-sw $ra, 60($sp)
-sw $fp, 56($sp)
-addi $fp, $sp, 64
+subu $sp, $sp, 104
+sw $ra, 100($sp)
+sw $fp, 96($sp)
+addi $fp, $sp, 104
 lw $t0, -44($fp)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
@@ -113,7 +113,7 @@ jal write
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 li $v0, 0
-lw $ra, 60($sp)
-lw $fp, 56($sp)
-addi $sp, $sp, 64
+lw $ra, 100($sp)
+lw $fp, 96($sp)
+addi $sp, $sp, 104
 jr $ra

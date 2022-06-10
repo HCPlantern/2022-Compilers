@@ -20,10 +20,10 @@ write:
     jr      $ra
 
 main:
-subu $sp, $sp, 184
-sw $ra, 180($sp)
-sw $fp, 176($sp)
-addi $fp, $sp, 184
+subu $sp, $sp, 224
+sw $ra, 220($sp)
+sw $fp, 216($sp)
+addi $fp, $sp, 224
 li $t0, 0
 sw, $t0, -44($fp)
 
@@ -41,7 +41,7 @@ mul $t1, $t0, $t9
 li $t8, 0
 sw, $t1, -68($fp)
 add $t1, $t8, $t1
-add $t8, $fp, -48
+addi $t8, $fp, -48
 sw, $t1, -72($fp)
 add $t1, $t8, $t1
 lw $t2, -80($fp)
@@ -91,7 +91,7 @@ mul $t1, $t0, $t9
 li $t8, 0
 sw, $t1, -88($fp)
 add $t1, $t8, $t1
-add $t8, $fp, -48
+addi $t8, $fp, -48
 sw, $t1, -92($fp)
 add $t1, $t8, $t1
 lw $t2, -84($fp)
@@ -100,7 +100,7 @@ mul $t3, $t2, $t9
 li $t8, 0
 sw, $t3, -100($fp)
 add $t3, $t8, $t3
-add $t8, $fp, -48
+addi $t8, $fp, -48
 sw, $t3, -104($fp)
 add $t3, $t8, $t3
 lw $t4, 0($t1)
@@ -125,7 +125,7 @@ mul $t1, $t0, $t9
 li $t8, 0
 sw, $t1, -120($fp)
 add $t1, $t8, $t1
-add $t8, $fp, -48
+addi $t8, $fp, -48
 sw, $t1, -124($fp)
 add $t1, $t8, $t1
 lw $t2, 0($t1)
@@ -134,7 +134,7 @@ mul $t3, $t0, $t9
 li $t8, 0
 sw, $t3, -136($fp)
 add $t3, $t8, $t3
-add $t8, $fp, -48
+addi $t8, $fp, -48
 sw, $t3, -140($fp)
 add $t3, $t8, $t3
 lw $t4, -84($fp)
@@ -143,7 +143,7 @@ mul $t5, $t4, $t9
 li $t8, 0
 sw, $t5, -148($fp)
 add $t5, $t8, $t5
-add $t8, $fp, -48
+addi $t8, $fp, -48
 sw, $t5, -152($fp)
 add $t5, $t8, $t5
 lw $t8, 0($t5)
@@ -153,7 +153,7 @@ mul $t6, $t4, $t9
 li $t8, 0
 sw, $t6, -160($fp)
 add $t6, $t8, $t6
-add $t8, $fp, -48
+addi $t8, $fp, -48
 sw, $t6, -164($fp)
 add $t6, $t8, $t6
 sw $t2, 0($t6)
@@ -197,7 +197,7 @@ mul $t1, $t0, $t9
 li $t8, 0
 sw, $t1, -172($fp)
 add $t1, $t8, $t1
-add $t8, $fp, -48
+addi $t8, $fp, -48
 sw, $t1, -176($fp)
 add $t1, $t8, $t1
 lw $t2, 0($t1)
@@ -216,7 +216,7 @@ j label14
 
 label17:
 li $v0, 0
-lw $ra, 180($sp)
-lw $fp, 176($sp)
-addi $sp, $sp, 184
+lw $ra, 220($sp)
+lw $fp, 216($sp)
+addi $sp, $sp, 224
 jr $ra

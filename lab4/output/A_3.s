@@ -20,10 +20,10 @@ write:
     jr      $ra
 
 main:
-subu $sp, $sp, 64
-sw $ra, 60($sp)
-sw $fp, 56($sp)
-addi $fp, $sp, 64
+subu $sp, $sp, 104
+sw $ra, 100($sp)
+sw $fp, 96($sp)
+addi $fp, $sp, 104
 li $t0, 1
 li $t1, 1
 lw $t2, -52($fp)
@@ -39,10 +39,9 @@ sw, $t0, -44($fp)
 sw, $t1, -48($fp)
 sw, $t2, -56($fp)
 lw $t0, -56($fp)
-lw $t1, -60($fp)
-blt $t0, $t1, label3
+li $t9, 1
+blt $t0, $t9, label3
 sw, $t0, -56($fp)
-sw, $t1, -60($fp)
 j label4
 
 label3:
@@ -56,18 +55,16 @@ j label15
 
 label4:
 lw $t0, -56($fp)
-lw $t1, -60($fp)
-beq $t0, $t1, label6
+li $t9, 1
+beq $t0, $t9, label6
 j label5
 
 label5:
 sw, $t0, -56($fp)
-sw, $t1, -60($fp)
 lw $t0, -56($fp)
-lw $t1, -60($fp)
-beq $t0, $t1, label6
+li $t9, 2
+beq $t0, $t9, label6
 sw, $t0, -56($fp)
-sw, $t1, -60($fp)
 j label7
 
 label6:
@@ -81,10 +78,9 @@ j label15
 
 label7:
 lw $t0, -56($fp)
-lw $t1, -60($fp)
-bgt $t0, $t1, label8
+li $t9, 2
+bgt $t0, $t9, label8
 sw, $t0, -56($fp)
-sw, $t1, -60($fp)
 j label15
 
 label8:
@@ -126,7 +122,7 @@ sw, $t0, -64($fp)
 
 label15:
 li $v0, 0
-lw $ra, 60($sp)
-lw $fp, 56($sp)
-addi $sp, $sp, 64
+lw $ra, 100($sp)
+lw $fp, 96($sp)
+addi $sp, $sp, 104
 jr $ra

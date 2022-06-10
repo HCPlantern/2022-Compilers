@@ -20,10 +20,10 @@ write:
     jr      $ra
 
 main:
-subu $sp, $sp, 136
-sw $ra, 132($sp)
-sw $fp, 128($sp)
-addi $fp, $sp, 136
+subu $sp, $sp, 176
+sw $ra, 172($sp)
+sw $fp, 168($sp)
+addi $fp, $sp, 176
 lw $t0, -44($fp)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
@@ -255,7 +255,7 @@ addi $sp, $sp, 4
 
 label21:
 li $v0, 0
-lw $ra, 132($sp)
-lw $fp, 128($sp)
-addi $sp, $sp, 136
+lw $ra, 172($sp)
+lw $fp, 168($sp)
+addi $sp, $sp, 176
 jr $ra
