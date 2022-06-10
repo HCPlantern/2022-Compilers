@@ -829,3 +829,88 @@ enum IrType getIrType(char* ir) {
     else
         return ASSIGN;
 }
+
+void gen_call_code(int call_no) {
+    char* obj_code[max_object_code_len];
+    char* temp_ir[max_single_ir_len];
+    IR* curr_ir = ir_arr[call_no];
+    char* curr_ir_code = curr_ir->ir;
+    strncpy(temp_ir, curr_ir_code, max_single_ir_len);
+    char* token = strtok(temp_ir, " ");
+    char* return_var = token;  // TODO: prepare for the assignment of $v0
+    // reg_arr[2]
+    TempVar* temp_var = get_var(return_var);
+    temp_var->reg = reg_arr[2];
+
+    for (int i = 0; i < 3; i++) {
+        token = strtok(NULL, " ");
+    }
+    
+    sprintf(obj_code, "jal %s", token);
+    add_last_object_code(obj_code);
+}
+
+bool is_arg_code(const int ir_no) {
+    IR* ir = ir_arr[ir_no];
+    char* ir_code = ir->ir;
+    if (prefix("ARG", ir_code)) return true;
+    else return false;
+}
+
+int count_args(const int ir_no) {
+    int arg_num = 0;
+    int curr_ir_no = ir_no;
+    while (is_arg(curr_ir_no)) {
+        arg_num++;
+        curr_ir_no++;
+    }
+
+    return arg_num;
+}
+
+// return value points to the corresponding CALL stmt
+// so that the next turn of the loop in line 722 whould 
+// be the stmt next to the CALL stmt.
+// the CALL stmt is processed in this function
+int gen_call_with_arg_code(const int const ir_no) {
+    int arg_num = count_args(ir_no);
+    char* obj_code[max_object_code_len];
+
+    // sub sp to create space for args_i (i > 4)
+    if (arg_num > 4) {
+        sprintf(obj_code, "subu $sp, $sp, %d", 4 * (arg_num - 4));
+        add_last_object_code(obj_code);
+    }
+
+    for (int arg_no = 1; arg_no <= arg_num; arg_no++) {
+        char* temp_ir[max_single_ir_len];
+        int curr_ir_no = ir_no + arg_num - arg_no;
+        IR* curr_ir = ir_arr[curr_ir_no];
+        char* curr_ir_code = curr_ir->ir;
+        strncpy(temp_ir, curr_ir_code, max_single_ir_len);
+        char* arg = strtok(temp_ir, " ");
+        arg = strtok(NULL, " ");
+
+        Register* reg = ensure_var(arg, curr_ir_no);
+        // TODO: ensure arg. get reg_i
+        char* arg_reg = reg->name;
+        if (arg_no <= 4) {
+            sprintf(obj_code, "move $a%d, %s", arg_no - 1, arg_reg);
+            add_last_object_code(obj_code);
+        } else {
+            sprintf(obj_code, "sw %s, %d($sp)", arg_reg, 4 * (arg_no - 5));
+            add_last_object_code(obj_code);
+        }
+    }
+
+    int call_no = ir_no + arg_num;
+    gen_call_code(call_no);
+
+    // recover from line 856
+    if (arg_num > 4) {
+        sprintf(obj_code, "addi $sp, $sp, %d", 4 * (arg_num - 4));
+        add_last_object_code(obj_code);
+    }
+
+    return ir_no + arg_num;
+}
