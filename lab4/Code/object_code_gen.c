@@ -574,16 +574,10 @@ void gen_write_code(char* var, size_t ir_no) {
     add_last_object_code(code6);
 }
 
-void gen_if_code(int ir_no) {
-    char* tokens[6];
-    char* ir = ir_arr[ir_no]->ir;
-    char* token = strtok(ir, " ");
-    int i = 0;
-    while (token) {
-        tokens[i] = token;
-        i++;
-        token = strtok(NULL, " ");
-    }
+void gen_if_code(size_t ir_no) {
+    char* token;
+    char code[max_object_code_len] = {0};
+    strncpy(code, ir_arr[ir_no]->ir, max_object_code_len);
 }
 
 void two_blanks_assign_code(char* var1, char* var2, size_t ir_no) {
@@ -746,7 +740,7 @@ void gen_object_code() {
     for (size_t ir_no = 0; ir_no < ir_count; ir_no++) {
         curr_ir = ir_arr[ir_no];
         curr_ir_code = curr_ir->ir;
-        if (ir_arr[ir_no]->is_block_end && prefix("GOTO", ir_arr[ir_no]->ir)) {
+        if (ir_arr[ir_no]->is_block_end && (prefix("GOTO", ir_arr[ir_no]->ir) || prefix("IF", ir_arr[ir_no]->ir))) {
             spill_all_regs();
         }
         char temp_ir[max_single_ir_len];
@@ -778,7 +772,7 @@ void gen_object_code() {
             // assign statement
             gen_assign_code(ir_no);
         }
-        if (ir_arr[ir_no]->is_block_end && !prefix("GOTO", ir_arr[ir_no]->ir) && !prefix("RETURN", ir_arr[ir_no]->ir)) {
+        if (ir_arr[ir_no]->is_block_end && !prefix("GOTO", ir_arr[ir_no]->ir) && !prefix("RETURN", ir_arr[ir_no]->ir) && !prefix("IF", ir_arr[ir_no]->ir)) {
             spill_all_regs();
         }
     }
