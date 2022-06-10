@@ -500,6 +500,8 @@ void gen_func_code(char* func_name) {
     char code[max_object_code_len] = {0};
     snprintf(code, max_object_code_len, "%s:", func_name);
     add_last_object_code(code);
+
+    // TODO: callee initialization sequence
 }
 
 void gen_label_code(char* label_name) {
@@ -526,6 +528,9 @@ void gen_return_code(char* var, size_t ir_no) {
         sprintf(code, "move $v0, $%s", reg->name);
     }
     add_last_object_code(code);
+
+    // TODO: add callee restore sequence
+
     sprintf(code2, "jr $ra");
     add_last_object_code(code2);
 }
@@ -735,8 +740,7 @@ void gen_assign_code(size_t ir_no) {
     if (blank_num == 2) {
         two_blanks_assign_code(var1, var2, ir_no);
     } else if (blank_num == 3) {
-        // TODO: x := CALL f
-
+        gen_call_code(ir_no);
     } else if (blank_num == 4) {
         four_blanks_assign_code(var1, var2, var3, op, ir_no);
     }
@@ -770,10 +774,11 @@ void gen_object_code() {
         } else if (prefix("WRITE", curr_ir_code)) {
             token = strtok(NULL, " ");
             gen_write_code(token, ir_no);
-        } else if (prefix("CALL", curr_ir_code)) {
-            //
         } else if (prefix("IF", curr_ir_code)) {
             //
+        } else if (prefix("ARG", curr_ir_code)) {
+            int call_ir_no = gen_call_with_arg_code(ir_no);
+            ir_no = call_ir_no;
         } else {
             // assign statement
             gen_assign_code(ir_no);
@@ -922,7 +927,6 @@ int gen_call_with_arg_code(const int const ir_no) {
         arg = strtok(NULL, " ");
 
         Register* reg = ensure_var(arg, curr_ir_no);
-        // TODO: ensure arg. get reg_i
         char* arg_reg = reg->name;
         if (arg_no <= 4) {
             sprintf(obj_code, "move $a%d, %s", arg_no - 1, arg_reg);
