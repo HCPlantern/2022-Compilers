@@ -20,6 +20,10 @@ write:
     jr      $ra
 
 main:
+subu $sp, $sp, 68
+sw $ra, 64($sp)
+sw $fp, 60($sp)
+addi $fp, $sp, 68
 add $t0, $fp, -40
 li $t8, 0
 sw $t8, 0($t0)
@@ -58,4 +62,7 @@ addi $sp, $sp, 4
 
 label3:
 li $v0, 0
+lw $ra, 64($sp)
+lw $fp, 60($sp)
+addi $sp, $sp, 68
 jr $ra

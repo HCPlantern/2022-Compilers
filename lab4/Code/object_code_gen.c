@@ -524,7 +524,6 @@ void gen_func_code(char* func_name, int ir_no) {
     add_last_object_code(code);
 
     int frameSize = get_func_framesize(func_name);
-    assert(frameSize == -1);
     current_func_frameSize = frameSize;
     sprintf(code, "subu $sp, $sp, %d", frameSize);
     add_last_object_code(code);
@@ -539,7 +538,7 @@ void gen_func_code(char* func_name, int ir_no) {
 
     int param_num = count_params(ir_no + 1);
     for (int i = 0; i < param_num && i < 4; i++) {
-        sprintf(code, "sw $a%d, -%d($fp)", 40 + i * 4);
+        sprintf(code, "sw $a%d, -%d($fp)", i, 40 + i * 4);
         add_last_object_code(code);
     }
     for (int i = 5; i <= param_num; i++) {
@@ -587,7 +586,6 @@ void gen_return_code(char* var, size_t ir_no) {
 
     sprintf(code2, "jr $ra");
     add_last_object_code(code2);
-    current_func_frameSize = -1;
 }
 
 void gen_read_code(char* var, size_t ir_no) {
@@ -679,7 +677,6 @@ void two_blanks_assign_code(char* var1, char* var2, size_t ir_no) {
     // *x = y
     if (var1[0] == '*') {
         char code[max_object_code_len];
-        reg1 = ensure_var_without_lw(var1 + 1, ir_no);
         if (*var2 == '#') {
             reg2 = reg_arr[24];  // t8
             char code2[max_object_code_len];
@@ -688,6 +685,7 @@ void two_blanks_assign_code(char* var1, char* var2, size_t ir_no) {
         } else {
             reg2 = ensure_var(var2, ir_no);
         }
+        reg1 = ensure_var_without_lw(var1 + 1, ir_no);
         sprintf(code, "sw $%s, 0($%s)", reg2->name, reg1->name);
         add_last_object_code(code);
     } else {
@@ -699,8 +697,8 @@ void two_blanks_assign_code(char* var1, char* var2, size_t ir_no) {
             add_last_object_code(code);
         } else if (*var2 == '*') {
             // x := *y
-            reg1 = ensure_var_without_lw(var1, ir_no);
             reg2 = ensure_var(var2 + 1, ir_no);
+            reg1 = ensure_var_without_lw(var1, ir_no);
             // generate code
             char code[max_object_code_len];
             sprintf(code, "lw $%s, 0($%s)", reg1->name, reg2->name);
@@ -736,7 +734,6 @@ void four_blanks_assign_code(char* var1, char* var2, char* var3, char* op, size_
     Register* reg2;
     Register* reg3;
     // var1
-    reg1 = ensure_var_without_lw(var1, ir_no);
 
     // var2
     if (*var2 == '#') {
@@ -779,6 +776,7 @@ void four_blanks_assign_code(char* var1, char* var2, char* var3, char* op, size_
         }
     }
 
+    reg1 = ensure_var_without_lw(var1, ir_no);
     // all regs have been found or allocated
     char code[max_object_code_len];
     char code2[max_object_code_len];
@@ -866,7 +864,7 @@ void gen_object_code() {
             token = strtok(NULL, " ");
             gen_write_code(token, ir_no);
         } else if (prefix("IF", curr_ir_code)) {
-            //
+            gen_if_code(ir_no);
         } else if (prefix("DEC", curr_ir_code)) {
             //
         } else if (prefix("ARG", curr_ir_code)) {
@@ -1025,7 +1023,7 @@ int gen_call_with_arg_code(const int const ir_no) {
         Register* reg = ensure_var(arg, curr_ir_no);
         char* arg_reg = reg->name;
         if (arg_no <= 4) {
-            sprintf(obj_code, "move $a%d, %s", arg_no - 1, arg_reg);
+            sprintf(obj_code, "move $a%d, $%s", arg_no - 1, arg_reg);
             add_last_object_code(obj_code);
         } else {
             sprintf(obj_code, "sw %s, %d($sp)", arg_reg, 4 * (arg_no - 5));

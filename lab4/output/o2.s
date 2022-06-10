@@ -1,0 +1,103 @@
+.data
+_prompt: .asciiz "Enter an integer:"
+_ret: .asciiz "\n"
+.globl main
+.text
+read:
+    li      $v0,    4
+    la      $a0,    _prompt
+    syscall 
+    li      $v0,    5
+    syscall 
+    jr      $ra
+write:
+    li      $v0,    1
+    syscall 
+    li      $v0,    4
+    la      $a0,    _ret
+    syscall 
+    move    $v0,    $0
+    jr      $ra
+
+fact:
+subu $sp, $sp, 56
+sw $ra, 52($sp)
+sw $fp, 48($sp)
+addi $fp, $sp, 56
+sw $a0, -40($fp)
+lw $t0, -40($fp)
+beq $t0, $t0, label0
+sw, $t0, -40($fp)
+j label1
+
+label0:
+lw $t0, -40($fp)
+move $v0, $t0
+lw $ra, 52($sp)
+lw $fp, 48($sp)
+addi $sp, $sp, 56
+jr $ra
+
+label1:
+li $t9, 1
+sub $t1, $t0, $t9
+sw, $t0, -40($fp)
+sw, $t1, -44($fp)
+lw $t0, -44($fp)
+move $a0, $t0
+jal fact
+sw, $t0, -44($fp)
+lw $t0, -40($fp)
+mul $t1, $t0, $v0
+move $v0, $t1
+lw $ra, 52($sp)
+lw $fp, 48($sp)
+addi $sp, $sp, 56
+jr $ra
+
+main:
+subu $sp, $sp, 0
+sw $ra, -4($sp)
+sw $fp, -8($sp)
+addi $fp, $sp, 0
+lw $t2, -40($fp)
+addi $sp, $sp, -4
+sw $ra, 0($sp)
+jal read
+lw $ra, 0($sp)
+addi $sp, $sp, 4
+move $t2, $v0
+sw, $t2, -40($fp)
+move $t2, $t2
+sw, $t0, -40($fp)
+sw, $t1, -52($fp)
+sw, $t2, -44($fp)
+lw $t0, -44($fp)
+lw $t1, -40($fp)
+bgt $t0, $t1, label3
+sw, $t0, -44($fp)
+sw, $t1, -40($fp)
+j label4
+
+label3:
+lw $t0, -44($fp)
+move $a0, $t0
+jal fact
+sw, $t0, -44($fp)
+j label5
+
+label4:
+li $v0, 1
+
+label5:
+move $a0, $v0
+addi $sp, $sp, -4
+sw $ra, 0($sp)
+jal write
+lw $ra, 0($sp)
+addi $sp, $sp, 4
+li $v0, 0
+lw $ra, -4($sp)
+lw $fp, -8($sp)
+addi $sp, $sp, 0
+jr $ra
