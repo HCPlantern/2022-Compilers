@@ -334,7 +334,7 @@ size_t get_func_framesize(char* name) {
     Function* curr = func_list->next;
     while (curr != func_list) {
         if (!strcmp(curr->name, name)) {
-            return curr->frame_size + 40;
+            return curr->frame_size;
         }
         curr = curr->next;
     }
@@ -1066,14 +1066,29 @@ int gen_call_with_arg_code(const int const ir_no) {
         char* arg = strtok(temp_ir, " ");
         arg = strtok(NULL, " ");
 
-        Register* reg = ensure_var(arg, curr_ir_no);
-        char* arg_reg = reg->name;
-        if (arg_no <= 4) {
-            sprintf(obj_code, "move $a%d, $%s", arg_no - 1, arg_reg);
-            add_last_object_code(obj_code);
+        if (arg[0] != '#') {
+            Register* reg = ensure_var(arg, curr_ir_no);
+            char* arg_reg = reg->name;
+            reg->var->reg = NULL;
+            reg->var = NULL;
+            reg->is_free = true;
+            
+            if (arg_no <= 4) {
+                sprintf(obj_code, "move $a%d, $%s", arg_no - 1, arg_reg);
+                add_last_object_code(obj_code);
+            } else {
+                sprintf(obj_code, "sw %s, %d($sp)", arg_reg, 4 * (arg_no - 5));
+                add_last_object_code(obj_code);
+            }
         } else {
-            sprintf(obj_code, "sw %s, %d($sp)", arg_reg, 4 * (arg_no - 5));
-            add_last_object_code(obj_code);
+            if (arg_no <= 4) {
+                sprintf(obj_code, "li $a%d, %s", arg_no - 1, arg + 1);
+                add_last_object_code(obj_code);
+            } else {
+                sprintf(obj_code, "li $t8, %s", arg + 1);
+                add_last_object_code(obj_code);
+                sprintf(obj_code, "sw $t8, %d($sp)", 4 * (arg_no - 5));
+            }
         }
     }
 
