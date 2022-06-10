@@ -37,6 +37,7 @@ struct _IR {
     size_t ir_no;
     char* ir;
     bool is_block_begin;
+    bool is_block_end;
     IR* prev;
     IR* next;
     char* label_next;

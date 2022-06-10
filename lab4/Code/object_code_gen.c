@@ -107,6 +107,14 @@ void divide_block() {
             ir_arr[i]->is_block_begin = true;
         }
     }
+    for (int i = 0; i < ir_count; i++) {
+        if (i != 0 && ir_arr[i]->is_block_begin) {
+            ir_arr[i - 1]->is_block_end = true;
+        }
+        if (i == ir_count - 1) {
+            ir_arr[i]->is_block_end = true;
+        }
+    }
 }
 
 void init_object_code() {
@@ -422,9 +430,9 @@ void free_reg(Register* reg) {
 
 Register* allocate(TempVar* var, size_t ir_no) {
     Register* res = NULL;
-    if (var->reg != NULL) {
-        spill(var->reg);
-    }
+    // if (var->reg != NULL) {
+    //     spill(var->reg);
+    // }
     for (int i = 8; i <= 23; i++) {
         Register* curr = reg_arr[i];
         if (curr->is_free) {
@@ -480,7 +488,7 @@ Register* ensure_var_without_lw(char* var_name, size_t ir_no) {
 
 void spill_all_regs() {
     for (int i = 8; i <= 23; i++) {
-        if (reg_arr[i]->var != NULL && reg_arr[i]->is_free == false) {
+        if (reg_arr[i]->var != NULL) {
             spill(reg_arr[i]);
         }
     }
@@ -614,11 +622,11 @@ void two_blanks_assign_code(char* var1, char* var2, size_t ir_no) {
             // TODO : x := &y
         } else {
             // x := y
-            reg1 = ensure_var_without_lw(var1, ir_no);
             reg2 = ensure_var(var2, ir_no);
             if (no_next_use(var2, ir_no)) {
                 free_reg(reg2);
             }
+            reg1 = ensure_var_without_lw(var1, ir_no);
             char code[max_object_code_len];
             sprintf(code, "move $%s, $%s", reg1->name, reg2->name);
             add_last_object_code(code);
@@ -673,6 +681,9 @@ void four_blanks_assign_code(char* var1, char* var2, char* var3, char* op, size_
         add_last_object_code(code);
     } else {
         reg3 = ensure_var(var3, ir_no);
+        if (no_next_use(var3, ir_no)) {
+            free_reg(reg3);
+        }
     }
 
     // all regs have been found or allocated
@@ -737,9 +748,6 @@ void gen_object_code() {
     char* curr_ir_code;
     for (size_t ir_no = 0; ir_no < ir_count; ir_no++) {
         curr_ir = ir_arr[ir_no];
-        if (curr_ir->is_block_begin) {
-            spill_all_regs();
-        }
         curr_ir_code = curr_ir->ir;
         char temp_ir[max_single_ir_len];
         strncpy(temp_ir, curr_ir_code, max_single_ir_len);
@@ -769,6 +777,9 @@ void gen_object_code() {
         } else {
             // assign statement
             gen_assign_code(ir_no);
+        }
+        if (ir_no != ir_count - 1 && ir_arr[ir_no + 1]->is_block_end) {
+            spill_all_regs();
         }
     }
 }
@@ -813,10 +824,13 @@ void object_code_gen_go() {
     //     curr = curr->next;
     // }
 
-    // print all basic block begin
+    // print all basic block begin and end
     // for (int i = 0; i < ir_count; i++) {
     //     if (ir_arr[i]->is_block_begin) {
-    //         printf("%s\n", ir_arr[i]->ir);
+    //         printf("begin: %s\n", ir_arr[i]->ir);
+    //     }
+    //     if (ir_arr[i]->is_block_end) {
+    //         printf("end: %s\n", ir_arr[i]->ir);
     //     }
     // }
 }

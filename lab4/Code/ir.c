@@ -106,6 +106,7 @@ void new_ir_code_list() {
     ir_list->ir_no = -1;
     ir_list->ir = NULL;
     ir_list->is_block_begin = false;
+    ir_list->is_block_end = false;
     ir_list->next = ir_list;
     ir_list->prev = ir_list;
     ir_list->label_next = NULL;
@@ -116,6 +117,7 @@ void add_last_ir(char* code) {
     IR* new_ir = malloc(sizeof(IR));
     ir_list->ir_no = -1;
     ir_list->is_block_begin = false;
+    ir_list->is_block_end = false;
     new_ir->label_next = NULL;
     new_ir->label_printed = false;
     new_ir->ir = malloc(sizeof(char) * max_single_ir_len);
@@ -131,6 +133,7 @@ void add_first_ir(char* code) {
     IR* new_ir = malloc(sizeof(IR));
     ir_list->ir_no = -1;
     ir_list->is_block_begin = false;
+    ir_list->is_block_end = false;
     new_ir->label_next = NULL;
     new_ir->label_printed = false;
     new_ir->ir = malloc(sizeof(char) * max_single_ir_len);
@@ -146,6 +149,7 @@ void add_next_ir(IR* ir_node, char* code) {
     IR* new_ir = malloc(sizeof(IR));
     ir_list->ir_no = -1;
     ir_list->is_block_begin = false;
+    ir_list->is_block_end = false;
     new_ir->label_next = NULL;
     new_ir->label_printed = false;
     new_ir->ir = malloc(sizeof(char) * max_single_ir_len);
