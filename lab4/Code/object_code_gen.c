@@ -384,7 +384,8 @@ void cal_framesize() {
                 } else if (!strcmp("DEC", token)) {
                     // DEC iv0 [size]
                     token = strtok(NULL, " ");
-                    size_t size = atoi(token + 2);
+                    token = strtok(NULL, " ");
+                    size_t size = atoi(token);
                     set_var_offset(token, frame_size);
                     frame_size += size;
                 } else if (!strcmp("READ", token)) {
@@ -559,8 +560,12 @@ void gen_write_code(char* var, size_t ir_no) {
     char code4[max_object_code_len] = {0};
     char code5[max_object_code_len] = {0};
     char code6[max_object_code_len] = {0};
-    Register* reg = ensure_var(var, ir_no);
-    sprintf(code, "move $a0, $%s", reg->name);
+    if (*var == '#') {
+        sprintf(code, "li $a0, %s", var + 1);
+    } else {
+        Register* reg = ensure_var(var, ir_no);
+        sprintf(code, "move $a0, $%s", reg->name);
+    }
     sprintf(code2, "addi $sp, $sp, -4");
     sprintf(code3, "sw $ra, 0($sp)");
     sprintf(code4, "jal write");
@@ -575,9 +580,35 @@ void gen_write_code(char* var, size_t ir_no) {
 }
 
 void gen_if_code(size_t ir_no) {
+    Register* reg1;
+    Register* reg2;
     char* token;
+    char* op;
     char code[max_object_code_len] = {0};
     strncpy(code, ir_arr[ir_no]->ir, max_object_code_len);
+    token = strtok(code, " ");
+    token = strtok(NULL, " ");
+    reg1 = ensure_var(token, ir_no);
+    token = strtok(NULL, " ");
+    op = token;
+    token = strtok(NULL, " ");
+    reg2 = ensure_var(token, ir_no);
+    token = strtok(NULL, " ");
+    token = strtok(NULL, " ");
+    if (!strcmp(op, "==")) {
+        sprintf(code, "beq $%s, $%s, %s", reg1->name, reg2->name, token);
+    } else if (!strcmp(op, "!=")) {
+        sprintf(code, "bne $%s, $%s, %s", reg1->name, reg2->name, token);
+    } else if (!strcmp(op, ">")) {
+        sprintf(code, "bgt $%s, $%s, %s", reg1->name, reg2->name, token);
+    } else if (!strcmp(op, "<")) {
+        sprintf(code, "blt $%s, $%s, %s", reg1->name, reg2->name, token);
+    } else if (!strcmp(op, ">=")) {
+        sprintf(code, "bge $%s, $%s, %s", reg1->name, reg2->name, token);
+    } else if (!strcmp(op, "<=")) {
+        sprintf(code, "ble $%s, $%s, %s", reg1->name, reg2->name, token);
+    }
+    add_last_object_code(code);
 }
 
 void two_blanks_assign_code(char* var1, char* var2, size_t ir_no) {
@@ -588,11 +619,17 @@ void two_blanks_assign_code(char* var1, char* var2, size_t ir_no) {
     // x := *y
     // *x = y
     if (var1[0] == '*') {
-        reg1 = allocate_by_name(var1 + 1, ir_no);
-        reg2 = ensure_var(var2, ir_no);
-        // generate code
         char code[max_object_code_len];
-        sprintf(code, "sw $%s, 0($%s)", reg1->name, reg2->name);
+        reg1 = ensure_var_without_lw(var1 + 1, ir_no);
+        if (*var2 == '#') {
+            reg2 = reg_arr[24];  // t8
+            char code2[max_object_code_len];
+            sprintf(code2, "li $%s, %s", reg2->name, var2 + 1);
+            add_last_object_code(code2);
+        } else {
+            reg2 = ensure_var(var2, ir_no);
+        }
+        sprintf(code, "sw $%s, 0($%s)", reg2->name, reg1->name);
         add_last_object_code(code);
     } else {
         if (*var2 == '#') {
@@ -610,7 +647,13 @@ void two_blanks_assign_code(char* var1, char* var2, size_t ir_no) {
             sprintf(code, "lw $%s, 0($%s)", reg1->name, reg2->name);
             add_last_object_code(code);
         } else if (*var2 == '&') {
-            // TODO : x := &y
+            // x := &y
+            reg1 = ensure_var_without_lw(var1, ir_no);
+            TempVar* temp_var = get_var(var2 + 1);
+            size_t offset = temp_var->fp_offset;
+            char code[max_object_code_len];
+            sprintf(code, "add $%s, $fp, -%lu", reg1->name, offset);
+            add_last_object_code(code);
         } else {
             // x := y
             reg2 = ensure_var(var2, ir_no);
@@ -726,7 +769,7 @@ void gen_assign_code(size_t ir_no) {
     if (blank_num == 2) {
         two_blanks_assign_code(var1, var2, ir_no);
     } else if (blank_num == 3) {
-        // TODO: x := CALL f
+        // x := CALL f has been handled in gen_call_code
 
     } else if (blank_num == 4) {
         four_blanks_assign_code(var1, var2, var3, op, ir_no);
@@ -746,7 +789,9 @@ void gen_object_code() {
         char temp_ir[max_single_ir_len];
         strncpy(temp_ir, curr_ir_code, max_single_ir_len);
         char* token = strtok(temp_ir, " ");
-        if (!strcmp("FUNCTION", token)) {
+        if (!strcmp("ARG", token)) { 
+            gen_arg_code(ir_no);
+        } else if (!strcmp("FUNCTION", token)) {
             token = strtok(NULL, " ");
             gen_func_code(token);
         } else if (!strcmp("LABEL", token)) {
@@ -766,8 +811,10 @@ void gen_object_code() {
             gen_write_code(token, ir_no);
         } else if (prefix("CALL", curr_ir_code)) {
             //
-        } else if (prefix("IF", curr_ir_code)) {
+        } else if (prefix("DEC", curr_ir_code)) {
             //
+        } else if (prefix("IF", curr_ir_code)) {
+            gen_if_code(ir_no);
         } else {
             // assign statement
             gen_assign_code(ir_no);
