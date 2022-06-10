@@ -49,4 +49,7 @@ void add_last_object_code(char* code);
 
 enum IrType getIrType(char* ir);
 
+void gen_call_code(int call_no);
+
+int gen_call_with_arg_code(const int const ir_no);
 #endif
