@@ -975,9 +975,9 @@ void object_code_gen_go() {
     // }
 
     // print all var offset
-    for (int i = 0; i < var_count; i++) {
-        printf("%s %lu\n", var_arr[i]->name, var_arr[i]->fp_offset);
-    }
+    // for (int i = 0; i < var_count; i++) {
+    //     printf("%s %lu\n", var_arr[i]->name, var_arr[i]->fp_offset);
+    // }
 }
 
 enum IrType getIrType(char* ir) {
