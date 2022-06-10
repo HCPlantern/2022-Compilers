@@ -328,8 +328,11 @@ bool no_next_use(char* var_name, size_t ir_no) {
 // return frame size of a function
 size_t get_func_framesize(char* name) {
     Function* curr = func_list->next;
-    if (!strcmp(curr->name, name)) {
-        return curr->frame_size;
+    while (curr != func_list) {
+        if (!strcmp(curr->name, name)) {
+            return curr->frame_size;
+        }
+        curr = curr->next;
     }
     return 0;
 }

@@ -56,10 +56,10 @@ addi $sp, $sp, 56
 jr $ra
 
 main:
-subu $sp, $sp, 0
-sw $ra, -4($sp)
-sw $fp, -8($sp)
-addi $fp, $sp, 0
+subu $sp, $sp, 52
+sw $ra, 48($sp)
+sw $fp, 44($sp)
+addi $fp, $sp, 52
 lw $t2, -40($fp)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
@@ -97,7 +97,7 @@ jal write
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 li $v0, 0
-lw $ra, -4($sp)
-lw $fp, -8($sp)
-addi $sp, $sp, 0
+lw $ra, 48($sp)
+lw $fp, 44($sp)
+addi $sp, $sp, 52
 jr $ra
