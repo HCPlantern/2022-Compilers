@@ -522,7 +522,6 @@ void gen_func_code(char* func_name, int ir_no) {
     snprintf(code, max_object_code_len, "%s:", func_name);
     add_last_object_code(code);
 
-    // TODO: callee initialization sequence
     int frameSize = get_func_framesize(func_name);
     assert(frameSize == -1);
     current_func_frameSize = frameSize;
