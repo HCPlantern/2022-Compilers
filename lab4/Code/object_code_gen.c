@@ -422,7 +422,7 @@ void spill(Register* reg) {
     if (var == NULL) return;
     char code[max_object_code_len];
     // spill reg value into memory
-    sprintf(code, "sw, $%s, -%lu($fp)", reg->name, var->fp_offset);
+    sprintf(code, "sw, $%s, -%lu($fp)", reg->name, var->fp_offset + 4);
     add_last_object_code(code);
     var->reg = NULL;
     reg->var = NULL;
@@ -473,7 +473,7 @@ Register* ensure_var(char* var_name, size_t ir_no) {
         res = allocate(curr_var, ir_no);
         char code[max_object_code_len];
         // load var value into register
-        sprintf(code, "lw $%s, -%lu($fp)", res->name, curr_var->fp_offset);
+        sprintf(code, "lw $%s, -%lu($fp)", res->name, curr_var->fp_offset + 4);
         add_last_object_code(code);
     }
     return res;
@@ -541,13 +541,13 @@ void gen_func_code(char* func_name, int ir_no) {
 
     int param_num = count_params(ir_no + 1);
     for (int i = 0; i < param_num && i < 4; i++) {
-        sprintf(code, "sw $a%d, -%d($fp)", i, 40 + i * 4);
+        sprintf(code, "sw $a%d, -%d($fp)", i, 44 + i * 4);
         add_last_object_code(code);
     }
     for (int i = 5; i <= param_num; i++) {
         sprintf(code, "lw $v0, %d($sp)", frameSize + 4 * (i - 5));
         add_last_object_code(code);
-        sprintf(code, "sw $v0, -%d($fp)", 40 + (i - 1) * 4);
+        sprintf(code, "sw $v0, -%d($fp)", 44 + (i - 1) * 4);
         add_last_object_code(code);
     }
 }
