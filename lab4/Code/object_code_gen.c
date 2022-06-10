@@ -308,6 +308,10 @@ void init_regs() {
 }
 
 TempVar* get_var(char* var_name) {
+    // if(var_name[0] == '&' || var_name[0] == 'a') {
+    //     printf("%s\n", var_name);
+    //     assert(0);
+    // }
     size_t var_no = atoi(var_name + 2);
     return var_arr[var_no];
 }
@@ -387,10 +391,12 @@ void cal_framesize() {
                     frame_size += 4;
                 } else if (!strcmp("DEC", token)) {
                     // DEC iv0 [size]
+                    char temp_var[max_temp_var_len];
                     token = strtok(NULL, " ");
+                    strncpy(temp_var, token, max_temp_var_len);
                     token = strtok(NULL, " ");
                     size_t size = atoi(token);
-                    set_var_offset(token, frame_size);
+                    set_var_offset(temp_var, frame_size);
                     frame_size += size;
                 } else if (!strcmp("READ", token)) {
                     token = strtok(NULL, " ");
