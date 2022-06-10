@@ -739,7 +739,7 @@ void two_blanks_assign_code(char* var1, char* var2, size_t ir_no) {
             TempVar* temp_var = get_var(var2 + 1);
             size_t offset = temp_var->fp_offset;
             char code[max_object_code_len];
-            sprintf(code, "add $%s, $fp, -%lu", reg1->name, offset);
+            sprintf(code, "add $%s, $fp, -%lu", reg1->name, offset + 4);
             add_last_object_code(code);
         } else {
             // x := y
@@ -778,7 +778,7 @@ void four_blanks_assign_code(char* var1, char* var2, char* var3, char* op, size_
         TempVar* temp_var = get_var(var2 + 1);
         size_t offset = temp_var->fp_offset;
         char code[max_object_code_len];
-        sprintf(code, "add $%s, $fp, -%lu", reg2->name, offset);
+        sprintf(code, "add $%s, $fp, -%lu", reg2->name, offset + 4);
         add_last_object_code(code);
     } else {
         reg2 = ensure_var(var2, ir_no);
@@ -797,7 +797,7 @@ void four_blanks_assign_code(char* var1, char* var2, char* var3, char* op, size_
         TempVar* temp_var = get_var(var3 + 1);
         size_t offset = temp_var->fp_offset;
         char code[max_object_code_len];
-        sprintf(code, "add $%s, $fp, -%lu", reg3->name, offset);
+        sprintf(code, "add $%s, $fp, -%lu", reg3->name, offset + 4);
         add_last_object_code(code);
     } else {
         reg3 = ensure_var(var3, ir_no);
