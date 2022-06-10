@@ -950,12 +950,12 @@ void object_code_gen_go() {
     // }
 
     // print all object codes
-    ObjectCode* curr = object_code->next;
-    printf("\n");
-    while (curr != object_code) {
-        printf("%s\n", curr->code);
-        curr = curr->next;
-    }
+    // ObjectCode* curr = object_code->next;
+    // printf("\n");
+    // while (curr != object_code) {
+    //     printf("%s\n", curr->code);
+    //     curr = curr->next;
+    // }
 
     // print all func frame size
     // Function* curr = func_list->next;

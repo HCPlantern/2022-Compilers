@@ -74,7 +74,7 @@ int main(int argc, char** argv) {
 
     // del_tree(syntax_tree_root);
     // ir_optimization();
-    print_ir();
+    // print_ir();
 
     object_code_gen_go();
 
