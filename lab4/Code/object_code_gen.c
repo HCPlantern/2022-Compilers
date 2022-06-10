@@ -367,7 +367,7 @@ void cal_framesize() {
         char* token = strtok(curr_ir, " ");
         // function begin
         if (!strcmp("FUNCTION", token)) {
-            size_t frame_size = 4 * (1 + 1 + 8);
+            size_t frame_size = 4 * (1 + 1 + 2);
             token = strtok(NULL, " ");
 
             Function* new_func = malloc(sizeof(Function));
@@ -397,9 +397,9 @@ void cal_framesize() {
                     token = strtok(NULL, " ");
                     size_t size = atoi(token);
                     frame_size += size;
-                    frame_size += 40;
+                    frame_size += 8;
                     set_var_offset(temp_var, frame_size);
-                    frame_size += 40;
+                    frame_size += 8;
                 } else if (!strcmp("READ", token)) {
                     token = strtok(NULL, " ");
                     TempVar* var = get_var(token);
@@ -975,9 +975,9 @@ void object_code_gen_go() {
     // }
 
     // print all var offset
-    // for (int i = 0; i < var_count; i++) {
-    //     printf("%s %lu\n", var_arr[i]->name, var_arr[i]->fp_offset);
-    // }
+    for (int i = 0; i < var_count; i++) {
+        printf("%s %lu\n", var_arr[i]->name, var_arr[i]->fp_offset);
+    }
 }
 
 enum IrType getIrType(char* ir) {

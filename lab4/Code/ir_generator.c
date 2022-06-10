@@ -46,14 +46,14 @@ void assign_gen(Node* father, Node* lValue, Node* exp) {
             sprintf(buf, "%s := #%d", lValue->var_in_ir, exp->constant.i);
             add_last_ir(buf);
             return;
-        } else if (!exp->is_bool && exp->var_in_ir[1] == 't' && prefix(exp->var_in_ir, ir_list->prev->ir) && lValue->var_in_ir[0] != '*') {
-            father->is_constant = false;
-            strncpy(father->var_in_ir, lValue->var_in_ir, 10);
-            size_t colon_index = indexOfAssignOp(ir_list->prev->ir);
-            assert(colon_index > 0);
-            sprintf(buf, "%s %s", lValue->var_in_ir, ir_list->prev->ir + colon_index);  // WARNING: make sure that lValue has a var_in_ir.
-            strncpy(ir_list->prev->ir, buf, max_single_ir_len);
-            return;
+        // } else if (!exp->is_bool && exp->var_in_ir[1] == 't' && prefix(exp->var_in_ir, ir_list->prev->ir) && lValue->var_in_ir[0] != '*') {
+        //     father->is_constant = false;
+        //     strncpy(father->var_in_ir, lValue->var_in_ir, 10);
+        //     size_t colon_index = indexOfAssignOp(ir_list->prev->ir);
+        //     assert(colon_index > 0);
+        //     sprintf(buf, "%s %s", lValue->var_in_ir, ir_list->prev->ir + colon_index);  // WARNING: make sure that lValue has a var_in_ir.
+        //     strncpy(ir_list->prev->ir, buf, max_single_ir_len);
+        //     return;
         } else {
             father->is_constant = false;
             strncpy(father->var_in_ir, lValue->var_in_ir, 10);
@@ -70,6 +70,8 @@ void assign_gen(Node* father, Node* lValue, Node* exp) {
 
     star_reduce(lValue);
     star_reduce(exp);
+    address_reduce(lValue);
+    address_reduce(exp);
 
     for (int i = 0; i < min_size; i += 4) {
         char* lValue_ptr_var = get_temp_var(0)->name;
@@ -113,6 +115,8 @@ void or_gen(Node* father, Node* exp1, Node* M, Node* exp2) {
 void relop_gen(Node* father, Node* exp1, Node* relop, Node* exp2) {
     star_reduce(exp1);
     star_reduce(exp2);
+    address_reduce(exp1);
+    address_reduce(exp2);
     // assert(is_in_cond);
     father->is_bool = true;
     char ir[max_single_ir_len];
@@ -120,6 +124,8 @@ void relop_gen(Node* father, Node* exp1, Node* relop, Node* exp2) {
     char* relop_str = relop->data.text;
     star_reduce(exp1);
     star_reduce(exp2);
+    address_reduce(exp1);
+    address_reduce(exp2);
     if (!exp1->is_constant && !exp2->is_constant) {
         sprintf(ir, "IF %s %s %s GOTO", exp1->var_in_ir, relop_str, exp2->var_in_ir);
     } else if (exp1->is_constant && !exp2->is_constant) {
@@ -138,6 +144,8 @@ void relop_gen(Node* father, Node* exp1, Node* relop, Node* exp2) {
 void plus_gen(Node* father, Node* exp1, Node* exp2) {
     star_reduce(exp1);
     star_reduce(exp2);
+    address_reduce(exp1);
+    address_reduce(exp2);
     father->is_bool = false;
     if (exp1->is_constant && exp2->is_constant) {
         father->is_constant = true;
@@ -168,6 +176,8 @@ void plus_gen(Node* father, Node* exp1, Node* exp2) {
 void minus_gen(Node* father, Node* exp1, Node* exp2) {
     star_reduce(exp1);
     star_reduce(exp2);
+    address_reduce(exp1);
+    address_reduce(exp2);
     father->is_bool = false;
     if (exp1->is_constant && exp2->is_constant) {
         father->is_constant = true;
@@ -198,6 +208,8 @@ void minus_gen(Node* father, Node* exp1, Node* exp2) {
 void star_gen(Node* father, Node* exp1, Node* exp2) {
     star_reduce(exp1);
     star_reduce(exp2);
+    address_reduce(exp1);
+    address_reduce(exp2);
     father->is_bool = false;
     if (exp1->is_constant && exp2->is_constant) {
         father->is_constant = true;
@@ -240,6 +252,8 @@ static int py_div(int a, int b) {
 void div_gen(Node* father, Node* exp1, Node* exp2) {
     star_reduce(exp1);
     star_reduce(exp2);
+    address_reduce(exp1);
+    address_reduce(exp2);
     father->is_bool = false;
     if (exp1->is_constant && exp2->is_constant) {
         father->is_constant = true;
@@ -269,6 +283,7 @@ void div_gen(Node* father, Node* exp1, Node* exp2) {
 
 void negative_gen(Node* father, Node* exp) {
     star_reduce(exp);
+    address_reduce(exp);
     father->is_bool = false;
     if (exp->is_constant) {
         set_int_const(father, -(exp->constant.i));
@@ -321,6 +336,7 @@ void func_call_gen(Node* father, Node* id, Node* args) {
             add_last_ir(ir);
         } else {
             star_reduce(exp);
+            address_reduce(exp);
             sprintf(ir, "WRITE %s", exp->var_in_ir);
             add_last_ir(ir);
         }
@@ -333,6 +349,7 @@ void func_call_gen(Node* father, Node* id, Node* args) {
         Node* exp = args->child;
         for (int i = 0; i < arg_len - 1; i++) {
             star_reduce(exp);
+            address_reduce(exp);
             exps[i] = exp;
             exp = exp->sibling->sibling->child;
         }
@@ -371,6 +388,8 @@ void array_store_gen(Node* father, Node* array, Node* index) {
 void array_access_gen(Node* father, Node* array, Node* index) {
     star_reduce(array);
     star_reduce(index);
+    address_reduce(array);
+    address_reduce(index);
     father->is_bool = false;
     size_t element_size = get_type_size(&(father->type));
 
@@ -444,6 +463,7 @@ void field_access_gen(Node* father, Node* base, Node* field) {
     // below is the implementation with optimization.
     ///*
     star_reduce(base);
+    address_reduce(base);
     father->is_bool = false;
     int offset = get_struct_field_offset(&(base->type), field->data.text);
 
@@ -540,6 +560,7 @@ void return_gen(Node* exp) {
         add_last_ir(buf);
     } else {
         star_reduce(exp);
+        address_reduce(exp);
         sprintf(buf, "RETURN %s", exp->var_in_ir);
         add_last_ir(buf);
     }
@@ -664,6 +685,7 @@ void trans_value_to_bool_gen(Node* exp) {
         sprintf(ir, "IF #%d != #0 GOTO", exp->constant.i);
     } else if (!exp->is_constant) {
         star_reduce(exp);
+        address_reduce(exp);
         sprintf(ir, "IF %s != #0 GOTO", exp->var_in_ir);
     }
     add_last_ir(ir);
@@ -675,6 +697,16 @@ void trans_value_to_bool_gen(Node* exp) {
 void star_reduce(Node* exp) {
     char ir[max_single_ir_len];
     if (!exp->is_constant && exp->var_in_ir[0] == '*') {
+        char* new_temp_var = get_temp_var(0)->name;
+        sprintf(ir, "%s := %s", new_temp_var, exp->var_in_ir);
+        add_last_ir(ir);
+        sprintf(exp->var_in_ir, "%s", new_temp_var);
+    }
+}
+
+void address_reduce(Node* exp) {
+    char ir[max_single_ir_len];
+    if (!exp->is_constant && exp->var_in_ir[0] == '&') {
         char* new_temp_var = get_temp_var(0)->name;
         sprintf(ir, "%s := %s", new_temp_var, exp->var_in_ir);
         add_last_ir(ir);
