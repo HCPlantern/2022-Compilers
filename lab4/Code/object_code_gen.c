@@ -396,8 +396,10 @@ void cal_framesize() {
                     strncpy(temp_var, token, max_temp_var_len);
                     token = strtok(NULL, " ");
                     size_t size = atoi(token);
-                    set_var_offset(temp_var, frame_size);
                     frame_size += size;
+                    frame_size += 40;
+                    set_var_offset(temp_var, frame_size);
+                    frame_size += 40;
                 } else if (!strcmp("READ", token)) {
                     token = strtok(NULL, " ");
                     TempVar* var = get_var(token);
