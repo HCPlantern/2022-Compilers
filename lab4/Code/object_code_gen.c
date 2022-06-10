@@ -574,9 +574,6 @@ void gen_write_code(char* var, size_t ir_no) {
     add_last_object_code(code6);
 }
 
-void gen_call_code() {
-}
-
 void gen_if_code(int ir_no) {
     char* tokens[6];
     char* ir = ir_arr[ir_no]->ir;
@@ -749,6 +746,9 @@ void gen_object_code() {
     for (size_t ir_no = 0; ir_no < ir_count; ir_no++) {
         curr_ir = ir_arr[ir_no];
         curr_ir_code = curr_ir->ir;
+        if (ir_arr[ir_no]->is_block_end && prefix("GOTO", ir_arr[ir_no]->ir)) {
+            spill_all_regs();
+        }
         char temp_ir[max_single_ir_len];
         strncpy(temp_ir, curr_ir_code, max_single_ir_len);
         char* token = strtok(temp_ir, " ");
@@ -778,7 +778,7 @@ void gen_object_code() {
             // assign statement
             gen_assign_code(ir_no);
         }
-        if (ir_no != ir_count - 1 && ir_arr[ir_no + 1]->is_block_end) {
+        if (ir_arr[ir_no]->is_block_end && !prefix("GOTO", ir_arr[ir_no]->ir) && !prefix("RETURN", ir_arr[ir_no]->ir)) {
             spill_all_regs();
         }
     }
@@ -861,8 +861,8 @@ enum IrType getIrType(char* ir) {
 }
 
 void gen_call_code(int call_no) {
-    char* obj_code[max_object_code_len];
-    char* temp_ir[max_single_ir_len];
+    char obj_code[max_object_code_len];
+    char temp_ir[max_single_ir_len];
     IR* curr_ir = ir_arr[call_no];
     char* curr_ir_code = curr_ir->ir;
     strncpy(temp_ir, curr_ir_code, max_single_ir_len);
@@ -875,7 +875,7 @@ void gen_call_code(int call_no) {
     for (int i = 0; i < 3; i++) {
         token = strtok(NULL, " ");
     }
-    
+
     sprintf(obj_code, "jal %s", token);
     add_last_object_code(obj_code);
 }
@@ -883,14 +883,16 @@ void gen_call_code(int call_no) {
 bool is_arg_code(const int ir_no) {
     IR* ir = ir_arr[ir_no];
     char* ir_code = ir->ir;
-    if (prefix("ARG", ir_code)) return true;
-    else return false;
+    if (prefix("ARG", ir_code))
+        return true;
+    else
+        return false;
 }
 
 int count_args(const int ir_no) {
     int arg_num = 0;
     int curr_ir_no = ir_no;
-    while (is_arg(curr_ir_no)) {
+    while (is_arg_code(curr_ir_no)) {
         arg_num++;
         curr_ir_no++;
     }
@@ -899,12 +901,12 @@ int count_args(const int ir_no) {
 }
 
 // return value points to the corresponding CALL stmt
-// so that the next turn of the loop in line 722 whould 
+// so that the next turn of the loop in line 722 whould
 // be the stmt next to the CALL stmt.
 // the CALL stmt is processed in this function
 int gen_call_with_arg_code(const int const ir_no) {
     int arg_num = count_args(ir_no);
-    char* obj_code[max_object_code_len];
+    char obj_code[max_object_code_len];
 
     // sub sp to create space for args_i (i > 4)
     if (arg_num > 4) {
@@ -913,7 +915,7 @@ int gen_call_with_arg_code(const int const ir_no) {
     }
 
     for (int arg_no = 1; arg_no <= arg_num; arg_no++) {
-        char* temp_ir[max_single_ir_len];
+        char temp_ir[max_single_ir_len];
         int curr_ir_no = ir_no + arg_num - arg_no;
         IR* curr_ir = ir_arr[curr_ir_no];
         char* curr_ir_code = curr_ir->ir;

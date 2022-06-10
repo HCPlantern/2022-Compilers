@@ -30,16 +30,14 @@ jal read
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 move $t3, $v0
+sw, $t3, -52($fp)
+move $t3, $t3
 sw, $t0, -40($fp)
 sw, $t1, -44($fp)
 sw, $t2, -48($fp)
-sw, $t3, -52($fp)
-lw $t0, -52($fp)
-sw, $t0, -52($fp)
-move $t0, $t0
+sw, $t3, -56($fp)
 
 label0:
-sw, $t0, -56($fp)
 j label5
 
 label1:
