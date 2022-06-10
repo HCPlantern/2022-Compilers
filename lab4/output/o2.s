@@ -26,7 +26,8 @@ sw $fp, 48($sp)
 addi $fp, $sp, 56
 sw $a0, -44($fp)
 lw $t0, -44($fp)
-beq $t0, $t0, label0
+li $t9, 1
+beq $t0, $t9, label0
 sw, $t0, -44($fp)
 j label1
 
@@ -60,23 +61,20 @@ subu $sp, $sp, 52
 sw $ra, 48($sp)
 sw $fp, 44($sp)
 addi $fp, $sp, 52
-lw $t2, -44($fp)
+lw $t0, -44($fp)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
 jal read
 lw $ra, 0($sp)
 addi $sp, $sp, 4
-move $t2, $v0
-sw, $t2, -44($fp)
-move $t2, $t2
+move $t0, $v0
 sw, $t0, -44($fp)
-sw, $t1, -56($fp)
-sw, $t2, -48($fp)
-lw $t0, -48($fp)
-lw $t1, -44($fp)
-bgt $t0, $t1, label3
+move $t0, $t0
 sw, $t0, -48($fp)
-sw, $t1, -44($fp)
+lw $t0, -48($fp)
+li $t9, 1
+bgt $t0, $t9, label3
+sw, $t0, -48($fp)
 j label4
 
 label3:

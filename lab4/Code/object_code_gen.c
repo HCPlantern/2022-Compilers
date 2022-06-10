@@ -520,6 +520,16 @@ int count_params(const int ir_no) {
 }
 
 void gen_func_code(char* func_name, int ir_no) {
+    // clear all regs
+    for (int i = 8; i <= 23; i++) {
+        TempVar* var = reg_arr[i]->var;
+        reg_arr[i]->var = NULL;
+        reg_arr[i]->is_free = true;
+        if (var != NULL) {
+            var->reg = NULL;
+        }
+    }
+
     char ret[2] = "";
     add_last_object_code(ret);
     char code[max_object_code_len] = {0};
@@ -644,15 +654,32 @@ void gen_if_code(size_t ir_no) {
     Register* reg2;
     char* token;
     char* op;
+    char ir[max_single_ir_len] = {0};
     char code[max_object_code_len] = {0};
-    strncpy(code, ir_arr[ir_no]->ir, max_object_code_len);
-    token = strtok(code, " ");
+    strncpy(ir, ir_arr[ir_no]->ir, max_object_code_len);
+    token = strtok(ir, " ");
     token = strtok(NULL, " ");
-    reg1 = ensure_var(token, ir_no);
+    // var1
+    if (token[0] == '#') {
+        reg1 = reg_arr[24]; // t8
+        sprintf(code, "li $%s, %s", reg1->name, token + 1);
+        add_last_object_code(code); 
+    } else {
+        reg1 = ensure_var(token, ir_no);
+    }
+
     token = strtok(NULL, " ");
     op = token;
     token = strtok(NULL, " ");
-    reg2 = ensure_var(token, ir_no);
+    // var2
+    if (token[0] == '#') {
+        reg2 = reg_arr[25]; // t9
+        sprintf(code, "li $%s, %s", reg2->name, token + 1);
+        add_last_object_code(code); 
+    } else {
+        reg2 = ensure_var(token, ir_no);
+    }
+
     token = strtok(NULL, " ");
     token = strtok(NULL, " ");
     if (!strcmp(op, "==")) {
