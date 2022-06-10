@@ -661,9 +661,9 @@ void gen_if_code(size_t ir_no) {
     token = strtok(NULL, " ");
     // var1
     if (token[0] == '#') {
-        reg1 = reg_arr[24]; // t8
+        reg1 = reg_arr[24];  // t8
         sprintf(code, "li $%s, %s", reg1->name, token + 1);
-        add_last_object_code(code); 
+        add_last_object_code(code);
     } else {
         reg1 = ensure_var(token, ir_no);
     }
@@ -673,9 +673,9 @@ void gen_if_code(size_t ir_no) {
     token = strtok(NULL, " ");
     // var2
     if (token[0] == '#') {
-        reg2 = reg_arr[25]; // t9
+        reg2 = reg_arr[25];  // t9
         sprintf(code, "li $%s, %s", reg2->name, token + 1);
-        add_last_object_code(code); 
+        add_last_object_code(code);
     } else {
         reg2 = ensure_var(token, ir_no);
     }
@@ -712,6 +712,11 @@ void two_blanks_assign_code(char* var1, char* var2, size_t ir_no) {
             char code2[max_object_code_len];
             sprintf(code2, "li $%s, %s", reg2->name, var2 + 1);
             add_last_object_code(code2);
+        } else if (*var2 == '*') { 
+            reg2 = ensure_var(var2 + 1, ir_no);
+            sprintf(code, "lw $t8, 0($%s)", reg2->name);
+            add_last_object_code(code);
+            reg2 = reg_arr[24];  // t8
         } else {
             reg2 = ensure_var(var2, ir_no);
         }

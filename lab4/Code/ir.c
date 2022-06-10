@@ -67,7 +67,7 @@ char* get_ir_var_by_field(FieldList fieldlist) {
             sprintf(ir_var_name, "%s%lu", "fv", var_count);
         }
     } else {
-        sprintf(ir_var_name, "%s%lu", "&v", var_count);
+        sprintf(ir_var_name, "%s%lu", "&av", var_count);
     }
 
     TempVar* new_var = malloc(sizeof(TempVar));
