@@ -397,9 +397,9 @@ void cal_framesize() {
                     token = strtok(NULL, " ");
                     size_t size = atoi(token);
                     frame_size += size;
-                    frame_size += 40;
+                    frame_size += 8;
                     set_var_offset(temp_var, frame_size);
-                    frame_size += 40;
+                    frame_size += 8;
                 } else if (!strcmp("READ", token)) {
                     token = strtok(NULL, " ");
                     TempVar* var = get_var(token);
