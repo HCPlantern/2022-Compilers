@@ -19,6 +19,7 @@ ObjectCode* object_code;
 Register** reg_arr;
 Function* func_list;
 size_t object_code_len;
+int current_func_frameSize;
 
 size_t count_blanks(char* str) {
     size_t res = 0;
@@ -494,7 +495,27 @@ void spill_all_regs() {
     }
 }
 
-void gen_func_code(char* func_name) {
+bool is_param_code(const int ir_no) {
+    IR* ir = ir_arr[ir_no];
+    char* ir_code = ir->ir;
+    if (prefix("PARAM", ir_code))
+        return true;
+    else
+        return false;
+}
+
+int count_params(const int ir_no) {
+    int param_num = 0;
+    int curr_ir_no = ir_no;
+    while (is_param_code(curr_ir_no)) {
+        param_num++;
+        curr_ir_no++;
+    }
+
+    return param_num;
+}
+
+void gen_func_code(char* func_name, int ir_no) {
     char ret[2] = "";
     add_last_object_code(ret);
     char code[max_object_code_len] = {0};
@@ -502,6 +523,31 @@ void gen_func_code(char* func_name) {
     add_last_object_code(code);
 
     // TODO: callee initialization sequence
+    int frameSize = get_func_framesize(func_name);
+    assert(frameSize == -1);
+    current_func_frameSize = frameSize;
+    sprintf(code, "subu $sp, $sp, %d", frameSize);
+    add_last_object_code(code);
+    sprintf(code, "sw $ra, %d($sp)", frameSize - 4);
+    add_last_object_code(code);
+    sprintf(code, "sw $fp, %d($sp)", frameSize - 8);
+    add_last_object_code(code);
+    sprintf(code, "addi $fp, $sp, %d", frameSize);
+    add_last_object_code(code);
+
+    // TODO: save s0~s7
+
+    int param_num = count_params(ir_no + 1);
+    for (int i = 0; i < param_num && i < 4; i++) {
+        sprintf(code, "sw $a%d, -%d($fp)", 40 + i * 4);
+        add_last_object_code(code);
+    }
+    for (int i = 5; i <= param_num; i++) {
+        sprintf(code, "lw $v0, %d($sp)", frameSize + 4 * (i - 5));
+        add_last_object_code(code);
+        sprintf(code, "sw $v0, -%d($fp)", 40 + (i - 1) * 4);
+        add_last_object_code(code);
+    }
 }
 
 void gen_label_code(char* label_name) {
@@ -529,10 +575,19 @@ void gen_return_code(char* var, size_t ir_no) {
     }
     add_last_object_code(code);
 
-    // TODO: add callee restore sequence
+    // TODO: restore s0~s7
+
+    assert(current_func_frameSize >= 0);
+    sprintf(code, "lw $ra, %d($sp)", current_func_frameSize - 4);
+    add_last_object_code(code);
+    sprintf(code, "lw $fp, %d($sp)", current_func_frameSize - 8);
+    add_last_object_code(code);
+    sprintf(code, "addi $sp, $sp, %d", current_func_frameSize);
+    add_last_object_code(code);
 
     sprintf(code2, "jr $ra");
     add_last_object_code(code2);
+    current_func_frameSize = -1;
 }
 
 void gen_read_code(char* var, size_t ir_no) {
@@ -752,7 +807,7 @@ void gen_object_code() {
         char* token = strtok(temp_ir, " ");
         if (!strcmp("FUNCTION", token)) {
             token = strtok(NULL, " ");
-            gen_func_code(token);
+            gen_func_code(token, ir_no);
         } else if (!strcmp("LABEL", token)) {
             token = strtok(NULL, " ");
             gen_label_code(token);
@@ -790,6 +845,7 @@ void object_code_gen_go() {
     live_variable_analysis();
     init_regs();
     cal_framesize();
+    current_func_frameSize = -1;
     gen_object_code();
 
     // check live analysis
@@ -866,7 +922,7 @@ void gen_call_code(int call_no) {
     char* curr_ir_code = curr_ir->ir;
     strncpy(temp_ir, curr_ir_code, max_single_ir_len);
     char* token = strtok(temp_ir, " ");
-    char* return_var = token;  // TODO: prepare for the assignment of $v0
+    char* return_var = token;
     // reg_arr[2]
     TempVar* temp_var = get_var(return_var);
     temp_var->reg = reg_arr[2];
