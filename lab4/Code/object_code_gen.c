@@ -283,7 +283,7 @@ void init_regs() {
         } else if (16 <= i && i <= 23) {
             sprintf(curr_reg->name, "%s%d", "s", i - 16);
         } else if (i == 24 || i == 25) {
-            sprintf(curr_reg->name, "%s%d", "t", i - 24);
+            sprintf(curr_reg->name, "%s%d", "t", i - 16);
         } else if (i == 26 || i == 27) {
             sprintf(curr_reg->name, "%s%d", "k", i - 26);
         } else if (i == 28) {
@@ -406,7 +406,7 @@ void cal_framesize() {
 
 void spill(Register* reg) {
     TempVar* var = reg->var;
-    assert(var != NULL);
+    if (var == NULL) return;
     char code[max_object_code_len];
     // spill reg value into memory
     sprintf(code, "sw, $%s, -%lu($fp)", reg->name, var->fp_offset);
@@ -422,9 +422,13 @@ void free_reg(Register* reg) {
 
 Register* allocate(TempVar* var, size_t ir_no) {
     Register* res = NULL;
+    if (var->reg != NULL) {
+        spill(var->reg);
+    }
     for (int i = 8; i <= 23; i++) {
         Register* curr = reg_arr[i];
         if (curr->is_free) {
+            spill(curr);
             curr->is_free = false;
             curr->var = var;
             var->reg = curr;
@@ -462,9 +466,21 @@ Register* ensure_var(char* var_name, size_t ir_no) {
     return res;
 }
 
+Register* ensure_var_without_lw(char* var_name, size_t ir_no) {
+    Register* res;
+    size_t var_no = atoi(var_name + 2);
+    TempVar* curr_var = var_arr[var_no];
+    if (curr_var->reg != NULL) {
+        res = curr_var->reg;
+    } else {
+        res = allocate(curr_var, ir_no);
+    }
+    return res;
+}
+
 void spill_all_regs() {
     for (int i = 8; i <= 23; i++) {
-        if (reg_arr[i]->var != NULL) {
+        if (reg_arr[i]->var != NULL && reg_arr[i]->is_free == false) {
             spill(reg_arr[i]);
         }
     }
@@ -582,13 +598,13 @@ void two_blanks_assign_code(char* var1, char* var2, size_t ir_no) {
     } else {
         if (*var2 == '#') {
             // x := #1
-            reg1 = allocate_by_name(var1, ir_no);
+            reg1 = ensure_var_without_lw(var1, ir_no);
             char code[max_object_code_len];
             sprintf(code, "li $%s, %s", reg1->name, var2 + 1);
             add_last_object_code(code);
         } else if (*var2 == '*') {
             // x := *y
-            reg1 = allocate_by_name(var1, ir_no);
+            reg1 = ensure_var_without_lw(var1, ir_no);
             reg2 = ensure_var(var2 + 1, ir_no);
             // generate code
             char code[max_object_code_len];
@@ -598,7 +614,7 @@ void two_blanks_assign_code(char* var1, char* var2, size_t ir_no) {
             // TODO : x := &y
         } else {
             // x := y
-            reg1 = allocate_by_name(var1, ir_no);
+            reg1 = ensure_var_without_lw(var1, ir_no);
             reg2 = ensure_var(var2, ir_no);
             if (no_next_use(var2, ir_no)) {
                 free_reg(reg2);
@@ -619,7 +635,7 @@ void four_blanks_assign_code(char* var1, char* var2, char* var3, char* op, size_
     Register* reg2;
     Register* reg3;
     // var1
-    reg1 = allocate_by_name(var1, ir_no);
+    reg1 = ensure_var_without_lw(var1, ir_no);
 
     // var2
     if (*var2 == '#') {
@@ -630,7 +646,7 @@ void four_blanks_assign_code(char* var1, char* var2, char* var3, char* op, size_
     } else if (*var2 == '*') {
         // not exist
     } else if (*var2 == '&') {
-        reg2 = reg_arr[24]; // t8
+        reg2 = reg_arr[24];  // t8
         TempVar* temp_var = get_var(var2 + 1);
         size_t offset = temp_var->fp_offset;
         char code[max_object_code_len];
@@ -649,7 +665,7 @@ void four_blanks_assign_code(char* var1, char* var2, char* var3, char* op, size_
     } else if (*var3 == '*') {
         // not exist
     } else if (*var3 == '&') {
-        reg3 = reg_arr[25]; // t9
+        reg3 = reg_arr[25];  // t9
         TempVar* temp_var = get_var(var3 + 1);
         size_t offset = temp_var->fp_offset;
         char code[max_object_code_len];
