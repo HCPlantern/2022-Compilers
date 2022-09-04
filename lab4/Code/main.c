@@ -1,11 +1,11 @@
 #include <stdio.h>
 
-#include "semantic.h"
-#include "semantic_check.h"
 #include "hash_table.h"
-#include "stack.h"
 #include "ir.h"
 #include "object_code_gen.h"
+#include "semantic.h"
+#include "semantic_check.h"
+#include "stack.h"
 
 extern Node* syntax_tree_root;
 extern void del_tree(Node* root);
